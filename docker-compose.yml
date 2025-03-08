@@ -1,0 +1,109 @@
+services:
+  homepage:
+    image: ghcr.io/gethomepage/homepage:latest
+    environment:
+      - PUID=${PUID:-$(id -u)}
+      - PGID=${PGID:-$(id -g)}
+    ports:
+      - 3000:3000
+    volumes:
+      - ./homepage:/app/config 
+    restart: always
+
+  jellyfin:
+    image: ghcr.io/linuxserver/jellyfin
+    environment:
+      - PUID=${PUID:-$(id -u)}
+      - PGID=${PGID:-$(id -g)}
+    volumes:
+      - ./jellyfin:/config
+      - E:/jellyfin:/media
+    ports:
+      - 8096:8096
+    restart: always
+
+  jellyseerr:
+    image: fallenbagel/jellyseerr:latest
+    environment:
+      - LOG_LEVEL=debug
+      - TZ=Asia/Ho_Chi_Minh
+    ports:
+      - 5055:5055
+    volumes:
+      - ./jellyseerr:/app/config
+    restart: always
+
+  cloudflare:
+    image: cloudflare/cloudflared:latest
+    restart: always
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+
+  qbittorrent:
+    image: ghcr.io/linuxserver/qbittorrent
+    environment:
+      - PUID=${PUID:-$(id -u)}
+      - PGID=${PGID:-$(id -g)}
+      - WEBUI_PORT=8080
+    volumes:
+      - ./qbittorrent:/config
+      - E:/torrent-downloads:/downloads
+    network_mode: service:cloudflare
+    restart: always
+
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:develop
+    environment:
+      - PUID=${PUID:-$(id -u)}
+      - PGID=${PGID:-$(id -g)}
+      - TZ=Asia/Ho_Chi_Minh
+    volumes:
+      - ./prowlarr:/config
+    ports:
+      - 9696:9696
+    restart: always
+
+  sonarr:
+    image: ghcr.io/linuxserver/sonarr
+    environment:
+      - PUID=${PUID:-$(id -u)}
+      - PGID=${PGID:-$(id -g)}
+      - TZ=Asia/Ho_Chi_Minh
+    volumes:
+      - ./sonarr:/config
+      - E:/jellyfin/tv:/tv
+      - E:/torrent-downloads:/downloads
+    ports:
+      - 8989:8989
+    restart: always
+
+  radarr:
+    image: ghcr.io/linuxserver/radarr
+    container_name: radarr
+    environment:
+      - PUID=${PUID:-$(id -u)}
+      - PGID=${PGID:-$(id -g)}
+      - TZ=Asia/Ho_Chi_Minh
+    volumes:
+      - ./radarr:/config
+      - E:/jellyfin/movies:/movies
+      - E:/torrent-downloads:/downloads
+    ports:
+      - 7878:7878
+    restart: always
+    
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    environment:
+      - PUID=${PUID:-$(id -u)}
+      - PGID=${PGID:-$(id -g)}
+      - TZ=Asia/Ho_Chi_Minh
+    volumes:
+      - ./bazarr:/config
+      - E:/jellyfin/movies:/movies #optional
+      - E:/jellyfin/tv:/tv #optional
+    ports:
+      - 6767:6767
+    restart: always
+
