@@ -27,3 +27,33 @@
 [**Unmanic**](https://docs.unmanic.app) is a great tool for optimising media files. For example, you can use it to remove unneccessary subtitles/audio tracks and transcode media to your desired format.
 
 [**nginx-proxy-manager**](https://nginxproxymanager.com/guide/#quick-setup)  is a simple reverse proxy service for making Jellyfin accessible outside of your local network
+
+## Setup
+### Linux/Mac
+Change all User id, Group id services with:
+```
+- PUID=${PUID:-$(id -u)}
+- PGID=${PGID:-$(id -g)}
+```
+
+### Public access
+- Uncomment Cloudflare tunnel part
+- Create & get secret for Tunnel
+- Assign that value in .env file
+- Create subdomain url for each services
+
+### How to run
+Just simple
+```
+docker compose up -d
+```
+
+### How to setup services
+Order to setup
+- qBitTorrent
+- Prowlarr
+- Bazarr
+- Radarr
+- Sonarr
+- Jellyfin
+- Jellyseerr
