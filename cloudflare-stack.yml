@@ -1,0 +1,14 @@
+# Deploy in another stack so that other stacks can route with Tunnel
+networks:
+  multimedia-server:
+    external: true
+
+service:
+  cloudflare:
+    image: cloudflare/cloudflared:latest
+    restart: always
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+    networks:
+      - multimedia-server

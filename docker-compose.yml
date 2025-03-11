@@ -1,3 +1,4 @@
+name: multimedia-server
 services:
   homepage:
     image: ghcr.io/gethomepage/homepage:latest
@@ -33,12 +34,17 @@ services:
       - ./jellyseerr:/app/config
     restart: always
 
-  # cloudflare:
-  #   image: cloudflare/cloudflared:latest
-  #   restart: always
-  #   command: tunnel --no-autoupdate run
-  #   environment:
-  #     - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+  deunhealth:
+    image: qmcgaw/deunhealth
+    container_name: deunhealth
+    network_mode: "none"
+    environment:
+      - LOG_LEVEL=info
+      - HEALTH_SERVER_ADDRESS=127.0.0.1:9999
+      - TZ=Asia/Ho_Chi_Minh
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
 
   qbittorrent:
     image: ghcr.io/linuxserver/qbittorrent
@@ -53,6 +59,12 @@ services:
       - 8080:8080
     # network_mode: service:cloudflare
     restart: always
+    healthcheck:
+      test: ping -c 1 www.google.com || exit 1
+      interval: 60s
+      retries: 3
+      start_period: 20s
+      timeout: 10s
 
   prowlarr:
     image: lscr.io/linuxserver/prowlarr:develop
