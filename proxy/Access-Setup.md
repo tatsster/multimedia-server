@@ -36,7 +36,7 @@ Just go Profile -> API Token -> Create Token -> Get Custom Token:
 - Keep new API Token to use with `cloudflare-stack.yml` docker compose
 
 ## Caddy (for services dont use Tunnel)
-Similar reason with Tunnel, we go with new LXC and remember to install `xcaddy`
+Similar reason with Tunnel, we go with new LXC and remember to install `xcaddy`. My recommendation is having 1 LXC for both Caddy + Tunnel
 ```
 https://community-scripts.github.io/ProxmoxVE/scripts?id=caddy
 ```
@@ -61,3 +61,24 @@ caddy fmt --overwrite
 cp Caddyfile /etc/caddy/Caddy
 caddy start
 ```
+
+### DDNS module
+This is another solution replace for cloudflare-ddns stack
+```
+xcaddy build --with github.com/mholt/caddy-dynamicdns --with github.com/caddy-dns/cloudflare
+```
+Remember to overwrite main Caddy to apply new module
+
+This is simple for owned domain:
+```
+{
+	dynamic_dns {
+		provider cloudflare {env.CF_API_TOKEN}
+		domains {
+			liftlab.dev
+		}
+		dynamic_domains  
+	}
+}
+```
+Important line is `dynamic_domains`, this makes Caddy manage all server blocks below which match to domains listed above. In this case, `*.liftlab.dev`

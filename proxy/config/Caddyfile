@@ -1,3 +1,14 @@
+{
+	dynamic_dns {
+		provider cloudflare {env.CF_API_TOKEN}
+		domains {
+			liftlab.dev
+		}
+		dynamic_domains
+        versions ipv4
+	}
+}
+
 play.liftlab.dev {
         reverse_proxy 192.168.1.104:8096
         tls {
