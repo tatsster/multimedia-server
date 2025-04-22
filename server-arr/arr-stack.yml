@@ -1,0 +1,125 @@
+networks:
+  servarrnetwork:
+    ipam:
+      config:
+        - subnet: 172.18.0.0/24
+
+services:
+  qbittorrent:
+    container_name: qbittorrent
+    image: ghcr.io/linuxserver/qbittorrent
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - WEBUI_PORT=8080
+    volumes:
+      - /docker/qbittorrent:/config
+      - /media:/data
+    ports:
+      - 8080:8080
+    restart: always
+    networks:
+      servarrnetwork:
+        ipv4_address: 172.18.0.2
+
+  prowlarr:
+    container_name: prowlarr
+    image: lscr.io/linuxserver/prowlarr:develop
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Ho_Chi_Minh
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /docker/prowlarr:/config
+    ports:
+      - 9696:9696
+    restart: always
+    networks:
+      servarrnetwork:
+        ipv4_address: 172.18.0.3
+
+  sonarr:
+    container_name: sonarr
+    image: ghcr.io/linuxserver/sonarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Ho_Chi_Minh
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /docker/sonarr:/config
+      - /media:/data
+    ports:
+      - 8989:8989
+    restart: always
+    networks:
+      servarrnetwork:
+        ipv4_address: 172.18.0.4
+
+  radarr:
+    image: ghcr.io/linuxserver/radarr
+    container_name: radarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Ho_Chi_Minh
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /docker/radarr:/config
+      - /media:/data
+    ports:
+      - 7878:7878
+    restart: always
+    networks:
+      servarrnetwork:
+        ipv4_address: 172.18.0.5
+    
+  bazarr:
+    container_name: bazarr
+    image: lscr.io/linuxserver/bazarr:latest
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Ho_Chi_Minh
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /docker/bazarr:/config
+      - /media:/data
+    ports:
+      - 6767:6767
+    restart: always
+    networks:
+      servarrnetwork:
+        ipv4_address: 172.18.0.6
+
+  tdarr:
+    container_name: tdarr
+    image: ghcr.io/haveagitgat/tdarr:latest
+    restart: always
+    ports:
+      - 8265:8265 # webUI port
+      - 8266:8266 # server port
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Ho_Chi_Minh
+      - UMASK_SET=002
+      - serverIP=0.0.0.0
+      - serverPort=8266
+      - webUIPort=8265
+      - internalNode=true
+      - inContainer=true
+      - ffmpegVersion=7
+      - nodeName=MyInternalNode
+      - TEMP_CHUNK_SIZE=500M  # Larger chunks = fewer writes
+    volumes:
+      - /docker/tdarr/server:/app/server
+      - /docker/tdarr/configs:/app/configs
+      - /docker/tdarr/logs:/app/logs
+      - /media:/media
+    devices:
+      - /dev/dri:/dev/dri
+    networks:
+      servarrnetwork:
+        ipv4_address: 172.18.0.7

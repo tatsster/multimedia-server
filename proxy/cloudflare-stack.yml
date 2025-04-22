@@ -1,0 +1,23 @@
+services:
+  cloudflared:
+    image: "cloudflare/cloudflared:latest"
+    container_name: cloudflared-tunnel
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+
+  ddns:
+    image: favonia/cloudflare-ddns:latest
+    container_name: cloudflare-ddns
+    # network_mode: host # This bypasses network isolation and makes IPv6 easier (optional; see below)
+    restart: unless-stopped
+    user: "1000:1000" # Run the updater with specific user and group IDs (in that order).
+    read_only: true # Make the container filesystem read-only 
+    cap_drop: [all] # Drop all Linux capabilities 
+    security_opt: [no-new-privileges:true] # Another protection to restrict superuser privileges
+    environment:
+      - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN}      # DNS Edit API Token
+      - DOMAINS=liftlab.dev,play.liftlab.dev
+      - PROXIED=true
+      - IP6_PROVIDER=none

@@ -29,6 +29,24 @@ Main instruction from [Techhut](https://github.com/TechHutTV/homelab/tree/main/m
 [**nginx-proxy-manager**](https://nginxproxymanager.com/guide/#quick-setup)  is a simple reverse proxy service for making Jellyfin accessible outside of your local network
 
 ## Setup
+### Add GPU devices (only for Proxmox)
+Go to `/dev/dri/` in Proxmox host and run `ls -l`. Should have something like this
+```
+root@proxmox:/dev/dri# ls -l
+total 0
+drwxr-xr-x 2 root root         80 Apr 18 04:19 by-path
+crw-rw---- 1 root video  226,   0 Apr 18 04:19 card0
+crw-rw---- 1 root render 226, 128 Apr 18 04:19 renderD128
+```
+Rremember those numbers for card0 and render128 and then edit you lxc conf file `/etc/pve/lxc/###.conf`
+
+```
+lxc.cgroup2.devices.allow: c 226:0 rwm
+lxc.cgroup2.devices.allow: c 226:128 rwm
+lxc.mount.entry: /dev/dri/card0 dev/dri/card0 none bind,optional,create=file
+lxc.mount.entry: /dev/dri/renderD128 dev/dri/renderD128 none bind,optional,create=file
+```
+
 ### Linux/Mac
 Change all User id, Group id services with:
 ```
@@ -109,3 +127,5 @@ For Jellyseer:
 - Use Jellyfin account to authen 
 - Grab Radarr/Sonarr API key to sync services
 - And follow setup wizard, this is easy
+
+Another solution is using custom Jellyfin LXC from https://community-scripts.github.io/ProxmoxVE/scripts?id=jellyfin. Follow quick setup and we can use out-of-the-box

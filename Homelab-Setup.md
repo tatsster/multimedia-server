@@ -66,8 +66,9 @@ Navigate to Datacenter -> Storage
 ## Setup CT
 Do simple setup except:
 - In CPU tab: click Advance -> Setup Cores as unlimited, CPU limit is any value
+- Include `nesting=1` and `Unprivileged container=No`
 
-Mount share between Proxmox and CT
+Mount point between Proxmox and CT
 - In destinate container, create shared folder with `mkdir /mnt/<folder_name>`
 - In proxmox terminal, open destinate config file with `vim /etc/pve/lxc/<ct_id>.conf`
 - Edit like this ![share folder](/media/shared_mnt.png)
