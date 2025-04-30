@@ -1,0 +1,78 @@
+- type: custom-api
+  title: Proxmox-VE Stats
+  cache: 1m
+  url: https://${PROXMOXVE_URL}/api2/json/cluster/resources
+  allow-insecure: true
+  headers: &pve_headers
+    Accept: application/json
+    Authorization: PVEAPIToken=${PROXMOXVE_KEY}
+  subrequests:
+    nodes:
+      url: https://${PROXMOXVE_URL}/api2/json/nodes
+      allow-insecure: true
+      headers: *pve_headers
+  template: |
+    {{ $node_stats := .Subrequest "nodes" }}
+    {{ $online_nodes := .JSON.Array "data.#(type==\"node\")#|#(status==\"online\")#" }}
+    
+    <div class="flex flex-column gap-3">
+      <!-- Top row - Counts -->
+      <div class="flex justify-between text-center">
+        <div>
+          {{ $nodes_online := len $online_nodes }}
+          {{ $nodes_total := len (.JSON.Array "data.#(type==\"node\")#") }}
+          <div class="color-highlight size-h3">{{ $nodes_online }}/{{ $nodes_total }}</div>
+          <div class="size-h5 uppercase">Nodes</div>
+        </div>
+        <div>
+          {{ $lxc_running := len (.JSON.Array "data.#(type==\"lxc\")#|#(status==\"running\")#|#(template==0)#") }}
+          {{ $lxc_total := len (.JSON.Array "data.#(type==\"lxc\")#|#(template==0)#") }}
+          <div class="color-highlight size-h3">{{ $lxc_running }}/{{ $lxc_total }}</div>
+          <div class="size-h5 uppercase">LXC</div>
+        </div>
+        <div>
+          {{ $qemu_running := len (.JSON.Array "data.#(type==\"qemu\")#|#(status==\"running\")#|#(template==0)#") }}
+          {{ $qemu_total := len (.JSON.Array "data.#(type==\"qemu\")#|#(template==0)#") }}
+          <div class="color-highlight size-h3">{{ $qemu_running }}/{{ $qemu_total }}</div>
+          <div class="size-h5 uppercase">VMs</div>
+        </div>
+        <div>
+          {{ $storage_available := len (.JSON.Array "data.#(type==\"storage\")#|#(status==\"available\")#") }}
+          {{ $storage_total := len (.JSON.Array "data.#(type==\"storage\")#") }}
+          <div class="color-highlight size-h3">{{ $storage_available }}/{{ $storage_total }}</div>
+          <div class="size-h5 uppercase">Storage</div>
+        </div>
+      </div>
+      
+      <!-- Bottom row - Resource usage -->
+      <div class="flex flex-column gap-4">
+        {{ range $i, $node := $online_nodes }}
+          {{ $node_name := $node.String "node" }}
+          {{ $node_info := index ($node_stats.JSON.Array (printf "data.#(node==\"%s\")#" $node_name)) 0 }}
+          <div class="flex justify-between items-center">
+            <!-- Node Name -->
+            <div class="size-h4 uppercase" style="width: 25%">{{ $node_name }}</div>
+            
+            <!-- CPU -->
+            <div class="flex-1 text-center">
+              {{ $cpu_usage := $node_info.Float "cpu" | mul 100 | printf "%.1f" }}
+              <div class="flex items-center gap-2 justify-center">
+                <span class="size-h4">CPU:</span>
+                <span class="color-highlight size-h3">{{ $cpu_usage }}%</span>
+              </div>
+            </div>
+            
+            <!-- RAM --> 
+            <div class="flex-1 text-center">
+              {{ $mem_total := $node_info.Float "maxmem" }}
+              {{ $mem_used := $node_info.Float "mem" }}
+              {{ $mem_pct := div (mul $mem_used 100) $mem_total | printf "%.1f" }}
+              <div class="flex items-center gap-2 justify-center">
+                <span class="size-h4">RAM:</span>
+                <span class="color-highlight size-h3">{{ $mem_pct }}%</span>
+              </div>
+            </div>
+          </div>
+        {{ end }}
+      </div>
+    </div>

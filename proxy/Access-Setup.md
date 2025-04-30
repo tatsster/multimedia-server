@@ -82,3 +82,6 @@ This is simple for owned domain:
 }
 ```
 Important line is `dynamic_domains`, this makes Caddy manage all server blocks below which match to domains listed above. In this case, `*.liftlab.dev`
+
+## DuckDNS - Free Dynamic DNS
+https://www.duckdns.org/install.jsp

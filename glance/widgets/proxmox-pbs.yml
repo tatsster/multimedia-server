@@ -1,0 +1,65 @@
+- type: custom-api
+  title: Proxmox-Backup Stats
+  cache: 1m
+  url: https://${PROXMOXBACKUP_URL}/api2/json/status/datastore-usage
+  allow-insecure: true
+  headers: &pve_headers
+    Accept: application/json
+    Authorization: PBSAPIToken=${PROXMOXBACKUP_KEY}
+  subrequests:
+    node_status:
+      url: https://${PROXMOXBACKUP_URL}/api2/json/nodes/pbs/status
+      headers: *pve_headers
+      allow-insecure: true
+    node_tasks:
+      url: https://${PROXMOXBACKUP_URL}/api2/json/nodes/pbs/tasks?errors=true&limit=100
+      headers: *pve_headers
+      allow-insecure: true
+  template: |
+    <div class="flex items-center gap-3 margin-bottom-10">
+      <img width="36" height="36" src="https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/svg/proxmox.svg">
+    </div>
+
+    {{ $node_status := .Subrequest "node_status" }}
+    {{ $node_tasks := .Subrequest "node_tasks" }}
+
+    <div class="flex flex-column gap-3">
+      <div class="flex justify-between text-center">
+        <div>
+          {{ $store := index (.JSON.Array "data") 0 }}
+          {{ $disk_used := $store.Float "used" }}
+          {{ $disk_total := $store.Float "total" }}
+          {{ $disk_pct := div (mul $disk_used 100) $disk_total | printf "%.1f" }}
+          <div class="color-highlight size-h3">{{ $disk_pct }}%</div>
+          <div class="size-h5 uppercase">Disk</div>
+        </div>
+
+        {{ $node := index ($node_status.JSON.Array "data") 0 }}
+        <div>
+          {{ $cpu_usage := mul ($node.Float "cpu") 100 | printf "%.1f" }}
+          <div class="color-highlight size-h3">{{ $cpu_usage }}%</div>
+          <div class="size-h5 uppercase">CPU</div>
+        </div>
+        <div>
+          {{ $mem_used := $node.Float "memory.used" }}
+          {{ $mem_total := $node.Float "memory.total" }}
+          {{ $mem_pct := div (mul $mem_used 100) $mem_total | printf "%.1f" }}
+          <div class="color-highlight size-h3">{{ $mem_pct }}%</div>
+          <div class="size-h5 uppercase">RAM</div>
+        </div>
+
+        <div>
+          {{ $cutoff := (offsetNow "-24h").Unix | printf "%v"}}
+          {{ $recent_tasks := 0 }}
+          {{ range $task := $node_tasks.JSON.Array "data" }}
+            {{ $start := $task.String "starttime"}}
+            {{ if lt $cutoff $start}}
+              {{ $recent_tasks = add $recent_tasks 1 }}
+            {{ end }}
+          {{ end }}
+
+          <div class="color-highlight size-h3">{{ $recent_tasks }}</div>
+          <div class="size-h5 uppercase">Failed tasks last 24h</div>
+        </div>
+      </div>
+    </div>

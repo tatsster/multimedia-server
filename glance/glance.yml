@@ -1,0 +1,135 @@
+theme:
+  background-color: 50 1 6
+  primary-color: 24 97 58
+  negative-color: 209 88 54
+branding:
+  hide-footer: true
+pages:
+  - name: Homelab
+    columns:
+      - size: full
+        widgets:
+          - type: split-column
+            widgets:
+              !include: ./widgets/proxmox-ve.yml
+              !include: ./widgets/proxmox-pbs.yml
+
+          - type: monitor
+            cache: 5m
+            title: Services
+            sites:
+              - title: Jellyfin
+                url: https://play.liftlab.dev
+                check-url: http://192.168.1.104:8096
+                icon: di:jellyfin
+              - title: Jellyseerr
+                url: https://media.liftlab.dev
+                check-url: http://192.168.1.105:5055
+                icon: di:jellyseerr
+              - title: Portainer
+                url: https://portainer.liftlab.dev
+                icon: di:portainer
+          
+          - type: monitor
+            cache: 5m
+            title: Arr-suite
+            sites:
+              - title: Radarr
+                url: https://radarr.liftlab.dev
+                icon: di:radarr
+              - title: Sonarr
+                url: https://sonarr.liftlab.dev
+                icon: di:sonarr
+              - title: Prowlarr
+                url: https://prowlarr.liftlab.dev
+                icon: di:prowlarr
+              - title: Bazarr
+                url: https://bazarr.liftlab.dev
+                icon: di:bazarr
+              - title: Tdarr
+                url: https://tdarr.liftlab.dev
+                icon: di:tdarr.png
+              - title: Qbittorrent
+                url: https://torrent.liftlab.dev
+                icon: di:qbittorrent
+
+      - size: small
+        widgets:
+          - type: clock
+            hour-format: 24h
+          !include: ./widgets/jellyfin.yml
+          
+  - name: Update
+    hide-desktop-navigation: false
+    center-vertically: true
+    columns:
+      - size: full
+        widgets:
+          - type: videos
+            channels:
+              - UCsBjURrPoezykLs9EqgamOA # Fireship
+              - UCHnyfMqiRRG1u-2MsSQLbXA # Veritasium
+              - UCY5zoNtJui5oCII88MuMacw # Samurice
+              - UCsXVk37bltHxD1rDPwtNM8Q # Kurzgesagt
+              - UCCDgQiK89YsbYNjuBsim1IQ # Pana
+              - UCmv8PJ2JcIsHQ-2ivtziszQ # ArtSpear
+
+          - type: group
+            widgets:
+              - type: reddit
+                subreddit: dataisbeautiful
+                show-thumbnails: true
+              - type: reddit
+                subreddit: selfhosted
+                show-thumbnails: true
+              - type: reddit
+                subreddit: MonsterHunterMeta
+                show-thumbnails: true
+
+          - type: group
+            widgets:
+              - type: hacker-news
+
+      - size: small
+        widgets:
+          - type: calendar
+            first-day-of-week: monday
+          - type: weather
+            location: Ho Chi Minh City, Vietnam
+            units: metric # alternatively "imperial"
+            hour-format: 24h
+            # show-area-name: true
+            # Optionally hide the location from being displayed in the widget
+            hide-location: false
+
+          - type: releases
+            cache: 12h
+            show-source-icon: true
+            # Without authentication the Github API allows for up to 60 requests per hour. You can create a
+            # read-only token from your Github account settings and use it here to increase the limit.
+            # token: ...
+            repositories:
+              - dockerhub:golang
+              - glanceapp/glance
+              - immich-app/immich
+              - fallenbagel/jellyseerr
+              - caddyserver/caddy
+          
+          - type: custom-api
+            title: Steam Specials
+            cache: 12h
+            url: https://store.steampowered.com/api/featuredcategories?cc=vn
+            template: |
+              <ul class="list list-gap-10 collapsible-container" data-collapse-after="5">
+              {{ range .JSON.Array "specials.items" }}
+                <li>
+                  <a class="size-h4 color-highlight block text-truncate" href="https://store.steampowered.com/app/{{ .Int "id" }}/">{{ .String "name" }}</a>
+                  <ul class="list-horizontal-text">
+                    <li>{{ div (.Int "final_price" | toFloat) 100 | printf "%.0f VND" }}</li>
+                    {{ $discount := .Int "discount_percent" }}
+                    <li{{ if ge $discount 40 }} class="color-positive"{{ end }}>{{ $discount }}% off</li>
+                  </ul>
+                </li>
+              {{ end }}
+              </ul>
+
