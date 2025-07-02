@@ -11,20 +11,25 @@
 }
 
 play.liftlab.dev {
-        reverse_proxy 192.168.1.104:8096
+        reverse_proxy http://192.168.1.104:8096
         tls {
             dns cloudflare {env.CF_API_TOKEN}
             resolvers 1.1.1.1
     }
 }
 
-# pbs.liftlab.dev {
-# 		reverse_proxy https://192.168.1.250:8007 {
-# 			transport http {
-# 				tls_insecure_skip_verify
-# 		}
-# 		tls {
-# 			dns cloudflare {env.CF_API_TOKEN}
-# 			resolvers 1.1.1.1
-# 		}
-# }
+vaultwarden.liftlab.dev {
+	reverse_proxy https://192.168.1.106:8000 {
+		transport http {
+			tls_insecure_skip_verify
+		}
+	}
+	tls {
+		dns cloudflare {env.CF_API_TOKEN}
+		resolvers 1.1.1.1
+	}
+}
+
+flaresolver.liftlab.dev {
+	reverse_proxy http://192.168.1.103:8191
+}

@@ -49,6 +49,9 @@ pages:
               - title: Tdarr
                 url: https://tdarr.liftlab.dev
                 icon: di:tdarr.png
+              - title: Flaresolverr
+                url: https://flaresolverr.liftlab.dev
+                icon: di:flaresolverr
               - title: Qbittorrent
                 url: https://torrent.liftlab.dev
                 icon: di:qbittorrent

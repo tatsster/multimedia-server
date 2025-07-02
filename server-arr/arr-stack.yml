@@ -74,7 +74,7 @@ services:
     networks:
       servarrnetwork:
         ipv4_address: 172.18.0.5
-    
+
   bazarr:
     container_name: bazarr
     image: lscr.io/linuxserver/bazarr:latest
@@ -112,7 +112,7 @@ services:
       - inContainer=true
       - ffmpegVersion=7
       - nodeName=MyInternalNode
-      - TEMP_CHUNK_SIZE=500M  # Larger chunks = fewer writes
+      - TEMP_CHUNK_SIZE=500M # Larger chunks = fewer writes
     volumes:
       - /docker/tdarr/server:/app/server
       - /docker/tdarr/configs:/app/configs
@@ -123,3 +123,15 @@ services:
     networks:
       servarrnetwork:
         ipv4_address: 172.18.0.7
+
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    ports:
+      - 8191:8191
+    restart: always
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOG_HTML=${LOG_HTML:-false}
+      - CAPTCHA_SOLVER=${CAPTCHA_SOLVER:-none}
+      - TZ=Asia/Ho_Chi_Minh
