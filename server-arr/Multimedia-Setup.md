@@ -20,13 +20,9 @@ Main instruction from [Techhut](https://github.com/TechHutTV/homelab/tree/main/m
 [**Bazarr**](https://wiki.bazarr.media/Getting-Started/Setup-Guide/) is a tool for Sonarr and Radarr to download subtitles for your content
 
 ## Optional
-[**Homepage**](https://github.com/gethomepage/homepage) is a dashboard for keeping track all of these web services
-
 [**jfa-go**](https://github.com/hrfee/jfa-go) is a user manager for Jellyfin that allows your users to sign up via an invite code and reset their passwords
 
 [**Unmanic**](https://docs.unmanic.app) is a great tool for optimising media files. For example, you can use it to remove unneccessary subtitles/audio tracks and transcode media to your desired format.
-
-[**nginx-proxy-manager**](https://nginxproxymanager.com/guide/#quick-setup)  is a simple reverse proxy service for making Jellyfin accessible outside of your local network
 
 ## Setup
 ### Add GPU devices (only for Proxmox)
