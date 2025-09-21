@@ -24,7 +24,7 @@ services:
 
   prowlarr:
     container_name: prowlarr
-    image: lscr.io/linuxserver/prowlarr:develop
+    image: lscr.io/linuxserver/prowlarr:latest
     environment:
       - PUID=1000
       - PGID=1000
@@ -41,7 +41,7 @@ services:
 
   sonarr:
     container_name: sonarr
-    image: ghcr.io/linuxserver/sonarr
+    image: ghcr.io/linuxserver/sonarr:latest
     environment:
       - PUID=1000
       - PGID=1000
@@ -58,7 +58,7 @@ services:
         ipv4_address: 172.18.0.4
 
   radarr:
-    image: ghcr.io/linuxserver/radarr
+    image: ghcr.io/linuxserver/radarr:latest
     container_name: radarr
     environment:
       - PUID=1000
@@ -74,7 +74,7 @@ services:
     networks:
       servarrnetwork:
         ipv4_address: 172.18.0.5
-
+    
   bazarr:
     container_name: bazarr
     image: lscr.io/linuxserver/bazarr:latest
@@ -112,7 +112,7 @@ services:
       - inContainer=true
       - ffmpegVersion=7
       - nodeName=MyInternalNode
-      - TEMP_CHUNK_SIZE=500M # Larger chunks = fewer writes
+      - TEMP_CHUNK_SIZE=500M  # Larger chunks = fewer writes
     volumes:
       - /docker/tdarr/server:/app/server
       - /docker/tdarr/configs:/app/configs
@@ -127,11 +127,30 @@ services:
   flaresolverr:
     image: ghcr.io/flaresolverr/flaresolverr:latest
     container_name: flaresolverr
+    restart: always
     ports:
       - 8191:8191
-    restart: always
     environment:
-      - LOG_LEVEL=${LOG_LEVEL:-info}
-      - LOG_HTML=${LOG_HTML:-false}
-      - CAPTCHA_SOLVER=${CAPTCHA_SOLVER:-none}
+      - LOG_LEVEL=info
+      - LOG_HTML=false
+      - CAPTCHA_SOLVER=none
       - TZ=Asia/Ho_Chi_Minh
+    networks:
+      servarrnetwork:
+        ipv4_address: 172.18.0.8
+
+  qbwrapper:
+    container_name: qbproxy
+    image: ghcr.io/panonim/qbwrapper:latest
+    restart: always
+    ports:
+      - 9911:9911
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
+      - USERNAME=nhpham
+      - PASSWORD=${QB_PASSWORD}
+      - BASE_URL=http://172.18.0.2:8080
+      - AUTH_TOKEN=${AUTH_TOKEN}
+    networks:
+      servarrnetwork:
+        ipv4_address: 172.18.0.9
