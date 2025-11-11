@@ -1,35 +1,39 @@
 {
-	debug
+	admin 0.0.0.0:2019
 	dynamic_dns {
 		provider cloudflare {env.CF_API_TOKEN}
 		domains {
-			liftlab.dev
+			liftlab.dev play
 		}
 		dynamic_domains
         versions ipv4
 	}
 }
 
-play.liftlab.dev {
-        reverse_proxy http://192.168.1.104:8096
-        tls {
-            dns cloudflare {env.CF_API_TOKEN}
-            resolvers 1.1.1.1
-    }
-}
-
-vaultwarden.liftlab.dev {
-	reverse_proxy https://192.168.1.106:8000 {
-		transport http {
-			tls_insecure_skip_verify
-		}
-	}
+*.liftlab.dev {
 	tls {
 		dns cloudflare {env.CF_API_TOKEN}
+		propagation_delay 2m
 		resolvers 1.1.1.1
 	}
-}
 
-flaresolver.liftlab.dev {
-	reverse_proxy http://192.168.1.103:8191
+	@jellyfin host play.liftlab.dev
+	handle @jellyfin {
+		reverse_proxy http://192.168.1.104:8096
+	}
+
+	@vaultwarden host vaultwarden.liftlab.dev
+	handle @vaultwarden {
+		reverse_proxy https://192.168.1.106:8000 {
+			transport http {
+				tls
+				tls_insecure_skip_verify
+			}
+		}
+	}
+
+	@flaresolver host flaresolver.liftlab.dev
+	handle @flaresolver {
+		reverse_proxy http://192.168.1.103:8191
+	}
 }
