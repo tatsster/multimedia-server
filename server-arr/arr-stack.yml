@@ -74,7 +74,7 @@ services:
     networks:
       servarrnetwork:
         ipv4_address: 172.18.0.5
-    
+
   bazarr:
     container_name: bazarr
     image: lscr.io/linuxserver/bazarr:latest
@@ -112,7 +112,7 @@ services:
       - inContainer=true
       - ffmpegVersion=7
       - nodeName=MyInternalNode
-      - TEMP_CHUNK_SIZE=500M  # Larger chunks = fewer writes
+      - TEMP_CHUNK_SIZE=500M # Larger chunks = fewer writes
     volumes:
       - /docker/tdarr/server:/app/server
       - /docker/tdarr/configs:/app/configs
@@ -154,3 +154,21 @@ services:
     networks:
       servarrnetwork:
         ipv4_address: 172.18.0.9
+
+  lingarr:
+    image: lingarr/lingarr:latest
+    container_name: lingarr
+    restart: always
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
+      - ASPNETCORE_URLS=http://+:9876
+      - MAX_CONCURRENT_JOBS=2
+    ports:
+      - 9876:9876
+    volumes:
+      - /media/movies:/movies
+      - /media/tv:/tv
+      - /docker/lingarr:/app/config
+    networks:
+      servarrnetwork:
+        ipv4_address: 172.18.0.10

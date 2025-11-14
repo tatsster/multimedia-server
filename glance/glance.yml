@@ -29,7 +29,9 @@ pages:
               - title: Portainer
                 url: https://portainer.liftlab.dev
                 icon: di:portainer
-          
+              - title: LibreTranslate
+                url: https://libretranslate.liftlab.dev
+                icon: sh:libretranslate
           - type: monitor
             cache: 5m
             title: Arr-suite
@@ -52,6 +54,9 @@ pages:
               - title: Flaresolverr
                 url: https://flaresolverr.liftlab.dev
                 icon: di:flaresolverr
+              - title: Lingarr
+                url: http://lingarr.liftlab.dev
+                icon: sh:lingarr
               - title: Qbittorrent
                 url: https://torrent.liftlab.dev
                 icon: di:qbittorrent
