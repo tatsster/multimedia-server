@@ -29,6 +29,9 @@ pages:
               - title: Portainer
                 url: https://portainer.liftlab.dev
                 icon: di:portainer
+              - title: Vaultwarden
+                url: https://vaultwarden.liftlab.dev
+                icon: di:vaultwarden
               - title: LibreTranslate
                 url: https://libretranslate.liftlab.dev
                 icon: sh:libretranslate
