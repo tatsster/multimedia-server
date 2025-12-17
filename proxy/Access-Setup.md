@@ -58,7 +58,7 @@ nano Caddyfile
 Then move it to Caddy config folder and run daemon, remember to add API Token in [DDNS](#dynamic-dns-resolver) in environment variable
 ```
 caddy fmt --overwrite
-cp Caddyfile /etc/caddy/Caddy
+cp Caddyfile /etc/caddy/Caddyfile
 caddy start
 ```
 
