@@ -29,12 +29,23 @@ pages:
               - title: Portainer
                 url: https://portainer.liftlab.dev
                 icon: di:portainer
-              - title: Vaultwarden
+              - title: VaultWarden
                 url: https://vaultwarden.liftlab.dev
                 icon: di:vaultwarden
-              - title: LibreTranslate
-                url: https://libretranslate.liftlab.dev
-                icon: sh:libretranslate
+              - title: n8n
+                url: https://n8n.liftlab.dev
+                check-url: http://192.168.1.107:5678
+                icon: di:n8n
+              - title: Omniroute
+                url: https://omniroute.liftlab.dev
+                check-url: http://192.168.1.109:20128
+                icon: si:openai
+              - title: Hindsight
+                url: https://hindsight.liftlab.dev
+                icon: si:vectorworks
+              - title: Proxmox Backup Server
+                url: https://pbs.liftlab.dev
+                icon: di:proxmox
           - type: monitor
             cache: 5m
             title: Arr-suite
@@ -58,7 +69,7 @@ pages:
                 url: https://flaresolverr.liftlab.dev
                 icon: di:flaresolverr
               - title: Lingarr
-                url: http://lingarr.liftlab.dev
+                url: https://lingarr.liftlab.dev
                 icon: sh:lingarr
               - title: Qbittorrent
                 url: https://torrent.liftlab.dev
