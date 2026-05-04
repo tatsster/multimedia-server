@@ -36,10 +36,11 @@ Labels:
   - Updated default storage/template values from live PVE audit: `vm_storage` rootfs and `general:vztmpl/debian-13-standard_13.1-2_amd64.tar.zst` template.
   - Added optional `CPULIMIT` support and matched Hermes/Hindsight/media defaults from live configs where known.
   - First live PVE script test found `pct set --unprivileged 0` fails because `unprivileged` is read-only after create; fixed helper to keep it only in `pct create` args.
+  - Verified `create-omniroute-lxc.sh` end-to-end on PVE with temporary CTID 901; script created the container, installed packages/service, printed expected config, and cleanup removed CT 901.
 - Remaining:
-  - Verify scripts on actual PVE host.
+  - Smoke-test Hermes/Hindsight/media scripts on actual PVE host with temporary CTIDs, or verify from a fresh rebuild.
   - Capture exact live Hermes and Hindsight install commands.
-  - Confirm OmniRoute npm/package install path or replace with current live method.
+  - Confirm OmniRoute service health/login flow after fresh install; npm package path works for installation but still emits engine warnings.
 - Acceptance criteria:
   - [x] Scripts are secret-safe and use placeholders/env vars.
   - [x] Scripts preserve `nesting=1` and privileged container defaults.
