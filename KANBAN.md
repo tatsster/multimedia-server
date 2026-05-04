@@ -40,7 +40,7 @@ Labels:
 - Remaining:
   - Smoke-test Hermes/media scripts on actual PVE host with temporary CTIDs, or verify from a fresh rebuild.
   - Optional: smoke-test Hindsight script with a temporary CTID through Docker install; exact live Docker run pattern has been captured.
-  - Confirm OmniRoute service health/login flow after fresh install; npm package path works for installation but still emits engine warnings.
+  - Retest OmniRoute fresh login/onboarding flow after latest script update; live package/service/DB layout is now documented.
 - Hermes script update:
   - Live Hermes install layout verified from CT `108`: `/usr/local/lib/hermes-agent`, `/usr/local/bin/hermes`, `/root/.hermes`.
   - `create-hermes-lxc.sh` now runs the official Hermes installer with `--skip-setup` and copies sanitized Hermes + Hindsight client config examples.
@@ -159,17 +159,21 @@ Labels:
 
 ### HL-050 — Add OmniRoute LXC setup guide
 - Labels: `docs`, `config`, `parallel`, `verify`
-- Proposed file: `ai/omniroute-setup.md`
+- File: `omniroute/README.md`
 - Goal: document OmniRoute install, onboarding, password/database workaround, gateway endpoints, and Hermes integration.
-- Include from current status:
-  - New LXC setup for OmniRoute using current LXC defaults: nesting enabled and privileged container
-  - How to link OmniRoute with Hermes
-  - Troubleshooting: onboarding cannot start; prefer `INITIAL_PASSWORD`; if needed manually update sqlite `key_value` settings keys: `password`, `setupComplete`, `requireLogin`
-  - Verification commands/endpoints
-  - Secret guide: explain where to create OmniRoute admin password, provider tokens, and Hermes endpoint API key
+- Progress:
+  - Verified live OmniRoute LXC `107` via PVE SSH: Debian 13, IP `192.168.1.109`, privileged (`unprivileged: 0`), `features: nesting=1`, `memory: 4096`, `swap: 512`, rootfs `4G`.
+  - Verified live package/deployment: npm package `omniroute@3.7.8`, binary `/usr/bin/omniroute -> /usr/lib/node_modules/omniroute/bin/omniroute.mjs`, Node `v24.15.0`.
+  - Verified live service: `/etc/systemd/system/omniroute.service`, `ExecStart=/usr/bin/omniroute`, `PORT=20128`, `DATA_DIR=/root/.omniroute`, listens on `0.0.0.0:20128`.
+  - Verified persistence path: `/root/.omniroute/storage.sqlite`, WAL/SHM files, `db_backups`, and `call_logs`.
+  - Added sanitized examples: `omniroute/config/omniroute.env.example` and `omniroute/systemd/omniroute.service.example`.
+  - Documented live sanitized SQLite settings rows and model aliases without real credentials/tokens.
+  - Documented onboarding/password fix: prefer `INITIAL_PASSWORD`; fallback to `key_value` rows `password`, `setupComplete`, `requireLogin` in `storage.sqlite`.
+  - Updated `create-omniroute-lxc.sh` to match the live binary path/service shape and keep secrets in `/root/.omniroute/omniroute.env`.
 - Acceptance criteria:
-  - Workaround is documented safely with placeholders.
-  - The exact DB update command is captured once verified on live system.
+  - [x] Workaround is documented safely with placeholders.
+  - [x] The exact DB update command is captured from the live schema.
+  - [ ] Full fresh login/onboarding flow retested after the script update.
 
 ### HL-060 — Add Hindsight LXC setup guide
 - Labels: `docs`, `config`, `parallel`, `verify`
