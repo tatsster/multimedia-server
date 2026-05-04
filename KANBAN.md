@@ -341,8 +341,14 @@ Labels:
 ### HL-170 — Add architecture diagram
 - Labels: `docs`
 - Goal: visual map of LXCs, DNS, proxy paths, storage, and AI services.
+- File: `ARCHITECTURE.md`
+- Progress:
+  - Added high-level Mermaid service map covering Proxmox, storage mounts, proxy, media stack, Jellyfin/Jellyseerr, AI services, PBS, and external Cloudflare paths.
+  - Added rebuild flow diagram, network-path table, storage/mount table, secret-boundary checklist, and source-of-truth links.
+  - Linked `ARCHITECTURE.md` from `Fresh-Homelab-Rebuild.md`.
 - Acceptance criteria:
-  - Diagram exists in Mermaid or Markdown table.
+  - [x] Diagram exists in Mermaid or Markdown table.
+  - [x] Diagram is secret-free and points to detailed service docs.
 
 ---
 

@@ -24,6 +24,7 @@ https://github.com/tatsster/multimedia-server
 
 Read first:
 
+- [ARCHITECTURE.md](./ARCHITECTURE.md)
 - [Homelab-Setup.md](./Homelab-Setup.md)
 - [inventory/lxc-map.md](./inventory/lxc-map.md)
 
