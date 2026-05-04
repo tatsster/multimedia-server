@@ -45,6 +45,10 @@ create_debian_lxc() {
     --start 0
   )
 
+  if [[ -n "${CPULIMIT:-}" ]]; then
+    args+=(--cpulimit "$CPULIMIT")
+  fi
+
   if [[ -n "${PASSWORD:-}" ]]; then
     args+=(--password "$PASSWORD")
   fi

@@ -9,27 +9,38 @@ CTID="${CTID:-110}"
 HOSTNAME="${HOSTNAME:-media-arr}"
 IP_CIDR="${IP_CIDR:-192.168.1.110/24}"
 GATEWAY="${GATEWAY:-192.168.1.1}"
-STORAGE="${STORAGE:-local-zfs}"
-TEMPLATE="${TEMPLATE:-local:vztmpl/debian-13-standard_13.1-2_amd64.tar.zst}"
+STORAGE="${STORAGE:-vm_storage}"
+TEMPLATE="${TEMPLATE:-general:vztmpl/debian-13-standard_13.1-2_amd64.tar.zst}"
 CORES="${CORES:-4}"
-MEMORY="${MEMORY:-4096}"
-SWAP="${SWAP:-1024}"
-DISK_GB="${DISK_GB:-32}"
+CPULIMIT="${CPULIMIT:-8}"
+MEMORY="${MEMORY:-6144}"
+SWAP="${SWAP:-512}"
+DISK_GB="${DISK_GB:-40}"
 REPO_URL="${REPO_URL:-https://github.com/tatsster/multimedia-server.git}"
 REPO_DIR="${REPO_DIR:-/opt/multimedia-server}"
-HOST_MEDIA_PATH="${HOST_MEDIA_PATH:-/data/general}"
+HOST_DOCKER_PATH="${HOST_DOCKER_PATH:-/main/docker}"
+CT_DOCKER_PATH="${CT_DOCKER_PATH:-/docker}"
+HOST_MEDIA_PATH="${HOST_MEDIA_PATH:-/data/media}"
 CT_MEDIA_PATH="${CT_MEDIA_PATH:-/media}"
 
 require_new_ctid "$CTID"
 create_debian_lxc "$CTID" "$HOSTNAME" "$IP_CIDR" "$GATEWAY" "$CORES" "$MEMORY" "$SWAP" "$DISK_GB" "$STORAGE" "$TEMPLATE"
 
-# Optional media mount. Create host path first if it exists in your design.
+# Optional bind mounts. Create host paths first if they exist in your design.
+if [[ -d "$HOST_DOCKER_PATH" ]]; then
+  echo "Adding docker bind mount: $HOST_DOCKER_PATH -> $CT_DOCKER_PATH"
+  pct set "$CTID" -mp0 "${HOST_DOCKER_PATH},mp=${CT_DOCKER_PATH},backup=1"
+else
+  echo "WARN: $HOST_DOCKER_PATH not found on host. Skipping docker bind mount. Add it later with:"
+  echo "pct set $CTID -mp0 ${HOST_DOCKER_PATH},mp=${CT_DOCKER_PATH},backup=1"
+fi
+
 if [[ -d "$HOST_MEDIA_PATH" ]]; then
   echo "Adding media bind mount: $HOST_MEDIA_PATH -> $CT_MEDIA_PATH"
-  pct set "$CTID" -mp0 "${HOST_MEDIA_PATH},mp=${CT_MEDIA_PATH}"
+  pct set "$CTID" -mp1 "${HOST_MEDIA_PATH},mp=${CT_MEDIA_PATH}"
 else
   echo "WARN: $HOST_MEDIA_PATH not found on host. Skipping media bind mount. Add it later with:"
-  echo "pct set $CTID -mp0 ${HOST_MEDIA_PATH},mp=${CT_MEDIA_PATH}"
+  echo "pct set $CTID -mp1 ${HOST_MEDIA_PATH},mp=${CT_MEDIA_PATH}"
 fi
 
 start_and_wait_lxc "$CTID"

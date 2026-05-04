@@ -113,7 +113,7 @@ Commit `inventory/lxc-map.md`, not the raw generated audit.
 ```bash
 pveam update
 pveam available --section system | grep debian-13
-pveam download local debian-13-standard_*.tar.zst
+pveam list general | grep debian-13 || pveam download general debian-13-standard_13.1-2_amd64.tar.zst
 ```
 
 3. Confirm storage names:
@@ -137,8 +137,9 @@ CTID=120
 HOSTNAME=hermes
 IP_CIDR=192.168.1.120/24
 GATEWAY=192.168.1.1
-STORAGE=local-zfs
-TEMPLATE=local:vztmpl/debian-13-standard_13.1-2_amd64.tar.zst
+STORAGE=vm_storage
+TEMPLATE=general:vztmpl/debian-13-standard_13.1-2_amd64.tar.zst
+CPULIMIT=4
 PASSWORD='temporary-root-password'
 ```
 

@@ -33,6 +33,8 @@ Labels:
   - Added `create-omniroute-lxc.sh`.
   - Added `create-hindsight-lxc.sh`.
   - Added `scripts/pve/README.md` with Community Scripts vs manual creation strategy.
+  - Updated default storage/template values from live PVE audit: `vm_storage` rootfs and `general:vztmpl/debian-13-standard_13.1-2_amd64.tar.zst` template.
+  - Added optional `CPULIMIT` support and matched Hermes/Hindsight/media defaults from live configs where known.
 - Remaining:
   - Verify scripts on actual PVE host.
   - Capture exact live Hermes and Hindsight install commands.
