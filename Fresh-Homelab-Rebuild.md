@@ -110,9 +110,10 @@ TODO: exact UI settings still need to be exported/documented for Sonarr/Radarr/P
 
 Read in this order:
 
-1. [omniroute/README.md](./omniroute/README.md)
-2. [hindsight/README.md](./hindsight/README.md)
-3. [hermes/README.md](./hermes/README.md)
+1. [ai/integration.md](./ai/integration.md)
+2. [omniroute/README.md](./omniroute/README.md)
+3. [hindsight/README.md](./hindsight/README.md)
+4. [hermes/README.md](./hermes/README.md)
 
 Current relationship:
 

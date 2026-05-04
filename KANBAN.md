@@ -167,16 +167,21 @@ Labels:
 
 ### HL-070 — Document AI services integration: Hermes + OmniRoute + Hindsight
 - Labels: `docs`, `config`, `parallel`, `verify`
-- Proposed file: `ai/integration.md`
+- File: `ai/integration.md`
+- Status: initial integration guide added and linked from `Fresh-Homelab-Rebuild.md`.
 - Goal: one diagram/table showing how the three AI LXCs link together.
-- Include:
-  - Request flow: Hermes -> OmniRoute -> providers/models/tools
-  - Memory flow: Hermes -> Hindsight
-  - Config files and ports for each service
-  - Startup order
-  - End-to-end test prompt/check
+- Progress:
+  - Added architecture/request-flow diagram.
+  - Documented Hermes -> OmniRoute model flow.
+  - Documented Hermes -> Hindsight memory flow.
+  - Added startup order and end-to-end verification checklist.
+  - Added troubleshooting map for provider, onboarding, duplicate gateway, and memory issues.
+- Remaining:
+  - Fill exact Hindsight port/health endpoint after live LXC inspection.
+  - Fill exact Hermes service unit/install method after live LXC inspection.
 - Acceptance criteria:
-  - Clear enough to debug broken integration after fresh install.
+  - [x] Clear enough to debug broken integration after fresh install.
+  - [ ] Live service names/ports have been verified.
 
 ### HL-090 — Convert Caddyfile into safer template
 - Labels: `config`, `secret-safe`, `verify`
