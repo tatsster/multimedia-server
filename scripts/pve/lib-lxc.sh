@@ -57,8 +57,9 @@ create_debian_lxc() {
   pct create "${args[@]}"
 
   # Keep explicit homelab defaults even if pct create behavior changes.
+  # `unprivileged` is a create-time-only/read-only option on current PVE,
+  # so it must stay in pct create args and must not be changed afterward.
   pct set "$ctid" --features nesting=1
-  pct set "$ctid" --unprivileged 0
 }
 
 start_and_wait_lxc() {
