@@ -35,7 +35,7 @@ cd /root/repos/multimedia-server
 ./scripts/pve/audit-lxcs.sh
 ```
 
-It writes `inventory/live-lxc-audit.md`. Review that generated file for private notes before committing anything copied from it.
+It writes `inventory/live-lxc-audit.md`, which is ignored by Git. Review that generated file for private notes before committing anything copied from it. See [`live-lxc-audit.example.md`](./live-lxc-audit.example.md) for the expected sanitized format.
 
 | CT ID | Name | IP | Creation method | Role | Key ports | Mounts | Guide / script |
 |---|---|---|---|---|---|---|---|

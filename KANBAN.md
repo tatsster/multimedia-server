@@ -113,7 +113,9 @@ Labels:
 - Progress:
   - Added canonical LXC defaults and service table.
   - Added creation method column for Community Scripts vs manual repo scripts.
-  - Added `scripts/pve/audit-lxcs.sh` to capture live CT config into `inventory/live-lxc-audit.md` for review.
+  - Added `scripts/pve/audit-lxcs.sh` to capture live CT config into ignored local file `inventory/live-lxc-audit.md` for review.
+  - Added `inventory/live-lxc-audit.example.md` to show the safe committed format.
+  - Confirmed current assistant shell is not the PVE host (`pct` unavailable), so live audit must be run from the Proxmox host.
 - Include known LXCs:
   - media/arr stack LXC
   - proxy LXC: Caddy + Cloudflare Tunnel + Cloudflare MCP

@@ -8,3 +8,6 @@ radarr/
 sonarr/
 tdarr/
 */*.env
+
+# Generated from live Proxmox state; review/sanitize before committing copies.
+inventory/live-lxc-audit.md

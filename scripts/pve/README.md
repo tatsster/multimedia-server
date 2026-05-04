@@ -70,7 +70,15 @@ They are intentionally simple and readable.
 
 ## Audit existing live LXCs
 
-Before rebuilding, run this on the current Proxmox VE host to capture CT IDs, IP configs, nesting/privileged settings, mounts, and creation hints:
+Before rebuilding, run this on the current Proxmox VE host to capture CT IDs, IP configs, nesting/privileged settings, mounts, and creation hints.
+
+Check you are on the PVE host first:
+
+```bash
+command -v pct && pct list
+```
+
+If `pct` is not found, you are probably inside a container or another Linux host. Copy/pull the repo on the PVE host and run it there instead.
 
 ```bash
 cd /root/repos/multimedia-server
@@ -83,17 +91,19 @@ Default output:
 inventory/live-lxc-audit.md
 ```
 
-Review before committing because live LXC descriptions/notes can contain private details:
+This generated file is intentionally ignored by Git. Review it locally because live LXC descriptions/notes can contain private details:
 
 ```bash
 grep -RInE 'password|token|secret|key|Bearer|eyJ|sk-' inventory/live-lxc-audit.md
 ```
 
-Then copy verified values into:
+Then copy only verified, non-secret values into:
 
 ```text
 inventory/lxc-map.md
 ```
+
+Commit `inventory/lxc-map.md`, not the raw generated audit.
 
 ## Before running
 
