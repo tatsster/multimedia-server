@@ -254,22 +254,22 @@ Labels:
   - [x] No real secrets in repo.
   - [ ] Optional: add healthchecks after the stack is retested from a fresh LXC.
 
+---
+
+## Done
+
 ### HL-120 — Add post-rebuild verification checklist
 - Labels: `docs`, `verify`
-- Proposed file: `VERIFY.md`
+- File: `VERIFY.md`
 - Goal: fast smoke test after fresh rebuild.
-- Include:
-  - Proxmox storage and mounts
-  - Docker compose containers healthy
-  - Caddy validates and serves TLS
-  - Cloudflare Tunnel public hostnames reachable
-  - Cloudflare Access policy applied
-  - Arr stack can search/download/import
-  - Jellyfin can scan/play media with GPU if applicable
-  - Hermes can route model request through OmniRoute
-  - Hermes can save/recall memory via Hindsight
+- Progress:
+  - Added dedicated `VERIFY.md` with pass/fail checks for Proxmox storage, LXC defaults, mounts, proxy, media/arr stack, Jellyfin/Jellyseerr, OmniRoute, Hindsight, Hermes, end-to-end AI flow, and backup/restore readiness.
+  - Added optional non-destructive helper `scripts/smoke-test.sh` for HTTP/TCP checks against common internal service endpoints.
+  - Linked `VERIFY.md` and `scripts/smoke-test.sh` from `Fresh-Homelab-Rebuild.md`.
+  - Kept authenticated checks optional via local-only environment variables, for example `OMNIROUTE_API_KEY`.
 - Acceptance criteria:
-  - Pass/fail checklist exists for each critical service.
+  - [x] Pass/fail checklist exists for each critical service.
+  - [x] Optional smoke-test helper does not require or store secrets.
 
 ---
 

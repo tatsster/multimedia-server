@@ -135,29 +135,25 @@ Known troubleshooting to preserve:
 
 ### 7. Verification checklist
 
-After rebuild, verify:
+Use the dedicated checklist:
+
+- [VERIFY.md](./VERIFY.md)
+- Optional helper: [scripts/smoke-test.sh](./scripts/smoke-test.sh)
+
+Minimum final sign-off after rebuild:
 
 - [ ] Proxmox pools and datasets exist.
 - [ ] LXC inventory matches `inventory/lxc-map.md`.
 - [ ] Required LXCs have `nesting=1` and `unprivileged: 0`.
 - [ ] Shared mounts are visible inside CTs.
-- [ ] Cloudflare Tunnel is connected/healthy.
-- [ ] Caddy starts and obtains certificates.
-- [ ] Internal service DNS/proxy routes work.
-- [ ] Arr stack containers are healthy.
-- [ ] qBittorrent downloads to correct mounted paths.
-- [ ] Sonarr/Radarr can import completed downloads.
-- [ ] Jellyfin can scan libraries.
-- [ ] OmniRoute UI login works.
-- [ ] OmniRoute API key works with `/v1/models` or a chat completion test.
-- [ ] Hindsight service is reachable from Hermes.
-- [ ] Hermes CLI works.
+- [ ] Proxy, media, Jellyfin/Jellyseerr, OmniRoute, Hindsight, and Hermes pass `VERIFY.md`.
 - [ ] Hermes gateway starts exactly once, with no duplicate user/system gateway conflict.
-- [ ] Discord/CLI tool permissions match current intended config.
+- [ ] No real secrets are committed.
 
 ## Current open documentation gaps
 
 Track detailed work in [KANBAN.md](./KANBAN.md). Biggest remaining gaps:
 
-- Exact arr stack UI settings and backup/restore procedure.
 - Optional full backup/restore smoke tests for OmniRoute/Hindsight on disposable LXCs.
+- Optional healthchecks for the media Docker compose after a fresh LXC retest.
+- Glance/dashboard rebuild docs.
