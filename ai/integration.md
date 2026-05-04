@@ -74,7 +74,8 @@ Fill this table during rebuild from `inventory/lxc-map.md`.
 | Hermes | `http://<hermes-lxc-ip>:<hermes-port>` | Usually private only | CLI/gateway host. Fill exact port after live verification. |
 | OmniRoute dashboard | `http://<omniroute-lxc-ip>:20128` | Private or Cloudflare Access only | Admin UI and onboarding. |
 | OmniRoute API | `http://<omniroute-lxc-ip>:20128/v1` | Private only | Hermes model `base_url`. |
-| Hindsight | `http://<hindsight-lxc-ip>:<hindsight-port>` | Private only | Memory provider endpoint. Fill exact port after live verification. |
+| Hindsight API | `http://192.168.1.111:8888` | Private only | Memory provider endpoint. Health: `/health`. |
+| Hindsight control plane | `http://192.168.1.111:9999/dashboard` | Private only / Cloudflare Access if exposed | Optional UI. |
 
 Current known Hermes model route:
 
@@ -178,9 +179,12 @@ Prefer `INITIAL_PASSWORD` before manual SQLite editing.
 On Hindsight LXC:
 
 ```bash
-systemctl status hindsight --no-pager
-# or use the actual service/container command once captured from live setup
+docker ps --filter name=hindsight
+curl -fsS http://127.0.0.1:8888/health
+curl -I http://127.0.0.1:9999/dashboard
 ```
+
+Current live Hindsight uses Docker container `hindsight` from image `ghcr.io/vectorize-io/hindsight:latest`; persistent data is bind-mounted from `/root/.hindsight-docker` to `/home/hindsight/.pg0`.
 
 From Hermes LXC:
 
@@ -250,5 +254,4 @@ Never commit real secrets. Commit only examples with placeholders.
 
 - Exact Hermes install command and service unit.
 - Exact OmniRoute deployment method currently used: npm, Docker, or other.
-- Exact Hindsight install command, port, health endpoint, service name, and data directory.
 - Exact startup dependencies between Hermes gateway, OmniRoute, and Hindsight.

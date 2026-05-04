@@ -38,8 +38,8 @@ Labels:
   - First live PVE script test found `pct set --unprivileged 0` fails because `unprivileged` is read-only after create; fixed helper to keep it only in `pct create` args.
   - Verified `create-omniroute-lxc.sh` end-to-end on PVE with temporary CTID 901; script created the container, installed packages/service, printed expected config, and cleanup removed CT 901.
 - Remaining:
-  - Smoke-test Hermes/Hindsight/media scripts on actual PVE host with temporary CTIDs, or verify from a fresh rebuild.
-  - Capture exact live Hindsight install commands.
+  - Smoke-test Hermes/media scripts on actual PVE host with temporary CTIDs, or verify from a fresh rebuild.
+  - Optional: smoke-test Hindsight script with a temporary CTID through Docker install; exact live Docker run pattern has been captured.
   - Confirm OmniRoute service health/login flow after fresh install; npm package path works for installation but still emits engine warnings.
 - Hermes script update:
   - Live Hermes install layout verified from CT `108`: `/usr/local/lib/hermes-agent`, `/usr/local/bin/hermes`, `/root/.hermes`.
@@ -173,17 +173,22 @@ Labels:
 
 ### HL-060 — Add Hindsight LXC setup guide
 - Labels: `docs`, `config`, `parallel`, `verify`
-- Proposed file: `ai/hindsight-setup.md`
+- File: `hindsight/README.md`
 - Goal: document Hindsight install, persistence/storage, API endpoint, and Hermes integration.
-- Include:
-  - LXC requirements using current LXC defaults: nesting enabled and privileged container
-  - Environment variables/config files copied from live config but sanitized
-  - Data volume/backup path
-  - How Hermes is pointed to Hindsight
-  - Health check and backup/restore test
+- Progress:
+  - Verified live Hindsight LXC `109` via PVE SSH: Debian 12, privileged, `features: nesting=1`, IP `192.168.1.111`, `memory: 8192`, `swap: 1024`, `cpulimit: 4`, rootfs `20G`.
+  - Verified deployment uses Docker container `hindsight` from `ghcr.io/vectorize-io/hindsight:latest`, restart policy `unless-stopped`.
+  - Verified ports: API `8888`, control plane/UI `9999`.
+  - Verified persistent data bind mount: `/root/.hindsight-docker -> /home/hindsight/.pg0`.
+  - Verified health endpoint: `http://127.0.0.1:8888/health` returns `{"status":"healthy","database":"connected"}`.
+  - Added sanitized `hindsight/config/hindsight.env.example` copied from live env shape, with secret/API key placeholder only.
+  - Updated `create-hindsight-lxc.sh` to install Docker, copy env example, create `/root/.hindsight-docker`, and print the live Docker run command.
+  - Documented live provider warning: Hindsight can be healthy while OmniRoute/upstream provider returns `provider_circuit_open` errors.
 - Acceptance criteria:
-  - Memory survives rebuild/restore.
-  - Hermes can recall/retain via Hindsight after setup.
+  - [x] Memory data path is documented for backup/restore.
+  - [x] Hermes client endpoint and bank are documented.
+  - [x] Health checks are documented.
+  - [ ] Full backup/restore test performed on a disposable or rebuilt LXC.
 
 ### HL-070 — Document AI services integration: Hermes + OmniRoute + Hindsight
 - Labels: `docs`, `config`, `parallel`, `verify`
@@ -198,11 +203,10 @@ Labels:
   - Added troubleshooting map for provider, onboarding, duplicate gateway, and memory issues.
   - Verified Hermes live install/service layout from CT `108`: system service `hermes-gateway.service`, install dir `/usr/local/lib/hermes-agent`, Hindsight client config `/root/.hermes/hindsight/config.json`.
   - Verified Hermes uses external Hindsight endpoint pattern `http://<hindsight-lxc-ip>:8888` with bank `hermes`.
-- Remaining:
-  - Fill exact Hindsight service name/health endpoint after live Hindsight LXC inspection.
+  - Verified Hindsight live API/control-plane ports and Docker container/data path from CT `109`.
 - Acceptance criteria:
   - [x] Clear enough to debug broken integration after fresh install.
-  - [ ] All live service names/ports have been verified, including Hindsight server.
+  - [x] All live service names/ports have been verified, including Hindsight server.
 
 ### HL-090 — Convert Caddyfile into safer template
 - Labels: `config`, `secret-safe`, `verify`

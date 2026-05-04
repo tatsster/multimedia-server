@@ -158,7 +158,6 @@ After rebuild, verify:
 Track detailed work in [KANBAN.md](./KANBAN.md). Biggest remaining gaps:
 
 - Exact CT IDs, IPs, hostnames, and mounts from the live Proxmox node.
-- Exact Hindsight install/run config.
 - Exact OmniRoute deployment method used in the current LXC.
 - Exact arr stack UI settings and backup/restore procedure.
 - Current Cloudflare MCP install/config details.

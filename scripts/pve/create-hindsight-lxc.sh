@@ -24,21 +24,38 @@ create_debian_lxc "$CTID" "$HOSTNAME" "$IP_CIDR" "$GATEWAY" "$CORES" "$MEMORY" "
 start_and_wait_lxc "$CTID"
 install_base_packages "$CTID"
 
-pct_bash "$CTID" "DEBIAN_FRONTEND=noninteractive apt-get install -y python3 python3-venv python3-pip pipx nodejs npm"
+pct_bash "$CTID" "DEBIAN_FRONTEND=noninteractive apt-get install -y docker.io"
+pct_bash "$CTID" "systemctl enable --now docker"
 pct_bash "$CTID" "git clone '$REPO_URL' '$REPO_DIR' || (cd '$REPO_DIR' && git pull)"
-pct_bash "$CTID" "mkdir -p /opt/hindsight /var/lib/hindsight"
+pct_bash "$CTID" "mkdir -p /root/.hindsight-docker"
+pct_bash "$CTID" "cp '$REPO_DIR/hindsight/config/hindsight.env.example' /root/.hindsight.env.example"
 
-cat <<'EOF'
+cat <<EOF
 
 Hindsight LXC base created.
 
-TODO: exact Hindsight install/run command still needs live verification from current LXC.
-Capture and add:
-  - package/source install command
-  - config path
-  - service port
-  - data directory
-  - systemd unit
+Live/current pattern:
+  - Docker container: hindsight
+  - Image: ghcr.io/vectorize-io/hindsight:latest
+  - API: http://${IP_CIDR%/*}:8888
+  - Control plane: http://${IP_CIDR%/*}:9999/dashboard
+  - Data directory: /root/.hindsight-docker -> /home/hindsight/.pg0
+
+Next steps inside CT $CTID:
+  cp /root/.hindsight.env.example /root/.hindsight.env
+  nano /root/.hindsight.env   # fill HINDSIGHT_API_LLM_API_KEY and adjust model if needed
+  chmod 0600 /root/.hindsight.env
+  docker run -d \\
+    --name hindsight \\
+    --restart unless-stopped \\
+    --env-file /root/.hindsight.env \\
+    -p 8888:8888 \\
+    -p 9999:9999 \\
+    -v /root/.hindsight-docker:/home/hindsight/.pg0 \\
+    ghcr.io/vectorize-io/hindsight:latest
+
+Verify:
+  curl -fsS http://127.0.0.1:8888/health
 
 See hindsight/README.md.
 EOF
