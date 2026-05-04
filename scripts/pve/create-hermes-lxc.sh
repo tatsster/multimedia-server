@@ -24,25 +24,35 @@ create_debian_lxc "$CTID" "$HOSTNAME" "$IP_CIDR" "$GATEWAY" "$CORES" "$MEMORY" "
 start_and_wait_lxc "$CTID"
 install_base_packages "$CTID"
 
-pct_bash "$CTID" "DEBIAN_FRONTEND=noninteractive apt-get install -y python3 python3-venv python3-pip pipx nodejs npm"
+pct_bash "$CTID" "DEBIAN_FRONTEND=noninteractive apt-get install -y python3 python3-venv python3-pip pipx nodejs npm curl ca-certificates build-essential"
 pct_bash "$CTID" "git clone '$REPO_URL' '$REPO_DIR' || (cd '$REPO_DIR' && git pull)"
-pct_bash "$CTID" "mkdir -p /root/.hermes && cp '$REPO_DIR/hermes/config/config.system.example.yaml' /root/.hermes/config.yaml"
+pct_bash "$CTID" "curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash -s -- --skip-setup"
+pct_bash "$CTID" "mkdir -p /root/.hermes/hindsight && cp '$REPO_DIR/hermes/config/config.system.example.yaml' /root/.hermes/config.yaml"
+pct_bash "$CTID" "cp '$REPO_DIR/hermes/config/hindsight.config.example.json' /root/.hermes/hindsight/config.json"
 pct_bash "$CTID" "cp '$REPO_DIR/.env.example' /root/.hermes/.env.example"
 
 cat <<'EOF'
 
-Hermes LXC base created.
+Hermes LXC created and Hermes installer ran.
 
-Manual install step still depends on the Hermes distribution used in the live setup.
-After installing Hermes, configure secrets and provider:
+Next configure secrets and provider inside the LXC:
 
   nano /root/.hermes/config.yaml
+  nano /root/.hermes/hindsight/config.json
+  cp /root/.hermes/.env.example /root/.hermes/.env
   nano /root/.hermes/.env
   hermes config set model.base_url "http://<omniroute-lxc-ip>:20128/v1"
   hermes config set model.api_key "<omniroute-api-key>"
   hermes config set model.default "codex/gpt-5.5-medium"
-  hermes gateway restart
+  hermes config set memory.provider "hindsight"
 
+Use exactly one gateway service. Current live preference is the system service:
+
+  systemctl daemon-reload
+  systemctl enable --now hermes-gateway.service
+  systemctl status hermes-gateway.service --no-pager
+
+If a user-level gateway exists, remove/disable it before enabling the system gateway.
 See hermes/README.md for duplicate gateway troubleshooting.
 EOF
 print_lxc_summary "$CTID"

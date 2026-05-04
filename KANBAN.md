@@ -39,8 +39,12 @@ Labels:
   - Verified `create-omniroute-lxc.sh` end-to-end on PVE with temporary CTID 901; script created the container, installed packages/service, printed expected config, and cleanup removed CT 901.
 - Remaining:
   - Smoke-test Hermes/Hindsight/media scripts on actual PVE host with temporary CTIDs, or verify from a fresh rebuild.
-  - Capture exact live Hermes and Hindsight install commands.
+  - Capture exact live Hindsight install commands.
   - Confirm OmniRoute service health/login flow after fresh install; npm package path works for installation but still emits engine warnings.
+- Hermes script update:
+  - Live Hermes install layout verified from CT `108`: `/usr/local/lib/hermes-agent`, `/usr/local/bin/hermes`, `/root/.hermes`.
+  - `create-hermes-lxc.sh` now runs the official Hermes installer with `--skip-setup` and copies sanitized Hermes + Hindsight client config examples.
+  - Live PVE smoke test with temporary CTID `902` successfully created the LXC and ran the Hermes installer, but failed copying the new Hindsight example because the test archive missed the untracked file; cleanup removed CT `902` and temp files. Retest after commit if desired.
 - Acceptance criteria:
   - [x] Scripts are secret-safe and use placeholders/env vars.
   - [x] Scripts preserve `nesting=1` and privileged container defaults.
@@ -80,7 +84,7 @@ Labels:
 
 ### HL-010 — Create top-level fresh rebuild runbook
 - Labels: `docs`
-- Status: initial version added at `Fresh-Homelab-Rebuild.md`
+- Status: initial version added at `Fresh-Homelab-Rebuild.md`; proxy/Hermes sections updated from live inspection.
 - Proposed file: `README.md` or `Fresh-Homelab-Rebuild.md`
 - Goal: one entrypoint that orders the full rebuild from bare Proxmox to working services.
 - Include:
@@ -192,12 +196,13 @@ Labels:
   - Documented Hermes -> Hindsight memory flow.
   - Added startup order and end-to-end verification checklist.
   - Added troubleshooting map for provider, onboarding, duplicate gateway, and memory issues.
+  - Verified Hermes live install/service layout from CT `108`: system service `hermes-gateway.service`, install dir `/usr/local/lib/hermes-agent`, Hindsight client config `/root/.hermes/hindsight/config.json`.
+  - Verified Hermes uses external Hindsight endpoint pattern `http://<hindsight-lxc-ip>:8888` with bank `hermes`.
 - Remaining:
-  - Fill exact Hindsight port/health endpoint after live LXC inspection.
-  - Fill exact Hermes service unit/install method after live LXC inspection.
+  - Fill exact Hindsight service name/health endpoint after live Hindsight LXC inspection.
 - Acceptance criteria:
   - [x] Clear enough to debug broken integration after fresh install.
-  - [ ] Live service names/ports have been verified.
+  - [ ] All live service names/ports have been verified, including Hindsight server.
 
 ### HL-090 — Convert Caddyfile into safer template
 - Labels: `config`, `secret-safe`, `verify`
