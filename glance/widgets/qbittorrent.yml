@@ -2,14 +2,14 @@
   title: qBittorrent
   cache: 1m
   options:
-    hide-summary: false # Hide summary
-    collapsible: false # Torrents list collapse
+    hide-summary: true # Hide summary
+    collapsible: true # Torrents list collapse
     hide-bar: false # Hide progress bars
     hide-completed: false # Hide finished torrents
     hide-inactive: false # Hide inactive torrents
   subrequests:
     info:
-      url: "http://${QBW_URL}/qb/torrents"   # IP:port of qBittorrent
+      url: "http://${QBW_URL}/qb/torrents"   # QBWrapper/qbproxy IP:port, e.g. 192.168.1.103:9911
       method: GET
       headers:
         Authorization: "Bearer ${AUTH_TOKEN}"  # your QBW token

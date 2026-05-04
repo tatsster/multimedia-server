@@ -103,8 +103,10 @@ Read:
 - [server-arr/arr-live-settings.md](./server-arr/arr-live-settings.md)
 - [server-arr/arr-stack.yml](./server-arr/arr-stack.yml)
 - [server-arr/.env.example](./server-arr/.env.example)
+- [glance/Readme.md](./glance/Readme.md)
+- [glance/.env.example](./glance/.env.example)
 
-The current live UI/settings inventory has been captured for qBittorrent, Prowlarr, Sonarr, Radarr, Bazarr, Tdarr, Lingarr, FlareSolverr, QBWrapper, Jellyfin, and Jellyseerr. Recreate secrets from the app UIs as documented instead of committing real keys/passwords.
+The current live UI/settings inventory has been captured for qBittorrent, Prowlarr, Sonarr, Radarr, Bazarr, Tdarr, Lingarr, FlareSolverr, QBWrapper, Jellyfin, Jellyseerr, and Glance. Recreate secrets from the app UIs as documented instead of committing real keys/passwords.
 
 ### 6. AI services
 

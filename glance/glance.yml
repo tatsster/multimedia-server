@@ -11,8 +11,8 @@ pages:
         widgets:
           - type: split-column
             widgets:
-              !include: ./widgets/proxmox-ve.yml
-              !include: ./widgets/proxmox-pbs.yml
+              - $include: ./widgets/proxmox-ve.yml
+              - $include: ./widgets/proxmox-pbs.yml
 
           - type: monitor
             cache: 5m
@@ -42,6 +42,7 @@ pages:
                 icon: si:openai
               - title: Hindsight
                 url: https://hindsight.liftlab.dev
+                check-url: http://192.168.1.111:9999
                 icon: si:vectorworks
               - title: Proxmox Backup Server
                 url: https://pbs.liftlab.dev
@@ -79,7 +80,12 @@ pages:
         widgets:
           - type: clock
             hour-format: 24h
-          !include: ./widgets/jellyfin.yml
+            hide-header: true
+          - type: to-do
+            title: Work tasks
+            id: work
+          - $include: ./widgets/jellyfin.yml
+          - $include: ./widgets/qbittorrent.yml
           
   - name: Update
     hide-desktop-navigation: false

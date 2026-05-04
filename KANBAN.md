@@ -309,13 +309,19 @@ Labels:
 - Labels: `docs`, `config`, `verify`
 - Existing folder: `glance/`
 - Goal: document dashboard deployment and widgets.
-- Include:
-  - Proxmox/PBS API token setup already in `glance/Readme.md`
-  - Jellyfin widget API key
-  - qBittorrent/qbwrapper widget auth
-  - Service list maintenance process
+- Status: live Glance deployment documented and sanitized examples updated.
+- Progress:
+  - Verified live Glance runs in CT `101` as Docker container `glance` using image `glanceapp/glance`.
+  - Verified live port mapping `8081:8080`, restart policy `unless-stopped`, and config mount `/docker/glance -> /app/config`.
+  - Rewrote `glance/Readme.md` as the dashboard rebuild/restore guide.
+  - Added `glance/.env.example` with placeholders for Proxmox VE, PBS, Jellyfin, QBWrapper/qbproxy, and timezone variables.
+  - Updated Glance config to include the current live To-do widget, Hindsight health check URL, and qBittorrent widget include.
+  - Renamed qBittorrent widget example to `glance/widgets/qbittorrent.yml` and kept QBWrapper auth via `AUTH_TOKEN` env var.
+  - Linked Glance docs from `Fresh-Homelab-Rebuild.md`.
 - Acceptance criteria:
-  - Dashboard can be recreated after fresh setup.
+  - [x] Dashboard can be recreated after fresh setup.
+  - [x] Widget secrets are placeholders/env vars only.
+  - [x] Service list maintenance process is documented.
 
 ### HL-160 — Add automation scripts where simple and stable
 - Labels: `config`, `parallel`
