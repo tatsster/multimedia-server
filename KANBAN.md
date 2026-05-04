@@ -115,7 +115,9 @@ Labels:
   - Added creation method column for Community Scripts vs manual repo scripts.
   - Added `scripts/pve/audit-lxcs.sh` to capture live CT config into ignored local file `inventory/live-lxc-audit.md` for review.
   - Added `inventory/live-lxc-audit.example.md` to show the safe committed format.
-  - Confirmed current assistant shell is not the PVE host (`pct` unavailable), so live audit must be run from the Proxmox host.
+  - Ran the audit on the Proxmox host via SSH and copied only reviewed, non-secret inventory values into `inventory/lxc-map.md`.
+  - Captured current CT IDs/IPs for CTs 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 201, and 250.
+  - Captured current common mounts and LXC defaults from live configs.
 - Include known LXCs:
   - media/arr stack LXC
   - proxy LXC: Caddy + Cloudflare Tunnel + Cloudflare MCP
@@ -124,7 +126,7 @@ Labels:
   - hindsight LXC
   - optional Jellyfin custom LXC if separated from arr stack
 - Acceptance criteria:
-  - [ ] Fresh rebuild has a clear target IP/hostname plan.
+  - [x] Fresh rebuild has a clear target IP/hostname plan.
   - [ ] All ports exposed by compose/Caddy/Tunnel are captured.
   - [x] There is a repeatable way to audit current live LXC config before rebuild.
 
