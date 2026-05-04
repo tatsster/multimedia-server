@@ -39,17 +39,32 @@ Base rules to keep from the current setup:
 
 ### 2. Create LXCs
 
-Use `inventory/lxc-map.md` as the living map for CT IDs, IPs, mounts, and purpose.
+Use `inventory/lxc-map.md` as the living map for CT IDs, IPs, mounts, purpose, and creation method.
+
+Script docs:
+
+- [scripts/pve/README.md](./scripts/pve/README.md)
+
+Some LXCs are intentionally created by [Community Scripts](https://community-scripts.org/) because upstream already maintains quick installers. Other homelab-specific LXCs have repo scripts that run from the Proxmox VE shell.
 
 Minimum LXCs currently planned/documented:
 
-| LXC | Purpose | Doc |
-| --- | --- | --- |
-| media-arr | arr stack, qBittorrent, Jellyfin-related services | [server-arr/Multimedia-Setup.md](./server-arr/Multimedia-Setup.md) |
-| proxy | Caddy, Cloudflare Tunnel, Cloudflare MCP | [proxy/Access-Setup.md](./proxy/Access-Setup.md) |
-| hermes | Hermes agent/gateway | [hermes/README.md](./hermes/README.md) |
-| omniroute | Local OpenAI-compatible provider/router | [omniroute/README.md](./omniroute/README.md) |
-| hindsight | Hermes long-term memory provider | [hindsight/README.md](./hindsight/README.md) |
+| LXC | Creation method | Purpose | Doc/script |
+| --- | --- | --- | --- |
+| media-arr | Manual repo script | arr stack, qBittorrent, Jellyfin-related services | [server-arr/Multimedia-Setup.md](./server-arr/Multimedia-Setup.md), [scripts/pve/create-media-arr-lxc.sh](./scripts/pve/create-media-arr-lxc.sh) |
+| proxy-caddy | Community Scripts | Caddy reverse proxy | [proxy/Access-Setup.md](./proxy/Access-Setup.md) |
+| proxy-cloudflared | Community Scripts | Cloudflare Tunnel connector | [proxy/Access-Setup.md](./proxy/Access-Setup.md) |
+| proxy | Manual/post-install merge if desired | Caddy + Cloudflare Tunnel + Cloudflare MCP in one LXC | [proxy/Access-Setup.md](./proxy/Access-Setup.md) |
+| hermes | Manual repo script | Hermes agent/gateway | [hermes/README.md](./hermes/README.md), [scripts/pve/create-hermes-lxc.sh](./scripts/pve/create-hermes-lxc.sh) |
+| omniroute | Manual repo script | Local OpenAI-compatible provider/router | [omniroute/README.md](./omniroute/README.md), [scripts/pve/create-omniroute-lxc.sh](./scripts/pve/create-omniroute-lxc.sh) |
+| hindsight | Manual repo script | Hermes long-term memory provider | [hindsight/README.md](./hindsight/README.md), [scripts/pve/create-hindsight-lxc.sh](./scripts/pve/create-hindsight-lxc.sh) |
+
+Example manual script usage from PVE shell:
+
+```bash
+cd /root/repos/multimedia-server
+CTID=120 HOSTNAME=hermes IP_CIDR=192.168.1.120/24 ./scripts/pve/create-hermes-lxc.sh
+```
 
 ### 3. Restore/create secrets
 

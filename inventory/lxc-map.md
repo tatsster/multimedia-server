@@ -28,14 +28,16 @@ For GPU passthrough to media/Jellyfin/Tdarr containers, see `server-arr/Multimed
 
 Fill exact CT IDs/IPs from the live homelab.
 
-| CT ID | Name | IP | Role | Key ports | Mounts | Guide |
-|---|---|---|---|---|---|---|
-| TBD | media-arr | TBD | Arr stack, qBittorrent, Prowlarr, Sonarr, Radarr, Bazarr, Tdarr, Flaresolverr, QBWrapper, Lingarr | 8080, 9696, 8989, 7878, 6767, 8265, 8266, 8191, 9911, 9876 | `/media`, `/docker/*` | `server-arr/Multimedia-Setup.md` |
-| TBD | proxy | TBD | Caddy, Cloudflare Tunnel, Cloudflare MCP | 80, 443, 2019, cloudflared outbound | `/etc/caddy`, env/secrets | `proxy/Access-Setup.md` |
-| TBD | hermes | TBD | Hermes agent/gateway | TBD | `/root/.hermes` | `hermes/README.md` |
-| TBD | omniroute | TBD | AI model router/API gateway | 20128 | `~/.omniroute` or `/app/data` | `omniroute/README.md` |
-| TBD | hindsight | TBD | Hermes memory backend | TBD | Hindsight data directory | `hindsight/README.md` |
-| TBD | jellyfin | TBD | Optional separate Jellyfin LXC | 8096 | media libraries, `/dev/dri` if GPU | `server-arr/Multimedia-Setup.md` |
+| CT ID | Name | IP | Creation method | Role | Key ports | Mounts | Guide / script |
+|---|---|---|---|---|---|---|---|
+| TBD | media-arr | TBD | Manual repo script | Arr stack, qBittorrent, Prowlarr, Sonarr, Radarr, Bazarr, Tdarr, Flaresolverr, QBWrapper, Lingarr | 8080, 9696, 8989, 7878, 6767, 8265, 8266, 8191, 9911, 9876 | `/media`, `/docker/*` | `server-arr/Multimedia-Setup.md`, `scripts/pve/create-media-arr-lxc.sh` |
+| TBD | proxy-caddy | TBD | Community Scripts: Caddy | Caddy reverse proxy | 80, 443, 2019 | `/etc/caddy`, env/secrets | `proxy/Access-Setup.md` |
+| TBD | proxy-cloudflared | TBD | Community Scripts: Cloudflared | Cloudflare Tunnel connector | outbound only | cloudflared token/config | `proxy/Access-Setup.md` |
+| TBD | proxy | TBD | Manual merge or post-install combination | Optional combined Caddy + Cloudflare Tunnel + Cloudflare MCP LXC | 80, 443, 2019, cloudflared outbound | `/etc/caddy`, env/secrets | `proxy/Access-Setup.md` |
+| TBD | hermes | TBD | Manual repo script | Hermes agent/gateway | TBD | `/root/.hermes` | `hermes/README.md`, `scripts/pve/create-hermes-lxc.sh` |
+| TBD | omniroute | TBD | Manual repo script | AI model router/API gateway | 20128 | `~/.omniroute` or `/app/data` | `omniroute/README.md`, `scripts/pve/create-omniroute-lxc.sh` |
+| TBD | hindsight | TBD | Manual repo script | Hermes memory backend | TBD | Hindsight data directory | `hindsight/README.md`, `scripts/pve/create-hindsight-lxc.sh` |
+| TBD | jellyfin | TBD | TBD, maybe community script or part of media-arr | Optional separate Jellyfin LXC | 8096 | media libraries, `/dev/dri` if GPU | `server-arr/Multimedia-Setup.md` |
 
 ## Internal service URLs
 

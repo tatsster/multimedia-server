@@ -22,6 +22,26 @@ Labels:
 
 ## In Progress
 
+
+### HL-130 — Add Proxmox shell scripts for manual LXCs
+- Labels: `config`, `docs`, `parallel`, `verify`
+- Status: initial scripts added under `scripts/pve/`.
+- Progress:
+  - Added shared helper: `scripts/pve/lib-lxc.sh`.
+  - Added `create-media-arr-lxc.sh`.
+  - Added `create-hermes-lxc.sh`.
+  - Added `create-omniroute-lxc.sh`.
+  - Added `create-hindsight-lxc.sh`.
+  - Added `scripts/pve/README.md` with Community Scripts vs manual creation strategy.
+- Remaining:
+  - Verify scripts on actual PVE host.
+  - Capture exact live Hermes and Hindsight install commands.
+  - Confirm OmniRoute npm/package install path or replace with current live method.
+- Acceptance criteria:
+  - [x] Scripts are secret-safe and use placeholders/env vars.
+  - [x] Scripts preserve `nesting=1` and privileged container defaults.
+  - [ ] Scripts have been run successfully on fresh Proxmox.
+
 ### HL-080 — Update proxy LXC guide for Caddy + Cloudflare Tunnel + Cloudflare MCP
 - Labels: `docs`, `config`, `secret-safe`, `parallel`, `verify`
 - Existing file: `proxy/Access-Setup.md`
@@ -60,6 +80,7 @@ Labels:
   - Hardware/storage assumptions
   - Required domains/accounts/secrets checklist
   - LXC inventory table
+  - Creation method for each LXC: Community Scripts vs repo manual script
   - Network/IP/DNS map
   - Rebuild order
   - Validation checklist
@@ -88,7 +109,7 @@ Labels:
 ### HL-030 — Define canonical LXC inventory and network map
 - Labels: `docs`, `config`, `verify`
 - Proposed file: `inventory/lxc-map.md` or section in top-level runbook
-- Goal: list every LXC and its role/IP/ports/mounts.
+- Goal: list every LXC and its role/IP/ports/mounts plus whether it is created by Community Scripts or repo scripts.
 - Include known LXCs:
   - media/arr stack LXC
   - proxy LXC: Caddy + Cloudflare Tunnel + Cloudflare MCP

@@ -46,10 +46,23 @@ Relevant example file:
 
 To prevent one app LXC hitting max CPU and degrading access for everything, deploy Cloudflared Tunnel in a separate proxy LXC.
 
-Simple install option:
+Simple install option from Community Scripts:
 
 ```text
 https://community-scripts.github.io/ProxmoxVE/scripts?id=cloudflared
+```
+
+Raw PVE shell command pattern:
+
+```bash
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/community-scripts/ProxmoxVE/main/ct/cloudflared.sh)"
+```
+
+During Advanced setup, keep/adjust current homelab LXC defaults where possible:
+
+```text
+features: nesting=1
+unprivileged: 0
 ```
 
 Follow the script instructions to create the Cloudflared LXC/package. Then create the tunnel in Cloudflare:
@@ -139,10 +152,23 @@ CF_API_TOKEN='<cloudflare-api-token>'
 
 Caddy is used for services that do not use Cloudflare Tunnel or where local wildcard TLS/reverse proxy is preferred.
 
-Install option:
+Install option from Community Scripts:
 
 ```text
 https://community-scripts.github.io/ProxmoxVE/scripts?id=caddy
+```
+
+Raw PVE shell command pattern:
+
+```bash
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/community-scripts/ProxmoxVE/main/ct/caddy.sh)"
+```
+
+During Advanced setup, keep/adjust current homelab LXC defaults where possible:
+
+```text
+features: nesting=1
+unprivileged: 0
 ```
 
 Because Cloudflare manages DNS, install/build Caddy with the Cloudflare DNS plugin for certificate challenges:
