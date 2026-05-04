@@ -1,87 +1,270 @@
-# Access Services from Public Network
-## Access with Cloudflared Tunnel
-To prevent 1 LXC reaches max CPU usage would cause service degradation, I recommend to deploy Cloudflared Tunnel in separate LXC. And simply go with this
+# Proxy LXC: Caddy, Cloudflare Tunnel, and Cloudflare MCP
+
+This LXC handles public/private access for services.
+
+Recommended current pattern:
+
+- One dedicated **proxy LXC** for Cloudflare Tunnel + Caddy + optional Cloudflare MCP.
+- Keep it separate from app LXCs so proxy CPU/network issues do not take down media or AI services.
+- Use Cloudflare Tunnel for most public services.
+- Use Caddy with Cloudflare DNS challenge where direct reverse proxy / wildcard certs are simpler.
+
+## LXC requirements
+
+When recreating the proxy LXC, keep the current homelab LXC defaults:
+
+```text
+features: nesting=1
+unprivileged: 0
 ```
+
+In Proxmox UI this means:
+
+- Enable nesting.
+- `Unprivileged container = No`.
+- CPU advanced setting: cores unlimited, CPU limit as needed.
+
+Record final CT ID/IP in:
+
+```text
+../inventory/lxc-map.md
+```
+
+## Secrets policy
+
+Do **not** commit real Cloudflare tokens/API keys.
+
+Use placeholders in repo examples and store real values only on the LXC, password manager, or sealed backup.
+
+Relevant example file:
+
+```text
+../.env.example
+```
+
+## Access with Cloudflared Tunnel
+
+To prevent one app LXC hitting max CPU and degrading access for everything, deploy Cloudflared Tunnel in a separate proxy LXC.
+
+Simple install option:
+
+```text
 https://community-scripts.github.io/ProxmoxVE/scripts?id=cloudflared
 ```
 
-Follow instruction to create Cloudflared LXC. Then head to Cloudflare dashboard to create Tunnel: Zero Trust -> Network -> Tunnels
+Follow the script instructions to create the Cloudflared LXC/package. Then create the tunnel in Cloudflare:
 
-After create tunnel with instruction, now add public hostname for each service:
-- Enter subdomain for service
-- Choose domain we own
-- Enter URL, this will be IPv4 with port of service in LAN
-- Type:
-    - HTTP: Simple, no additional work
-    - HTTPS: Service enables this by default, then Additonal setting -> TLS -> enable `No TLS verify`
+```text
+Cloudflare Dashboard -> Zero Trust -> Networks -> Tunnels
+```
 
-### Add Login with allowed Google account
-Go to Zero Trust -> Access -> Applications, choose to add an application
-- Select Self-hosted
-- Enter any application name, usually your service
-- Add public hostname
-- Add policy then finish
+After creating the tunnel, add public hostnames for each service:
 
-To create policy, can follow many guide on internet because this will require Google/Github,... token. I follow this guide: https://www.youtube.com/watch?v=Ynr8VubJqvY&t
+1. Enter the service subdomain.
+2. Choose the owned domain.
+3. Enter the internal LAN URL and port.
+4. Type:
+   - `HTTP`: simplest, no additional TLS work.
+   - `HTTPS`: if the service enables HTTPS by default, open `Additional settings -> TLS` and enable `No TLS Verify` for self-signed/internal certs.
+
+### Tunnel token
+
+Where to get it:
+
+```text
+Cloudflare Dashboard -> Zero Trust -> Networks -> Tunnels -> your tunnel -> Install and run connector
+```
+
+Copy the token/connector command from Cloudflare. Store it on the proxy LXC only.
+
+Do not commit it.
+
+## Add Cloudflare Access login
+
+Use this for services that are publicly reachable but should require login first.
+
+Cloudflare path:
+
+```text
+Zero Trust -> Access -> Applications -> Add an application -> Self-hosted
+```
+
+Steps:
+
+1. Enter application name, usually the service name.
+2. Add the public hostname.
+3. Add an Access policy.
+4. Finish.
+
+Policy identity providers can be Google, GitHub, etc. Creating those providers requires OAuth credentials from the provider dashboard.
+
+Reference followed before:
+
+```text
+https://www.youtube.com/watch?v=Ynr8VubJqvY&t
+```
 
 ## Dynamic DNS resolver
-First create Cloudflare (my public DNS records) token to periodically update my IP.
-Just go Profile -> API Token -> Create Token -> Get Custom Token:
-- Your token name, anything
-- Add permissions:
-    - Zone.Zone Read
-    - Zone.DNS Edit
-- In Zone resources: Select Include All zones
-- Good to finish
-- Keep new API Token to use with `cloudflare-stack.yml` docker compose
 
-## Caddy (for services dont use Tunnel)
-Similar reason with Tunnel, we go with new LXC and remember to install `xcaddy`. My recommendation is having 1 LXC for both Caddy + Tunnel
+Create a Cloudflare API token to periodically update public IP / complete DNS challenges.
+
+Cloudflare path:
+
+```text
+Profile -> API Tokens -> Create Token -> Custom Token
 ```
+
+Recommended token permissions:
+
+```text
+Zone -> Zone -> Read
+Zone -> DNS -> Edit
+```
+
+Zone resources:
+
+```text
+Include -> Specific zone -> your-domain.example
+```
+
+The older note used `Include All zones`; prefer a specific zone if possible.
+
+Store the resulting token as an environment variable on the proxy LXC:
+
+```bash
+CF_API_TOKEN='<cloudflare-api-token>'
+```
+
+## Caddy
+
+Caddy is used for services that do not use Cloudflare Tunnel or where local wildcard TLS/reverse proxy is preferred.
+
+Install option:
+
+```text
 https://community-scripts.github.io/ProxmoxVE/scripts?id=caddy
 ```
 
-Because we use Cloudflare as our DNS so should install this module for SSL challenges
-```
+Because Cloudflare manages DNS, install/build Caddy with the Cloudflare DNS plugin for certificate challenges:
+
+```bash
 xcaddy build --with github.com/caddy-dns/cloudflare
-sudo mv ./caddy $(which caddy)
-sudo chmod +x $(which caddy)
+sudo mv ./caddy "$(which caddy)"
+sudo chmod +x "$(which caddy)"
 caddy list-modules
 ```
 
-Use [Caddyfile](./config/Caddyfile) as example to reverse proxy to a service with TLS, just copy its content for simplicity
+If using Caddy as DDNS updater too, build with both modules:
+
+```bash
+xcaddy build \
+  --with github.com/mholt/caddy-dynamicdns \
+  --with github.com/caddy-dns/cloudflare
+sudo mv ./caddy "$(which caddy)"
+sudo chmod +x "$(which caddy)"
+caddy list-modules
 ```
-touch Caddyfile
+
+Expected modules include:
+
+```text
+dns.providers.cloudflare
+```
+
+and, if using DDNS:
+
+```text
+dynamic_dns
+```
+
+## Caddyfile
+
+Current real config is tracked here:
+
+```text
+config/Caddyfile
+```
+
+Sanitized reusable template:
+
+```text
+config/Caddyfile.example
+```
+
+When rebuilding:
+
+```bash
+cp config/Caddyfile.example Caddyfile
 nano Caddyfile
+caddy fmt --overwrite Caddyfile
+sudo cp Caddyfile /etc/caddy/Caddyfile
+sudo systemctl restart caddy
+sudo systemctl status caddy --no-pager
 ```
 
-Then move it to Caddy config folder and run daemon, remember to add API Token in [DDNS](#dynamic-dns-resolver) in environment variable
-```
-caddy fmt --overwrite
-cp Caddyfile /etc/caddy/Caddyfile
-caddy start
+If running Caddy manually instead of systemd:
+
+```bash
+caddy start --config /etc/caddy/Caddyfile
 ```
 
-### DDNS module
-This is another solution replace for cloudflare-ddns stack
-```
-xcaddy build --with github.com/mholt/caddy-dynamicdns --with github.com/caddy-dns/cloudflare
-```
-Remember to overwrite main Caddy to apply new module
+## Persist Cloudflare token for Caddy
 
-This is simple for owned domain:
-```
-{
-	dynamic_dns {
-		provider cloudflare {env.CF_API_TOKEN}
-		domains {
-			liftlab.dev
-		}
-		dynamic_domains  
-	}
-}
-```
-Important line is `dynamic_domains`, this makes Caddy manage all server blocks below which match to domains listed above. In this case, `*.liftlab.dev`
+Recommended systemd override:
 
-### Cloudflare API KEY
-Need a API key to challenge TLS cert. In Caddy LXC, I save it in `/etc/profile` to load as env vars when booting
+```bash
+sudo systemctl edit caddy
+```
+
+Add:
+
+```ini
+[Service]
+Environment=CF_API_TOKEN=replace-with-real-token
+```
+
+Then reload and restart:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl restart caddy
+```
+
+Alternative current/simple approach: save export in `/etc/profile`, but systemd services may not always read shell profile files. Prefer the systemd override for Caddy.
+
+## Cloudflare MCP
+
+TODO: document the exact current Cloudflare MCP installation and config after checking the live proxy LXC.
+
+What should be captured:
+
+- Install method/package.
+- Config path.
+- How Hermes or other agents call it.
+- Required Cloudflare token scopes.
+- Whether it runs under systemd, Docker, or directly.
+
+Secret guidance:
+
+- Create Cloudflare API token from Cloudflare profile/API Tokens.
+- Scope token only to required operations if possible.
+- Store token in the MCP service environment, not in Git.
+
+## Verification
+
+After rebuild:
+
+```bash
+cloudflared tunnel list
+cloudflared tunnel info <tunnel-name-or-id>
+systemctl status cloudflared --no-pager
+caddy validate --config /etc/caddy/Caddyfile
+systemctl status caddy --no-pager
+```
+
+Then test from LAN and outside LAN:
+
+- Public Cloudflare Tunnel hostname resolves.
+- Cloudflare Access login appears where expected.
+- Caddy wildcard hosts obtain certificates.
+- Internal reverse proxies reach the correct LXC IP/port.

@@ -22,6 +22,20 @@ Labels:
 
 ## In Progress
 
+### HL-080 — Update proxy LXC guide for Caddy + Cloudflare Tunnel + Cloudflare MCP
+- Labels: `docs`, `config`, `secret-safe`, `parallel`, `verify`
+- Existing file: `proxy/Access-Setup.md`
+- Progress:
+  - Expanded proxy LXC rebuild guide.
+  - Added sanitized `proxy/config/Caddyfile.example`.
+  - Documented Cloudflare Tunnel, Access, Caddy DNS challenge, DDNS, and `CF_API_TOKEN` storage.
+- Remaining:
+  - Capture exact current Cloudflare MCP install/config from live proxy LXC.
+- Acceptance criteria:
+  - [x] Token scopes are documented without real secrets.
+  - [x] Caddy and Tunnel validation commands are included.
+  - [ ] Cloudflare MCP restore steps are documented and verified.
+
 ### HL-001 — Repository audit and rebuild scope
 - Labels: `docs`, `parallel`
 - Goal: inventory existing files and define what must be added for repeatable fresh setup.
@@ -39,6 +53,7 @@ Labels:
 
 ### HL-010 — Create top-level fresh rebuild runbook
 - Labels: `docs`
+- Status: initial version added at `Fresh-Homelab-Rebuild.md`
 - Proposed file: `README.md` or `Fresh-Homelab-Rebuild.md`
 - Goal: one entrypoint that orders the full rebuild from bare Proxmox to working services.
 - Include:
@@ -142,32 +157,16 @@ Labels:
 - Acceptance criteria:
   - Clear enough to debug broken integration after fresh install.
 
-### HL-080 — Update proxy LXC guide for Caddy + Cloudflare Tunnel + Cloudflare MCP
-- Labels: `docs`, `config`, `secret-safe`, `parallel`, `verify`
-- Existing file: `proxy/Access-Setup.md`
-- Goal: make proxy LXC reproducible.
-- Include from current status:
-  - Caddy install with Cloudflare DNS module
-  - Cloudflare Tunnel setup
-  - Cloudflare MCP setup/config
-  - Required Cloudflare tokens/scopes
-  - Where env vars live on LXC boot
-  - How public hostnames map to internal services
-- Acceptance criteria:
-  - Token scopes are documented without real secrets.
-  - Caddy and Tunnel validation commands are included.
-
 ### HL-090 — Convert Caddyfile into safer template
 - Labels: `config`, `secret-safe`, `verify`
 - Existing file: `proxy/config/Caddyfile`
-- Goal: avoid hard-coded current domain/IPs where possible.
-- Include:
-  - `Caddyfile.example` with placeholders or env vars
-  - Optional `Caddyfile.current.md` notes for real internal mapping if not secret
-  - Fix naming mismatch if `flaresolverr` vs `flaresolver` hostname is intentional/not intentional
+- Status: initial sanitized template added at `proxy/config/Caddyfile.example`
+- Remaining:
+  - Optional `Caddyfile.current.md` notes for real internal mapping if not secret.
+  - Fix naming mismatch if `flaresolverr` vs `flaresolver` hostname is intentional/not intentional.
 - Acceptance criteria:
-  - Fresh setup can copy template and replace placeholders.
-  - No private tokens committed.
+  - [x] Fresh setup can copy template and replace placeholders.
+  - [x] No private tokens committed.
 
 ### HL-100 — Document arr stack exact settings
 - Labels: `docs`, `config`, `verify`
