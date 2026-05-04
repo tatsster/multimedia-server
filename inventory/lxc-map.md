@@ -28,6 +28,15 @@ For GPU passthrough to media/Jellyfin/Tdarr containers, see `server-arr/Multimed
 
 Fill exact CT IDs/IPs from the live homelab.
 
+To speed this up, run the audit helper from the Proxmox VE host:
+
+```bash
+cd /root/repos/multimedia-server
+./scripts/pve/audit-lxcs.sh
+```
+
+It writes `inventory/live-lxc-audit.md`. Review that generated file for private notes before committing anything copied from it.
+
 | CT ID | Name | IP | Creation method | Role | Key ports | Mounts | Guide / script |
 |---|---|---|---|---|---|---|---|
 | TBD | media-arr | TBD | Manual repo script | Arr stack, qBittorrent, Prowlarr, Sonarr, Radarr, Bazarr, Tdarr, Flaresolverr, QBWrapper, Lingarr | 8080, 9696, 8989, 7878, 6767, 8265, 8266, 8191, 9911, 9876 | `/media`, `/docker/*` | `server-arr/Multimedia-Setup.md`, `scripts/pve/create-media-arr-lxc.sh` |

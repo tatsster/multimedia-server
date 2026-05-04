@@ -66,6 +66,34 @@ They are intentionally simple and readable.
 | `create-hermes-lxc.sh` | Hermes LXC starter with sanitized config example copied in |
 | `create-omniroute-lxc.sh` | OmniRoute LXC starter using Node/npm package path if available |
 | `create-hindsight-lxc.sh` | Hindsight LXC starter placeholder; exact install command still needs live verification |
+| `audit-lxcs.sh` | Generate a secret-safe-ish Markdown audit of current live LXC configs to help fill `inventory/lxc-map.md` |
+
+## Audit existing live LXCs
+
+Before rebuilding, run this on the current Proxmox VE host to capture CT IDs, IP configs, nesting/privileged settings, mounts, and creation hints:
+
+```bash
+cd /root/repos/multimedia-server
+./scripts/pve/audit-lxcs.sh
+```
+
+Default output:
+
+```text
+inventory/live-lxc-audit.md
+```
+
+Review before committing because live LXC descriptions/notes can contain private details:
+
+```bash
+grep -RInE 'password|token|secret|key|Bearer|eyJ|sk-' inventory/live-lxc-audit.md
+```
+
+Then copy verified values into:
+
+```text
+inventory/lxc-map.md
+```
 
 ## Before running
 

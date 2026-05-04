@@ -108,8 +108,12 @@ Labels:
 
 ### HL-030 — Define canonical LXC inventory and network map
 - Labels: `docs`, `config`, `verify`
-- Proposed file: `inventory/lxc-map.md` or section in top-level runbook
+- File: `inventory/lxc-map.md`
 - Goal: list every LXC and its role/IP/ports/mounts plus whether it is created by Community Scripts or repo scripts.
+- Progress:
+  - Added canonical LXC defaults and service table.
+  - Added creation method column for Community Scripts vs manual repo scripts.
+  - Added `scripts/pve/audit-lxcs.sh` to capture live CT config into `inventory/live-lxc-audit.md` for review.
 - Include known LXCs:
   - media/arr stack LXC
   - proxy LXC: Caddy + Cloudflare Tunnel + Cloudflare MCP
@@ -118,8 +122,9 @@ Labels:
   - hindsight LXC
   - optional Jellyfin custom LXC if separated from arr stack
 - Acceptance criteria:
-  - Fresh rebuild has a clear target IP/hostname plan.
-  - All ports exposed by compose/Caddy/Tunnel are captured.
+  - [ ] Fresh rebuild has a clear target IP/hostname plan.
+  - [ ] All ports exposed by compose/Caddy/Tunnel are captured.
+  - [x] There is a repeatable way to audit current live LXC config before rebuild.
 
 ### HL-040 — Add Hermes LXC setup guide
 - Labels: `docs`, `config`, `parallel`, `verify`
