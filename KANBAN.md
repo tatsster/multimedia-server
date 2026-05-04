@@ -69,6 +69,7 @@ Labels:
 
 ### HL-001 — Repository audit and rebuild scope
 - Labels: `docs`, `parallel`
+- Status: mostly complete; keep open only until remaining tasks are normalized and every guide links from the main runbook.
 - Goal: inventory existing files and define what must be added for repeatable fresh setup.
 - Current findings:
   - Existing guides: `Homelab-Setup.md`, `server-arr/Multimedia-Setup.md`, `proxy/Access-Setup.md`, `glance/Readme.md`
@@ -271,39 +272,6 @@ Labels:
   - [x] Pass/fail checklist exists for each critical service.
   - [x] Optional smoke-test helper does not require or store secrets.
 
----
-
-## Backlog
-
-### HL-130 — Add backup and restore plan
-- Labels: `docs`, `verify`
-- Goal: document what must be backed up to recreate current state exactly.
-- Include:
-  - Proxmox LXC config files
-  - Docker config directories under `/docker/*`
-  - Media/data mounts
-  - Caddy config/env
-  - Cloudflare tunnel credentials if locally stored
-  - Hermes/OmniRoute/Hindsight data/config/db
-  - Glance config/API keys
-- Acceptance criteria:
-  - Restore steps are documented and tested for at least one service.
-
-### HL-140 — Add service ownership and secret inventory
-- Labels: `docs`, `secret-safe`
-- Goal: create a private checklist of required accounts/tokens without storing the actual values.
-- Include:
-  - Cloudflare DNS token
-  - Cloudflare Tunnel token
-  - Cloudflare MCP token/config
-  - Proxmox API token
-  - PBS API token
-  - Jellyfin API key
-  - qBittorrent/qbwrapper auth
-  - AI provider keys used by OmniRoute/Hermes
-- Acceptance criteria:
-  - `.env.example` has every required variable.
-  - Docs say where to generate each secret and minimum scopes.
 
 ### HL-150 — Update Glance/dashboard docs
 - Labels: `docs`, `config`, `verify`
@@ -349,6 +317,41 @@ Labels:
 - Acceptance criteria:
   - [x] Diagram exists in Mermaid or Markdown table.
   - [x] Diagram is secret-free and points to detailed service docs.
+
+---
+
+## Backlog
+
+### HL-180 — Add backup and restore plan
+- Labels: `docs`, `verify`
+- Status: renamed from duplicate `HL-130` to keep task IDs unique.
+- Goal: document what must be backed up to recreate current state exactly.
+- Include:
+  - Proxmox LXC config files
+  - Docker config directories under `/docker/*`
+  - Media/data mounts
+  - Caddy config/env
+  - Cloudflare tunnel credentials if locally stored
+  - Hermes/OmniRoute/Hindsight data/config/db
+  - Glance config/API keys
+- Acceptance criteria:
+  - Restore steps are documented and tested for at least one service.
+
+### HL-140 — Add service ownership and secret inventory
+- Labels: `docs`, `secret-safe`
+- Goal: create a private checklist of required accounts/tokens without storing the actual values.
+- Include:
+  - Cloudflare DNS token
+  - Cloudflare Tunnel token
+  - Cloudflare MCP token/config
+  - Proxmox API token
+  - PBS API token
+  - Jellyfin API key
+  - qBittorrent/qbwrapper auth
+  - AI provider keys used by OmniRoute/Hermes
+- Acceptance criteria:
+  - `.env.example` has every required variable.
+  - Docs say where to generate each secret and minimum scopes.
 
 ---
 
