@@ -52,9 +52,7 @@ Minimum LXCs currently planned/documented:
 | LXC | Creation method | Purpose | Doc/script |
 | --- | --- | --- | --- |
 | media-arr | Manual repo script | arr stack, qBittorrent, Jellyfin-related services | [server-arr/Multimedia-Setup.md](./server-arr/Multimedia-Setup.md), [scripts/pve/create-media-arr-lxc.sh](./scripts/pve/create-media-arr-lxc.sh) |
-| proxy-caddy | Community Scripts | Caddy reverse proxy | [proxy/Access-Setup.md](./proxy/Access-Setup.md) |
-| proxy-cloudflared | Community Scripts | Cloudflare Tunnel connector | [proxy/Access-Setup.md](./proxy/Access-Setup.md) |
-| proxy | Manual/post-install merge if desired | Caddy + Cloudflare Tunnel + Cloudflare MCP in one LXC | [proxy/Access-Setup.md](./proxy/Access-Setup.md) |
+| proxy | Community Scripts Caddy LXC + manual post-install | Caddy + Cloudflare Tunnel + Cloudflare MCP in one dedicated LXC | [proxy/Access-Setup.md](./proxy/Access-Setup.md) |
 | hermes | Manual repo script | Hermes agent/gateway | [hermes/README.md](./hermes/README.md), [scripts/pve/create-hermes-lxc.sh](./scripts/pve/create-hermes-lxc.sh) |
 | omniroute | Manual repo script | Local OpenAI-compatible provider/router | [omniroute/README.md](./omniroute/README.md), [scripts/pve/create-omniroute-lxc.sh](./scripts/pve/create-omniroute-lxc.sh) |
 | hindsight | Manual repo script | Hermes long-term memory provider | [hindsight/README.md](./hindsight/README.md), [scripts/pve/create-hindsight-lxc.sh](./scripts/pve/create-hindsight-lxc.sh) |

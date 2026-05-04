@@ -53,12 +53,15 @@ Labels:
   - Expanded proxy LXC rebuild guide.
   - Added sanitized `proxy/config/Caddyfile.example`.
   - Documented Cloudflare Tunnel, Access, Caddy DNS challenge, DDNS, and `CF_API_TOKEN` storage.
+  - Verified live proxy LXC `201` via PVE SSH: it runs Caddy, Cloudflare Tunnel, Node/npm/npx, and `/usr/local/bin/cloudflare-mcp` together in one LXC.
+  - Rewrote `proxy/Access-Setup.md` to make the one-LXC pattern canonical and removed confusing separate-Caddy/separate-Cloudflared guidance.
+  - Documented the sanitized Cloudflare MCP wrapper flow using `npx --yes @cloudflare/mcp-server-cloudflare run` with `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` placeholders.
 - Remaining:
-  - Capture exact current Cloudflare MCP install/config from live proxy LXC.
+  - Optional: create a full automated `create-proxy-lxc.sh`; current documented path is Community Scripts Caddy LXC plus manual post-install.
 - Acceptance criteria:
   - [x] Token scopes are documented without real secrets.
   - [x] Caddy and Tunnel validation commands are included.
-  - [ ] Cloudflare MCP restore steps are documented and verified.
+  - [x] Cloudflare MCP restore steps are documented and verified from live LXC layout.
 
 ### HL-001 — Repository audit and rebuild scope
 - Labels: `docs`, `parallel`

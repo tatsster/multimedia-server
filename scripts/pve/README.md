@@ -12,8 +12,7 @@ Purpose:
 
 | LXC/service | Creation method | Why |
 | --- | --- | --- |
-| Caddy | Community Scripts | Upstream script exists and handles app install |
-| Cloudflared | Community Scripts | Upstream script exists and handles app install |
+| proxy | Community Scripts Caddy LXC + manual post-install | One dedicated LXC that runs Caddy, Cloudflare Tunnel, and Cloudflare MCP together |
 | media-arr Docker LXC | Manual script in this repo | Needs homelab-specific Docker, mounts, compose repo checkout |
 | Hermes | Manual script in this repo | Custom Hermes config, gateway, OmniRoute/Hindsight integration |
 | OmniRoute | Manual script in this repo | No confirmed community script; needs onboarding/password workaround docs |
@@ -21,25 +20,19 @@ Purpose:
 
 ## Community Scripts notes
 
-The current notes reference these community-scripts pages:
+The current proxy rebuild uses the Community Scripts **Caddy** LXC as the base, then installs Cloudflare Tunnel and Cloudflare MCP into that same LXC:
 
 ```text
 https://community-scripts.github.io/ProxmoxVE/scripts?id=caddy
-https://community-scripts.github.io/ProxmoxVE/scripts?id=cloudflared
 ```
 
-The raw script pattern is:
-
-```bash
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/community-scripts/ProxmoxVE/main/ct/<script>.sh)"
-```
-
-Examples:
+Raw PVE shell command pattern:
 
 ```bash
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/community-scripts/ProxmoxVE/main/ct/caddy.sh)"
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/community-scripts/ProxmoxVE/main/ct/cloudflared.sh)"
 ```
+
+Do **not** run the Cloudflared community script as a second LXC for the normal rebuild. See `../../proxy/Access-Setup.md` for the combined Caddy + Tunnel + MCP setup.
 
 Important: upstream defaults currently use unprivileged containers for many scripts. During Advanced setup, adjust to match this homelab where needed:
 

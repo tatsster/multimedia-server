@@ -1,7 +1,8 @@
 {
-	# Current setup exposes Caddy admin on all interfaces.
-	# Only keep this if the admin endpoint is protected by firewall/LAN rules.
-	admin 0.0.0.0:2019
+	# Current live setup exposes Caddy admin on all interfaces.
+	# Safer default is localhost. Only use 0.0.0.0 if LAN/firewall protects it.
+	# admin 0.0.0.0:2019
+	admin localhost:2019
 
 	# Optional: use Caddy as DDNS updater with Cloudflare.
 	# Requires Caddy built with:
@@ -10,7 +11,7 @@
 	dynamic_dns {
 		provider cloudflare {env.CF_API_TOKEN}
 		domains {
-			example.com service1 service2 service3
+			example.com play vaultwarden flaresolverr
 		}
 		dynamic_domains
 		versions ipv4
@@ -26,17 +27,17 @@
 		resolvers 1.1.1.1
 	}
 
-	# Example HTTP backend, copied from the current pattern used for Jellyfin.
-	@jellyfin host jellyfin.example.com
+	# Example HTTP backend, copied from the current live pattern used for Jellyfin.
+	@jellyfin host play.example.com
 	handle @jellyfin {
-		reverse_proxy http://LAN_SERVICE_IP:8096
+		reverse_proxy http://JELLYFIN_LXC_IP:8096
 	}
 
 	# Example HTTPS backend with self-signed/internal certificate.
 	# Use tls_insecure_skip_verify only for trusted LAN services.
 	@vaultwarden host vaultwarden.example.com
 	handle @vaultwarden {
-		reverse_proxy https://LAN_SERVICE_IP:8000 {
+		reverse_proxy https://VAULTWARDEN_LXC_IP:8000 {
 			transport http {
 				tls
 				tls_insecure_skip_verify
@@ -44,9 +45,9 @@
 		}
 	}
 
-	# Example utility service.
+	# Example utility service. Keep hostname spelling consistent with Cloudflare DNS/Tunnel.
 	@flaresolverr host flaresolverr.example.com
 	handle @flaresolverr {
-		reverse_proxy http://LAN_SERVICE_IP:8191
+		reverse_proxy http://MULTIMEDIA_LXC_IP:8191
 	}
 }
