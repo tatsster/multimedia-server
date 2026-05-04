@@ -326,13 +326,17 @@ Labels:
 ### HL-160 — Add automation scripts where simple and stable
 - Labels: `config`, `parallel`
 - Goal: reduce manual repetition without overengineering.
-- Candidate scripts:
-  - `scripts/check-env.sh`
-  - `scripts/validate-compose.sh`
-  - `scripts/render-caddy-template.sh`
-  - `scripts/smoke-test.sh`
+- Progress:
+  - Added `scripts/smoke-test.sh` for optional non-destructive HTTP/TCP checks after rebuild.
+  - Added `scripts/check-env.sh` to verify committed `.env.example` files exist and secret-like variables use placeholder values.
+  - `scripts/check-env.sh` also compares local `.env` files to examples when present and warns when local env files still need to be created.
+  - Linked helpers from `Fresh-Homelab-Rebuild.md` and `scripts/pve/README.md`.
+- Remaining candidates:
+  - `scripts/validate-compose.sh` after Docker validation environment is available.
+  - `scripts/render-caddy-template.sh` only if Caddy templating becomes repetitive enough to justify it.
 - Acceptance criteria:
-  - Scripts are simple, readable, and optional.
+  - [x] Scripts are simple, readable, and optional.
+  - [x] Env helper does not print or require real secrets.
 
 ### HL-170 — Add architecture diagram
 - Labels: `docs`

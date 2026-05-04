@@ -61,6 +61,13 @@ They are intentionally simple and readable.
 | `create-hindsight-lxc.sh` | Hindsight LXC starter placeholder; exact install command still needs live verification |
 | `audit-lxcs.sh` | Generate a secret-safe-ish Markdown audit of current live LXC configs to help fill `inventory/lxc-map.md` |
 
+Repo-level helpers outside this folder:
+
+| Script | Purpose |
+| --- | --- |
+| `../check-env.sh` | Check committed `.env.example` files for required placeholder-style secret values and compare local `.env` files when present |
+| `../smoke-test.sh` | Optional non-destructive HTTP/TCP smoke tests after rebuild |
+
 ## Audit existing live LXCs
 
 Before rebuilding, run this on the current Proxmox VE host to capture CT IDs, IP configs, nesting/privileged settings, mounts, and creation hints.

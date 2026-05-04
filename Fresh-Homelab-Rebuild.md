@@ -140,7 +140,8 @@ Known troubleshooting to preserve:
 Use the dedicated checklist:
 
 - [VERIFY.md](./VERIFY.md)
-- Optional helper: [scripts/smoke-test.sh](./scripts/smoke-test.sh)
+- Optional service helper: [scripts/smoke-test.sh](./scripts/smoke-test.sh)
+- Optional env placeholder helper: [scripts/check-env.sh](./scripts/check-env.sh)
 
 Minimum final sign-off after rebuild:
 
@@ -158,4 +159,4 @@ Track detailed work in [KANBAN.md](./KANBAN.md). Biggest remaining gaps:
 
 - Optional full backup/restore smoke tests for OmniRoute/Hindsight on disposable LXCs.
 - Optional healthchecks for the media Docker compose after a fresh LXC retest.
-- Glance/dashboard rebuild docs.
+- Optional fresh-LXC script retests for Hermes/media/Hindsight on Proxmox.
