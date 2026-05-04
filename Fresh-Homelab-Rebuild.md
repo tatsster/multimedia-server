@@ -100,9 +100,11 @@ Recommended:
 Read:
 
 - [server-arr/Multimedia-Setup.md](./server-arr/Multimedia-Setup.md)
+- [server-arr/arr-live-settings.md](./server-arr/arr-live-settings.md)
 - [server-arr/arr-stack.yml](./server-arr/arr-stack.yml)
+- [server-arr/.env.example](./server-arr/.env.example)
 
-TODO: exact UI settings still need to be exported/documented for Sonarr/Radarr/Prowlarr/Bazarr/qBittorrent/Jellyfin.
+The current live UI/settings inventory has been captured for qBittorrent, Prowlarr, Sonarr, Radarr, Bazarr, Tdarr, Lingarr, FlareSolverr, QBWrapper, Jellyfin, and Jellyseerr. Recreate secrets from the app UIs as documented instead of committing real keys/passwords.
 
 ### 6. AI services
 

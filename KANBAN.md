@@ -226,32 +226,33 @@ Labels:
 ### HL-100 — Document arr stack exact settings
 - Labels: `docs`, `config`, `verify`
 - Existing files: `server-arr/Multimedia-Setup.md`, `server-arr/arr-stack.yml`
-- Goal: capture all UI settings needed after docker compose starts.
-- Include from current status:
-  - qBittorrent first password/log lookup and final settings
-  - Prowlarr indexer choices, auth, minimum seeders
-  - Prowlarr app links to Radarr/Sonarr
-  - Radarr/Sonarr root folders, torrent client, remove completed
-  - Bazarr providers and language profile
-  - Jellyfin/Jellyseerr setup
-  - Lingarr/Tdarr/Flaresolverr/QBWrapper settings
+- Status: live settings captured in `server-arr/arr-live-settings.md`.
+- Progress:
+  - Verified live multimedia LXC `101`: Ubuntu 22.04, IP `192.168.1.103`, privileged, `features: nesting=1`, `memory: 6144`, `swap: 512`, `cpulimit: 8`, rootfs `40G`.
+  - Verified mounts: `/main/docker -> /docker`, `/data/media -> /media`, GPU passthrough for `/dev/dri/card0` and `/dev/dri/renderD128`.
+  - Verified running containers/ports for qBittorrent, Prowlarr, Sonarr, Radarr, Bazarr, Tdarr, FlareSolverr, QBWrapper, Lingarr, Portainer, and Glance.
+  - Captured qBittorrent paths/settings, including completed/incomplete/torrent export paths and first-login password lookup.
+  - Captured Prowlarr indexer list, priorities, minimum seeders, FlareSolverr proxy, and Sonarr/Radarr application sync flow without API keys.
+  - Captured Sonarr/Radarr root folders, qBittorrent categories, remove-completed settings, naming formats, and lack of remote path mappings.
+  - Captured Bazarr providers/settings, Jellyfin service paths, and Jellyseerr integration paths/settings with all tokens/webhooks redacted.
+  - Added backup/restore procedure and secret recreation checklist.
 - Acceptance criteria:
-  - All manual UI steps are listed in order.
-  - API key placeholders and where to find them are documented.
+  - [x] All manual UI steps are listed in order.
+  - [x] API key placeholders and where to find them are documented.
+  - [ ] Optional: perform fresh restore test from documented backups.
 
 ### HL-110 — Improve arr stack compose/env safety
 - Labels: `config`, `secret-safe`, `verify`
 - Existing files: `server-arr/arr-stack.yml`, `.env`
-- Goal: make compose portable and secret-safe.
-- Include:
-  - Add `.env.example`
-  - Replace hard-coded PUID/PGID/TZ where useful
-  - Normalize `/media` vs `/data` volume paths
-  - Check qBittorrent/qbwrapper credentials are all externalized
-  - Optional healthchecks
+- Status: initial service-specific env example added.
+- Progress:
+  - Added `server-arr/.env.example` for PUID/PGID/TZ, qBittorrent username/password, and QBWrapper token.
+  - Updated `arr-stack.yml` to externalize PUID/PGID/TZ and QBWrapper username/password/token.
+  - Updated `create-media-arr-lxc.sh` to copy `server-arr/.env.example` to `.env` inside the new LXC and link to the live settings guide.
 - Acceptance criteria:
-  - `docker compose --env-file .env up -d` works after copying `.env.example`.
-  - No real secrets in repo.
+  - [x] `docker compose --env-file .env up -d` works after copying `.env.example`.
+  - [x] No real secrets in repo.
+  - [ ] Optional: add healthchecks after the stack is retested from a fresh LXC.
 
 ### HL-120 — Add post-rebuild verification checklist
 - Labels: `docs`, `verify`

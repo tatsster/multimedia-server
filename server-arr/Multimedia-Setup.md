@@ -24,6 +24,16 @@ Main instruction from [Techhut](https://github.com/TechHutTV/homelab/tree/main/m
 
 [**Unmanic**](https://docs.unmanic.app) is a great tool for optimising media files. For example, you can use it to remove unneccessary subtitles/audio tracks and transcode media to your desired format.
 
+## Current live settings
+
+The current homelab's inspected CT IDs, ports, app paths, UI settings, indexers, download-client categories, backup paths, and secret recreation notes are documented in:
+
+- [`arr-live-settings.md`](./arr-live-settings.md)
+- [`arr-stack.yml`](./arr-stack.yml)
+- [`.env.example`](./.env.example)
+
+Use this file for the high-level setup flow, and use `arr-live-settings.md` when you need exact values during a fresh rebuild.
+
 ## Setup
 ### Add GPU devices (only for Proxmox)
 Go to `/dev/dri/` in Proxmox host and run `ls -l`. Should have something like this
@@ -59,8 +69,11 @@ Change all User id, Group id services with:
 
 ### How to run
 Just simple
-```
-docker compose up -d
+```bash
+cp .env.example .env
+nano .env
+# Fill QB_USERNAME, QB_PASSWORD, AUTH_TOKEN, then start:
+docker compose --env-file .env -f arr-stack.yml up -d
 ```
 
 ### Torrent Client

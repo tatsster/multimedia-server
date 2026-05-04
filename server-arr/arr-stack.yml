@@ -9,8 +9,9 @@ services:
     container_name: qbittorrent
     image: ghcr.io/linuxserver/qbittorrent
     environment:
-      - PUID=1000
-      - PGID=1000
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-Asia/Ho_Chi_Minh}
       - WEBUI_PORT=8080
     volumes:
       - /docker/qbittorrent:/config
@@ -26,9 +27,9 @@ services:
     container_name: prowlarr
     image: lscr.io/linuxserver/prowlarr:latest
     environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Asia/Ho_Chi_Minh
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-Asia/Ho_Chi_Minh}
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /docker/prowlarr:/config
@@ -43,9 +44,9 @@ services:
     container_name: sonarr
     image: ghcr.io/linuxserver/sonarr:latest
     environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Asia/Ho_Chi_Minh
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-Asia/Ho_Chi_Minh}
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /docker/sonarr:/config
@@ -61,9 +62,9 @@ services:
     image: ghcr.io/linuxserver/radarr:latest
     container_name: radarr
     environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Asia/Ho_Chi_Minh
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-Asia/Ho_Chi_Minh}
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /docker/radarr:/config
@@ -79,9 +80,9 @@ services:
     container_name: bazarr
     image: lscr.io/linuxserver/bazarr:latest
     environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Asia/Ho_Chi_Minh
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-Asia/Ho_Chi_Minh}
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /docker/bazarr:/config
@@ -101,9 +102,9 @@ services:
       - 8265:8265 # webUI port
       - 8266:8266 # server port
     environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Asia/Ho_Chi_Minh
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-Asia/Ho_Chi_Minh}
       - UMASK_SET=002
       - serverIP=0.0.0.0
       - serverPort=8266
@@ -134,7 +135,7 @@ services:
       - LOG_LEVEL=info
       - LOG_HTML=false
       - CAPTCHA_SOLVER=none
-      - TZ=Asia/Ho_Chi_Minh
+      - TZ=${TZ:-Asia/Ho_Chi_Minh}
     networks:
       servarrnetwork:
         ipv4_address: 172.18.0.8
@@ -146,8 +147,8 @@ services:
     ports:
       - 9911:9911
     environment:
-      - TZ=Asia/Ho_Chi_Minh
-      - USERNAME=nhpham
+      - TZ=${TZ:-Asia/Ho_Chi_Minh}
+      - USERNAME=${QB_USERNAME}
       - PASSWORD=${QB_PASSWORD}
       - BASE_URL=http://172.18.0.2:8080
       - AUTH_TOKEN=${AUTH_TOKEN}
@@ -160,7 +161,7 @@ services:
     container_name: lingarr
     restart: always
     environment:
-      - TZ=Asia/Ho_Chi_Minh
+      - TZ=${TZ:-Asia/Ho_Chi_Minh}
       - ASPNETCORE_URLS=http://+:9876
       - MAX_CONCURRENT_JOBS=2
     ports:

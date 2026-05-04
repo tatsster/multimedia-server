@@ -51,7 +51,7 @@ pct_bash "$CTID" 'echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/ap
 pct_bash "$CTID" "apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin"
 pct_bash "$CTID" "systemctl enable --now docker"
 pct_bash "$CTID" "git clone '$REPO_URL' '$REPO_DIR' || (cd '$REPO_DIR' && git pull)"
-pct_bash "$CTID" "cd '$REPO_DIR/server-arr' && cp -n ../.env.example .env.example || true"
+pct_bash "$CTID" "cd '$REPO_DIR/server-arr' && cp -n .env.example .env || true"
 
 cat <<EOF
 
@@ -59,10 +59,9 @@ media-arr LXC created.
 
 Next steps inside CT $CTID:
   cd $REPO_DIR/server-arr
-  cp ../.env.example .env
   nano .env
   docker compose -f arr-stack.yml --env-file .env up -d
 
-Then configure app UI settings from server-arr/Multimedia-Setup.md.
+Then configure app UI settings from server-arr/Multimedia-Setup.md and server-arr/arr-live-settings.md.
 EOF
 print_lxc_summary "$CTID"
