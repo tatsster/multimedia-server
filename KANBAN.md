@@ -45,8 +45,6 @@ No active documentation-normalization task remains. Add a new `Ready` task here 
 
 ---
 
-## Done
-
 ### HL-DOC-050 — Normalize media/arr, proxy, and Glance docs
 - Labels: `docs`, `secret-safe`
 - Status: completed.
