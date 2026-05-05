@@ -1,6 +1,17 @@
 # Hermes LXC Setup
 
-This folder captures the current Hermes LXC setup and system-level configuration in a secret-safe form.
+This folder captures the current Hermes LXC setup and system-level configuration in a secret-safe form. It is the rebuild guide for CT `108` / `hermes` and should be used together with the canonical inventory in [`../inventory/lxc-map.md`](../inventory/lxc-map.md).
+
+Fresh rebuild target:
+
+- LXC: privileged container / `Unprivileged container=No`
+- Feature: `nesting=1`
+- Network: static `192.168.1.110/24` on `vmbr0`
+- Model route: Hermes -> OmniRoute at `http://192.168.1.109:20128/v1`
+- Memory route: Hermes -> Hindsight at `http://192.168.1.111:8888`
+- Gateway: system-level `hermes-gateway.service` only
+
+Do not commit real API keys, provider tokens, Discord tokens, Proxmox token secrets, or passwords.
 
 ## Current live target
 
@@ -192,16 +203,26 @@ Expected result for root install:
 
 ### 3. Restore sanitized config templates
 
-Copy from the repo checkout into Hermes home:
+Copy from the repo checkout into Hermes home. If the repo is not present inside the LXC, copy these files from the Proxmox host first.
 
 ```bash
 mkdir -p /root/.hermes/hindsight
 cp hermes/config/config.system.example.yaml /root/.hermes/config.yaml
 cp hermes/config/hindsight.config.example.json /root/.hermes/hindsight/config.json
 cp .env.example /root/.hermes/.env.example
+cp /root/.hermes/.env.example /root/.hermes/.env
+chmod 0600 /root/.hermes/.env
 ```
 
-Then replace placeholders in `/root/.hermes/config.yaml`, `/root/.hermes/hindsight/config.json`, and `/root/.hermes/.env`.
+Then replace placeholders in:
+
+```text
+/root/.hermes/config.yaml
+/root/.hermes/hindsight/config.json
+/root/.hermes/.env
+```
+
+Keep `/root/.hermes/.env` private. It is intentionally ignored by Git.
 
 ### 4. Configure model/provider via `hermes config set`
 
@@ -211,7 +232,8 @@ Prefer `hermes config set` for model/provider changes so the command history doc
 hermes config set model.default "codex/gpt-5.5-medium"
 hermes config set model.provider "custom"
 hermes config set model.base_url "http://192.168.1.109:20128/v1"
-hermes config set model.api_key "<omniroute-api-key>"
+# Prefer env-backed config for secrets. If you must set a live key directly, never paste it into this repo.
+hermes config set model.api_key '${OMNIROUTE_API_KEY}'
 hermes config set memory.provider "hindsight"
 ```
 
@@ -265,22 +287,37 @@ Required/optional secrets:
 
 ### 7. Enable exactly one gateway service
 
-Current desired state is **system gateway active, user gateway removed/disabled**:
+Current desired state is **system gateway active, user gateway removed/disabled**.
+
+If the installer did not create `/etc/systemd/system/hermes-gateway.service`, create or restore the system unit using the service shape shown earlier in this guide, then run:
 
 ```bash
-# Stop/disable user-level gateway if present.
+systemctl daemon-reload
+systemctl enable --now hermes-gateway.service
+```
+
+Stop/disable the user-level gateway if present:
+
+```bash
 systemctl --user stop hermes-gateway.service 2>/dev/null || true
 systemctl --user disable hermes-gateway.service 2>/dev/null || true
 rm -f /root/.config/systemd/user/hermes-gateway.service
 systemctl --user daemon-reload 2>/dev/null || true
+```
 
-# Enable system-level gateway.
-systemctl daemon-reload
-systemctl enable --now hermes-gateway.service
+Restart/check the system gateway explicitly:
+
+```bash
+# Hermes helper, explicit system target
+hermes gateway restart --system
+hermes gateway status --system
+
+# Direct systemd equivalent
+systemctl restart hermes-gateway.service
 systemctl status hermes-gateway.service --no-pager
 ```
 
-If using Hermes CLI helpers, pass `--system` where needed or run direct `systemctl` commands to avoid ambiguity.
+Avoid plain `hermes gateway restart` when both user and system units exist, because the helper can target the user service by default.
 
 ## Troubleshooting: duplicate Hermes gateway
 
@@ -304,6 +341,9 @@ systemctl --user stop hermes-gateway.service 2>/dev/null || true
 systemctl --user disable hermes-gateway.service 2>/dev/null || true
 rm -f /root/.config/systemd/user/hermes-gateway.service
 systemctl --user daemon-reload 2>/dev/null || true
+systemctl daemon-reload
+systemctl enable --now hermes-gateway.service
+hermes gateway status --system
 systemctl status hermes-gateway.service --no-pager
 ```
 
@@ -325,9 +365,20 @@ Expected active process:
 
 ```bash
 hermes --version
+hermes config check
 hermes config get model
+hermes config get memory
+hermes gateway status --system
 systemctl status hermes-gateway.service --no-pager
 journalctl -u hermes-gateway -n 100 --no-pager
+```
+
+Optional endpoint checks from Hermes LXC:
+
+```bash
+curl -fsS http://192.168.1.109:20128/v1/models \
+  -H 'Authorization: Bearer <omniroute-api-key>' >/dev/null
+curl -fsS http://192.168.1.111:8888/health
 ```
 
 Expected model route:

@@ -1,14 +1,24 @@
+# Sanitized Hermes system-level config example.
+# Copy to /root/.hermes/config.yaml on the Hermes LXC, then replace placeholders
+# through /root/.hermes/.env or `hermes config set`.
+#
+# Do not commit real API keys, provider tokens, Discord tokens, Proxmox token
+# secrets, channel IDs, or private user IDs.
+
 model:
   default: codex/gpt-5.5-medium
   provider: custom
   base_url: ${OMNIROUTE_BASE_URL}
   api_key: ${OMNIROUTE_API_KEY}
   max_tokens: 65536
+
 providers: {}
 fallback_providers: []
 credential_pool_strategies: {}
+
 toolsets:
-- hermes-cli
+  - hermes-cli
+
 agent:
   max_turns: 100
   gateway_timeout: 1800
@@ -25,234 +35,24 @@ agent:
   reasoning_effort: medium
   personalities:
     concise: You are a concise technical assistant. Keep responses brief and useful.
+
 terminal:
   backend: local
-  modal_mode: auto
   cwd: .
   timeout: 180
-  env_passthrough: []
-  shell_init_files: []
-  auto_source_bashrc: true
-  docker_image: nikolaik/python-nodejs:python3.11-nodejs20
-  docker_forward_env: []
-  docker_env: {}
-  singularity_image: docker://nikolaik/python-nodejs:python3.11-nodejs20
-  modal_image: nikolaik/python-nodejs:python3.11-nodejs20
-  daytona_image: nikolaik/python-nodejs:python3.11-nodejs20
-  vercel_runtime: node24
+  persistent_shell: true
   container_cpu: 1
   container_memory: 5120
   container_disk: 51200
   container_persistent: true
-  docker_volumes: []
-  docker_mount_cwd_to_workspace: false
-  docker_run_as_host_user: false
-  persistent_shell: true
-  lifetime_seconds: 300
+
 browser:
   inactivity_timeout: 120
   command_timeout: 30
-  record_sessions: false
   allow_private_urls: false
   auto_local_for_private_urls: true
-  cdp_url: ''
-  dialog_policy: must_respond
-  dialog_timeout_s: 300
-  camofox:
-    managed_persistence: false
-  cloud_provider: local
   use_gateway: false
-checkpoints:
-  enabled: true
-  max_snapshots: 50
-  auto_prune: false
-  retention_days: 7
-  delete_orphans: true
-  min_interval_hours: 24
-file_read_max_chars: 1000000
-tool_output:
-  max_bytes: 10485760
-  max_lines: 200000
-  max_line_length: 100000
-tool_loop_guardrails:
-  warnings_enabled: true
-  hard_stop_enabled: false
-  warn_after:
-    exact_failure: 2
-    same_tool_failure: 3
-    idempotent_no_progress: 2
-  hard_stop_after:
-    exact_failure: 5
-    same_tool_failure: 8
-    idempotent_no_progress: 5
-compression:
-  enabled: true
-  threshold: 0.25
-  target_ratio: 0.08
-  protect_last_n: 4
-  hygiene_hard_message_limit: 80
-prompt_caching:
-  cache_ttl: 5m
-bedrock:
-  region: ''
-  discovery:
-    enabled: true
-    provider_filter: []
-    refresh_interval: 3600
-  guardrail:
-    guardrail_identifier: ''
-    guardrail_version: ''
-    stream_processing_mode: async
-    trace: disabled
-auxiliary:
-  vision:
-    provider: auto
-    model: ''
-    base_url: ''
-    api_key: ""
-    timeout: 120
-    extra_body: {}
-    download_timeout: 30
-  web_extract:
-    provider: auto
-    model: ''
-    base_url: ''
-    api_key: ""
-    timeout: 360
-    extra_body: {}
-  compression:
-    provider: auto
-    model: ''
-    base_url: ''
-    api_key: ""
-    timeout: 120
-    extra_body: {}
-  session_search:
-    provider: auto
-    model: ''
-    base_url: ''
-    api_key: ""
-    timeout: 30
-    extra_body: {}
-    max_concurrency: 3
-  skills_hub:
-    provider: auto
-    model: ''
-    base_url: ''
-    api_key: ""
-    timeout: 30
-    extra_body: {}
-  approval:
-    provider: auto
-    model: ''
-    base_url: ''
-    api_key: ""
-    timeout: 30
-    extra_body: {}
-  mcp:
-    provider: auto
-    model: ''
-    base_url: ''
-    api_key: ""
-    timeout: 30
-    extra_body: {}
-  title_generation:
-    provider: auto
-    model: ''
-    base_url: ''
-    api_key: ""
-    timeout: 30
-    extra_body: {}
-  curator:
-    provider: auto
-    model: ''
-    base_url: ''
-    api_key: ""
-    timeout: 600
-    extra_body: {}
-display:
-  compact: true
-  personality: concise
-  resume_display: none
-  busy_input_mode: interrupt
-  tui_auto_resume_recent: false
-  bell_on_complete: false
-  show_reasoning: false
-  streaming: true
-  final_response_markdown: strip
-  inline_diffs: true
-  show_cost: false
-  skin: default
-  tui_status_indicator: kaomoji
-  user_message_preview:
-    first_lines: 1
-    last_lines: 1
-  interim_assistant_messages: false
-  tool_progress_command: false
-  tool_progress_overrides: {}
-  tool_preview_length: 0
-  ephemeral_system_ttl: 0
-  platforms: {}
-  runtime_footer:
-    enabled: false
-    fields:
-    - model
-    - context_pct
-    - cwd
-  tool_progress: none
-  background_process_notifications: all
-dashboard:
-  theme: default
-privacy:
-  redact_pii: false
-tts:
-  provider: edge
-  edge:
-    voice: en-US-AriaNeural
-  elevenlabs:
-    voice_id: pNInz6obpgDQGcFmaJgB
-    model_id: eleven_multilingual_v2
-  openai:
-    model: gpt-4o-mini-tts
-    voice: alloy
-  xai:
-    voice_id: eve
-    language: en
-    sample_rate: 24000
-    bit_rate: 128000
-  mistral:
-    model: voxtral-mini-tts-2603
-    voice_id: c69964a6-ab8b-4f8a-9465-ec0925096ec8
-  neutts:
-    ref_audio: ''
-    ref_text: ''
-    model: neuphonic/neutts-air-q4-gguf
-    device: cpu
-  piper:
-    voice: en_US-lessac-medium
-stt:
-  enabled: true
-  provider: local
-  local:
-    model: base
-    language: ''
-  openai:
-    model: whisper-1
-  mistral:
-    model: voxtral-mini-latest
-voice:
-  record_key: ctrl+b
-  max_recording_seconds: 120
-  auto_tts: false
-  beep_enabled: true
-  silence_threshold: 200
-  silence_duration: 3.0
-human_delay:
-  mode: 'off'
-  min_ms: 800
-  max_ms: 2500
-context:
-  engine: compressor
+
 memory:
   memory_enabled: true
   user_profile_enabled: true
@@ -261,183 +61,135 @@ memory:
   provider: hindsight
   nudge_interval: 30
   flush_min_turns: 12
+
+# Hindsight client details live in /root/.hermes/hindsight/config.json.
+# Current target from the inventory:
+#   HINDSIGHT_API_URL=http://192.168.1.111:8888
+
+# Delegation is enabled at the platform/toolset level. Keep child settings simple
+# unless intentionally tuning subagent behavior.
 delegation:
   model: ''
   provider: ''
   base_url: ''
   api_key: ''
   inherit_mcp_toolsets: false
-  max_iterations: 0
   child_timeout_seconds: 600
-  reasoning_effort: ''
-  max_concurrent_children: 0
-  max_spawn_depth: 0
   orchestrator_enabled: false
   subagent_auto_approve: false
-prefill_messages_file: ''
-goals:
-  max_turns: 10
-skills:
-  external_dirs: []
-  template_vars: false
-  inline_shell: false
-  inline_shell_timeout: 10
-  guard_agent_created: false
-  creation_nudge_interval: 999999
-curator:
-  enabled: true
-  interval_hours: 168
-  min_idle_hours: 2
-  stale_after_days: 14
-  archive_after_days: 45
-  backup:
-    enabled: true
-    keep: 5
-honcho: {}
-timezone: ''
-discord:
-  require_mention: true
-  free_response_channels: ''
-  allowed_channels: ''
-  auto_thread: true
-  reactions: false
-  channel_prompts: {}
-  server_actions: ''
-whatsapp: {}
-telegram:
-  reactions: false
-  channel_prompts: {}
-slack:
-  channel_prompts: {}
-mattermost:
-  channel_prompts: {}
-approvals:
-  mode: manual
-  timeout: 60
-  cron_mode: deny
-  mcp_reload_confirm: true
-command_allowlist:
-- stop/restart system service
-- script execution via -e/-c flag
-- shell command via -c/-lc flag
-- overwrite system config
-quick_commands: {}
-hooks: {}
-hooks_auto_accept: false
-personalities: {}
-security:
-  allow_private_urls: false
-  redact_secrets: false
-  tirith_enabled: true
-  tirith_path: tirith
-  tirith_timeout: 5
-  tirith_fail_open: true
-  website_blocklist:
-    enabled: false
-    domains: []
-    shared_files: []
-cron:
-  wrap_response: true
-  max_parallel_jobs: null
-kanban:
-  dispatch_in_gateway: true
-  dispatch_interval_seconds: 60
-code_execution:
-  mode: project
-  timeout: 300
-  max_tool_calls: 50
-logging:
-  level: INFO
-  max_size_mb: 5
-  backup_count: 3
-model_catalog:
-  enabled: true
-  url: https://hermes-agent.nousresearch.com/docs/api/model-catalog.json
-  ttl_hours: 24
-  providers: {}
-network:
-  force_ipv4: false
-sessions:
-  auto_prune: false
-  retention_days: 30
-  vacuum_after_prune: true
-  min_interval_hours: 24
-onboarding:
-  seen: {}
-updates:
-  pre_update_backup: false
-  backup_keep: 5
-_config_version: 23
-session_reset:
-  mode: both
-  idle_minutes: 720
-  at_hour: 4
-group_sessions_per_user: true
-streaming:
-  enabled: false
-platform_toolsets:
-  cli:
-  - browser
-  - clarify
-  - code_execution
-  - cronjob
-  - delegation
-  - file
-  - image_gen
-  - kanban
-  - memory
-  - messaging
-  - session_search
-  - skills
-  - terminal
-  - todo
-  - tts
-  - vision
-  - web
-  telegram:
-  - hermes-telegram
-  discord:
-  - browser
-  - clarify
-  - code_execution
-  - delegation
-  - file
-  - image_gen
-  - kanban
-  - memory
-  - messaging
-  - session_search
-  - skills
-  - terminal
-  - todo
-  - web
-  whatsapp:
-  - hermes-whatsapp
-  slack:
-  - hermes-slack
-  signal:
-  - hermes-signal
-  homeassistant:
-  - hermes-homeassistant
-  qqbot:
-  - hermes-qqbot
-  yuanbao:
-  - hermes-yuanbao
-  teams:
-  - hermes-teams
+
+display:
+  compact: true
+  personality: concise
+  streaming: true
+  final_response_markdown: strip
+  background_process_notifications: all
+
 web:
   backend: firecrawl
   use_gateway: false
+
+# Platform integrations. Fill these from /root/.hermes/.env or with
+# placeholder-safe values before enabling a gateway.
+discord:
+  require_mention: true
+  free_response_channels: ''
+  allowed_channels: ${DISCORD_ALLOWED_USERS}
+  auto_thread: true
+  reactions: false
+  channel_prompts: {}
+
+telegram:
+  reactions: false
+  channel_prompts: {}
+
+# Toolset availability by platform. Keep CLI and Discord aligned with the live
+# homelab expectation: delegation, image_gen, and kanban are available.
+platform_toolsets:
+  cli:
+    - browser
+    - clarify
+    - code_execution
+    - cronjob
+    - delegation
+    - file
+    - image_gen
+    - kanban
+    - memory
+    - messaging
+    - session_search
+    - skills
+    - terminal
+    - todo
+    - tts
+    - vision
+    - web
+  discord:
+    - browser
+    - clarify
+    - code_execution
+    - delegation
+    - file
+    - image_gen
+    - kanban
+    - memory
+    - messaging
+    - session_search
+    - skills
+    - terminal
+    - todo
+    - web
+  telegram:
+    - hermes-telegram
+  whatsapp:
+    - hermes-whatsapp
+  slack:
+    - hermes-slack
+  signal:
+    - hermes-signal
+  homeassistant:
+    - hermes-homeassistant
+  yuanbao:
+    - hermes-yuanbao
+  teams:
+    - hermes-teams
+
 known_plugin_toolsets:
   cli:
-  - spotify
+    - spotify
   discord: []
-DISCORD_ALLOWED_USERS: <discord_user_id>
+
+# Optional auxiliary providers. Image generation needs a separate provider and
+# does not automatically reuse the OmniRoute chat model provider.
+auxiliary:
+  image_gen:
+    provider: ${IMAGE_GEN_PROVIDER}
+    model: ${IMAGE_GEN_MODEL}
+    api_key: ${IMAGE_GEN_API_KEY}
+  vision:
+    provider: auto
+    model: ''
+    base_url: ''
+    api_key: ''
+    timeout: 120
+  web_extract:
+    provider: auto
+    model: ''
+    base_url: ''
+    api_key: ''
+    timeout: 360
+
+# Custom OmniRoute provider used by Hermes.
 custom_providers:
-- name: Selfhosted Omniroute
-  base_url: ${OMNIROUTE_BASE_URL}
-  api_key: ${OMNIROUTE_API_KEY}
-  model: codex/gpt-5.5-medium
+  - name: Selfhosted Omniroute
+    base_url: ${OMNIROUTE_BASE_URL}
+    api_key: ${OMNIROUTE_API_KEY}
+    model: codex/gpt-5.5-medium
+
+# Proxmox tool placeholders. Create a scoped Proxmox API token in the Proxmox UI
+# and keep the secret only in /root/.hermes/.env or a password manager.
 PROXMOX_HOST: ${PROXMOX_HOST}
-PROXMOX_TOKEN_ID: <user@realm!tokenid>
+PROXMOX_TOKEN_ID: ${PROXMOX_TOKEN_ID}
 PROXMOX_TOKEN_SECRET: ${PROXMOX_TOKEN_SECRET}
+
+_config_version: 23

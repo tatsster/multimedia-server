@@ -17,29 +17,6 @@ Labels:
 
 ## In Progress
 
-### HL-DOC-030 — Finish Hermes setup guide normalization
-- Labels: `docs`, `secret-safe`
-- Files:
-  - `hermes/README.md`
-  - `hermes/config/config.system.example.yaml`
-  - `ai/integration.md`
-- Goal: make Hermes install/config/gateway docs complete enough to rebuild without remembering manual steps.
-- Include:
-  - LXC assumptions: nesting enabled and privileged container.
-  - Sanitized system-level Hermes config example.
-  - OmniRoute connection details using placeholders.
-  - Hindsight memory connection details using placeholders.
-  - Duplicate user/system gateway troubleshooting: symptom, cause, fix, and verification.
-  - Useful command: `hermes config set` to change the model.
-  - Secret guide: where to create OmniRoute API key, Proxmox token, and Discord allowlist ID.
-- Acceptance criteria:
-  - [ ] Fresh Hermes LXC can be configured from docs without guessing.
-  - [ ] Troubleshooting explains the duplicate gateway issue clearly.
-
----
-
-## Ready
-
 ### HL-DOC-040 — Normalize AI service docs
 - Labels: `docs`, `secret-safe`
 - Files:
@@ -56,6 +33,10 @@ Labels:
 - Acceptance criteria:
   - [ ] AI stack can be understood from the docs without inspecting live LXCs.
   - [ ] No provider keys, API keys, passwords, or tokens are committed.
+
+---
+
+## Ready
 
 ### HL-DOC-050 — Normalize media/arr, proxy, and Glance docs
 - Labels: `docs`, `secret-safe`
@@ -101,6 +82,25 @@ Labels:
 ---
 
 ## Done
+
+### HL-DOC-030 — Finish Hermes setup guide normalization
+- Labels: `docs`, `secret-safe`
+- Status: completed.
+- Files:
+  - `hermes/README.md`
+  - `hermes/config/config.system.example.yaml`
+  - `ai/integration.md`
+- Goal: make Hermes install/config/gateway docs complete enough to rebuild without remembering manual steps.
+- Progress:
+  - Clarified Hermes LXC target assumptions: privileged container, `nesting=1`, static IP, OmniRoute model route, Hindsight memory route, and system gateway only.
+  - Simplified and sanitized the system-level Hermes config example around current model, memory, platform toolsets, custom OmniRoute provider, Proxmox placeholders, and optional image generation placeholders.
+  - Documented placeholder-safe OmniRoute and Hindsight connection details.
+  - Added explicit `hermes config set` usage for model/provider changes.
+  - Expanded duplicate user/system gateway troubleshooting with symptom, cause, fix, `--system` helper usage, and verification commands.
+  - Added secret source guidance for OmniRoute API key, Proxmox token, Discord bot/channel/allowlist IDs, and image generation provider secrets.
+- Acceptance criteria:
+  - [x] Fresh Hermes LXC can be configured from docs without guessing.
+  - [x] Troubleshooting explains the duplicate gateway issue clearly.
 
 ### HL-DOC-020 — Normalize canonical LXC inventory and network map
 - Labels: `docs`

@@ -129,13 +129,14 @@ Set/update values on the live Hermes LXC:
 
 ```bash
 hermes config set model.base_url "http://<omniroute-lxc-ip>:20128/v1"
-hermes config set model.api_key "<omniroute-api-key>"
+# Prefer env-backed config for secrets. If setting directly, paste only on the live LXC and never into Git.
+hermes config set model.api_key '${OMNIROUTE_API_KEY}'
 hermes config set model.default "codex/gpt-5.5-medium"
 hermes config set memory.provider "hindsight"
-hermes gateway restart
+hermes gateway restart --system
 ```
 
-Do not commit the real API key. Store it in a private password manager or private env/config only.
+Do not commit the real API key. Store it in a private password manager or private env/config only. Use `hermes config set` to change model/provider values so the live change is explicit and repeatable.
 
 ## OmniRoute integration checklist
 
@@ -211,9 +212,11 @@ Functional test from Hermes after the exact Hindsight endpoint/tooling is confir
 After all three services are running:
 
 ```bash
+hermes config check
 hermes config get model
 hermes config get memory
-hermes gateway restart
+hermes gateway restart --system
+hermes gateway status --system
 ```
 
 Then run a simple Hermes prompt from CLI or Discord:
@@ -234,7 +237,7 @@ Verify:
 | Symptom | Likely cause | First checks | Fix |
 |---|---|---|---|
 | Hermes says provider/API error | Wrong OmniRoute base URL or API key | `hermes config get model`; `curl /v1/models` from Hermes LXC | Update `model.base_url` and `model.api_key`; restart Hermes gateway |
-| Hermes uses wrong model/router | Duplicate user-level and system-level gateway/config | Inspect `/root/.hermes/config.yaml` and service/user config | Keep only one active gateway/provider config |
+| Hermes uses wrong model/router | Duplicate user-level and system-level gateway/config | Inspect `/root/.hermes/config.yaml`; `hermes gateway status --system`; user/system units | Keep only the system gateway active; remove/disable user unit |
 | OmniRoute login/onboarding stuck | Onboarding state/password missing or corrupted | `omniroute/README.md`; SQLite `key_value` settings | Use `INITIAL_PASSWORD`; fallback to SQLite update |
 | Memory not retained | Hindsight unreachable or Hermes memory provider not set | `hermes config get memory`; service status | Start Hindsight; set `memory.provider=hindsight`; verify persistence |
 | Works after boot but fails after restart | Service startup order or missing env file | `systemctl status`; journal logs | Add service dependencies/env files; document exact live units once captured |
@@ -247,6 +250,9 @@ Verify:
 | OmniRoute Hermes API key | OmniRoute dashboard/API keys | Hermes model API calls | Private Hermes config/env only |
 | Provider API/OAuth credentials | Provider dashboard or OmniRoute provider login flow | OmniRoute | OmniRoute encrypted/local DB or private env only |
 | Hindsight auth token, if enabled | Hindsight setup | Hermes memory calls | Private Hermes/Hindsight env only |
+| Proxmox API token ID/secret | Proxmox -> Datacenter -> Permissions -> API Tokens | Hermes Proxmox tools | `/root/.hermes/.env` or password manager only |
+| Discord bot token | Discord Developer Portal | Hermes Discord gateway | `/root/.hermes/.env` only |
+| Discord allowlist/user/channel IDs | Discord developer mode / channel settings | Hermes Discord routing/allowlist | Config/env placeholders; no private notes |
 
 Never commit real secrets. Commit only examples with placeholders.
 
