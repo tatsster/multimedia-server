@@ -17,25 +17,31 @@ Labels:
 
 ## In Progress
 
+No active documentation-normalization task remains. Add a new `Ready` task here only if more documentation scope is intentionally added.
+
+---
+
+## Done
+
 ### HL-DOC-060 — Normalize backup, restore, and secret inventory docs
 - Labels: `docs`, `secret-safe`
+- Status: completed.
 - Files:
   - `Fresh-Homelab-Rebuild.md`
   - `VERIFY.md`
   - `.env.example`
-  - service-specific `.env.example` files
+  - `server-arr/.env.example`
+  - service-specific `.env.example` files reviewed
 - Goal: document what must be backed up and which secrets/accounts must be recreated, without storing actual values.
-- Include:
-  - Proxmox LXC config files.
-  - Docker config directories under `/docker/*`.
-  - Media/data mounts.
-  - Caddy config/env and Cloudflare tunnel credentials if locally stored.
-  - Hermes/OmniRoute/Hindsight data/config/db paths.
-  - Glance config/API keys.
-  - Secret/account inventory with generation location and minimum scopes.
+- Progress:
+  - Added a backup/restore and secret inventory section to the main rebuild runbook.
+  - Documented Proxmox LXC configs, storage layout, Docker config directories, media mounts, proxy/Caddy/Cloudflare paths, and AI service data/config paths.
+  - Added private backup command examples for LXC configs, media app config, OmniRoute, and Hindsight.
+  - Expanded `VERIFY.md` backup/restore checks into Proxmox/storage, service data/config, and secret/account recreation sections.
+  - Expanded root and media `.env.example` placeholders for Cloudflare MCP/account ID, separate OmniRoute/Hindsight keys, Hindsight settings, and qBittorrent/VPN reminders.
 - Acceptance criteria:
-  - [ ] Restore checklist says what to back up and where each item lives.
-  - [ ] `.env.example` files cover required variables without real secrets.
+  - [x] Restore checklist says what to back up and where each item lives.
+  - [x] `.env.example` files cover required variables without real secrets.
 
 ---
 

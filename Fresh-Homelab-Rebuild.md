@@ -144,7 +144,70 @@ Known troubleshooting to preserve:
 - Hermes duplicate gateway conflict: keep only one of user-level/system-level gateway active.
 - OmniRoute onboarding/login issue: use `INITIAL_PASSWORD` or manually update `key_value` rows in SQLite as documented.
 
-### 7. Verification checklist
+### 7. Backup, restore, and secret inventory
+
+Before rebuilding or reinstalling a service LXC, capture the config/data that cannot be recreated from this repo alone.
+
+Secret policy:
+
+- Never commit real `.env` files, API keys, passwords, provider tokens, tunnel credentials, OAuth secrets, or private connection strings.
+- Keep live values in the service LXC, password manager, provider dashboard, or encrypted/offline backup only.
+- Use the root [.env.example](./.env.example) and service-specific `.env.example` files as placeholders/checklists, not as live config.
+- If a backup copy is unpacked into the repo for inspection, remove or redact it before committing.
+
+Minimum backup map:
+
+| Area | Back up / preserve | Restore target | Secret handling |
+| --- | --- | --- | --- |
+| Proxmox LXC configs | `/etc/pve/lxc/<CTID>.conf` for all documented CTs | Proxmox host `/etc/pve/lxc/` or recreate via UI/scripts | Review for private comments; preserve `nesting=1`, privileged status, mounts, GPU/USB mappings |
+| Proxmox storage | pool/dataset layout and PBS datastore location | Recreate from [Homelab-Setup.md](./Homelab-Setup.md) | No secrets expected in docs |
+| Media Docker configs | `/docker/server-arr` and other app config dirs under `/docker/*` | CT 101 `/docker/*` | App DBs may contain API keys; store backups privately |
+| Media library | `/media` mount backed by `/data/media` | CT 101/102 `/media` | Do not duplicate into container rootfs |
+| qBittorrent/VPN | qBittorrent config plus local VPN config/env if used | CT 101 app config path | Keep VPN username/password/private keys private; bind qBittorrent to VPN interface after restore |
+| Glance | `/docker/glance` including dashboard config and local `.env` | CT 101 `/docker/glance` | Widget tokens/API keys are private; examples only in Git |
+| Proxy/Caddy | `/etc/caddy`, Caddy systemd override/env, `/root/.config/caddy` if needed | CT 201 | Cloudflare tokens/tunnel credentials stay private |
+| Cloudflare Tunnel | `cloudflared.service` token install details or `/etc/cloudflared` if config-file mode is used | CT 201 | Prefer recreating connector token from Cloudflare dashboard if unsure |
+| OmniRoute | `/root/.omniroute` and `/root/.omniroute/omniroute.env` | CT 107 `/root/.omniroute` | Contains local DB/provider credentials/API key material; stop service before tar backup |
+| Hindsight | `/root/.hindsight-docker` and `/root/.hindsight.env` | CT 109 | Contains memory DB/provider key settings; stop container before tar backup |
+| Hermes | `/root/.hermes` | CT 108 | Contains agent config, platform tokens, Hindsight client config; protect or regenerate secrets |
+| Jellyfin/Jellyseerr | app data from their LXCs and recreated API keys | CT 102/103 | Recreate API keys if restoring from scratch |
+| Proxmox/PBS/Discord/provider accounts | token names/scopes and where they were generated | provider dashboards/UIs | Do not store actual token values in Git |
+
+Suggested private backup commands, run from the relevant host/LXC and store archives outside the repo:
+
+```bash
+# PVE host: LXC configs only, no container rootfs data.
+tar -czf /root/lxc-configs-$(date +%Y%m%d).tgz /etc/pve/lxc
+
+# CT 101: media app config, with services stopped if doing a consistent DB backup.
+tar -czf /root/server-arr-config-$(date +%Y%m%d).tgz /docker/server-arr /docker/glance
+
+# CT 107: OmniRoute, stop service first for a consistent SQLite/data backup.
+systemctl stop omniroute.service
+tar -czf /root/omniroute-data-$(date +%Y%m%d).tgz /root/.omniroute
+systemctl start omniroute.service
+
+# CT 109: Hindsight, stop Docker container first for a consistent DB backup.
+docker stop hindsight || true
+tar -czf /root/hindsight-data-$(date +%Y%m%d).tgz /root/.hindsight-docker /root/.hindsight.env
+docker start hindsight || true
+```
+
+Secret/account recreation checklist:
+
+- [ ] Cloudflare Tunnel connector token: Cloudflare Zero Trust -> Networks -> Tunnels.
+- [ ] Cloudflare DNS/API token: scoped to the required zone with DNS edit/read permissions.
+- [ ] OmniRoute admin password and separate API keys for Hermes and Hindsight.
+- [ ] Upstream model provider credentials configured in OmniRoute UI only.
+- [ ] Hindsight LLM API key/base URL/model in `/root/.hindsight.env`.
+- [ ] Hermes OmniRoute key, Hindsight config, Discord token/channel/user IDs, and optional image provider key.
+- [ ] Proxmox VE token for Hermes/Glance with minimum necessary scope.
+- [ ] PBS token for Glance with read-only/audit scope where possible.
+- [ ] Jellyfin and Jellyseerr API keys recreated from their UIs.
+- [ ] qBittorrent WebUI password and QBWrapper/Glance shared `AUTH_TOKEN`.
+- [ ] VPN credentials/interface name for qBittorrent, kept private and verified after restore.
+
+### 8. Verification checklist
 
 Use the dedicated checklist:
 
@@ -158,6 +221,7 @@ Minimum final sign-off after rebuild:
 - [ ] LXC inventory matches `inventory/lxc-map.md`.
 - [ ] Required LXCs have `nesting=1` and `unprivileged: 0`.
 - [ ] Shared mounts are visible inside CTs.
+- [ ] Backup/restore inventory above is reviewed and private archives are stored outside the repo.
 - [ ] Proxy, media, Jellyfin/Jellyseerr, OmniRoute, Hindsight, and Hermes pass `VERIFY.md`.
 - [ ] Hermes gateway starts exactly once, with no duplicate user/system gateway conflict.
 - [ ] No real secrets are committed.

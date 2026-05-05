@@ -269,18 +269,42 @@ Suggested manual flow:
 5. Recall that memory.
 6. Delete the test memory if it was only a smoke-test artifact.
 
-## 10. Backup/restore checks
+## 10. Backup/restore and secret inventory checks
 
-Minimum smoke restore confirmation:
+Use this section with the backup map in [`Fresh-Homelab-Rebuild.md`](./Fresh-Homelab-Rebuild.md#7-backup-restore-and-secret-inventory). The goal is to prove that irreplaceable config/data is either backed up privately or can be recreated from provider dashboards without placing real secrets in Git.
 
-- [ ] Proxmox LXC config backups exist for important CTs.
-- [ ] `/docker` app config directories are backed up.
+### Proxmox and storage
+
+- [ ] Proxmox LXC config backups exist for important CTs, especially `101`, `102`, `103`, `107`, `108`, `109`, `201`, and `250` if used.
+- [ ] LXC config backups preserve `features: nesting=1`, `unprivileged: 0`, static `net0`, bind mounts, GPU passthrough, and USB/serial mappings where needed.
+- [ ] Storage pool/dataset layout from `Homelab-Setup.md` is documented or backed up outside this repo.
+- [ ] `/main/backup` / PBS datastore path is preserved if PBS is in scope.
+
+### Service data/config
+
+- [ ] CT 101 `/docker/server-arr` app configs are backed up privately.
+- [ ] CT 101 `/docker/glance` dashboard config and local `.env` are backed up privately.
 - [ ] `/media` is mounted/preserved and not duplicated into container rootfs.
-- [ ] `/etc/caddy`, Cloudflare tunnel config, and proxy env files are backed up locally/private.
-- [ ] `/root/.omniroute` can be tarred/restored with service stopped.
-- [ ] `/root/.hindsight-docker` can be tarred/restored with Hindsight container stopped.
-- [ ] `/root/.hermes` can be backed up/restored, after removing or protecting secrets.
-- [ ] Secret recreation sources are documented: Cloudflare, OmniRoute UI, Proxmox/PBS UI, Jellyfin, Discord, provider dashboards.
+- [ ] qBittorrent config is backed up, and VPN credentials/interface settings are kept private.
+- [ ] qBittorrent is re-verified after restore so torrent traffic only operates over the intended VPN connection/interface.
+- [ ] CT 201 `/etc/caddy`, Caddy systemd env override, Cloudflare tunnel service/config, and any Cloudflare MCP wrapper/env are backed up privately.
+- [ ] CT 107 `/root/.omniroute` and `/root/.omniroute/omniroute.env` can be tarred/restored with OmniRoute stopped.
+- [ ] CT 109 `/root/.hindsight-docker` and `/root/.hindsight.env` can be tarred/restored with Hindsight stopped.
+- [ ] CT 108 `/root/.hermes` can be backed up/restored after protecting or regenerating secrets.
+
+### Secret/account recreation
+
+- [ ] Root `.env.example` and service `.env.example` files cover required placeholders without real values.
+- [ ] Cloudflare Tunnel connector token recreation source is documented.
+- [ ] Cloudflare DNS/API token scope is documented as zone-limited DNS edit/read where possible.
+- [ ] OmniRoute admin password/API key recreation source is documented.
+- [ ] Separate OmniRoute API keys are created for Hermes and Hindsight where practical.
+- [ ] Upstream model provider keys live only in OmniRoute/provider config, not in Git.
+- [ ] Hindsight LLM API key/base URL/model are set only in `/root/.hindsight.env` or equivalent private config.
+- [ ] Hermes Discord token/channel/user IDs, Proxmox token, OmniRoute key, and optional image provider key are private.
+- [ ] Glance Proxmox/PBS/Jellyfin/QBWrapper widget keys are private and scoped read-only/audit where possible.
+- [ ] Jellyfin/Jellyseerr/Arr API keys are recreated from app UIs or restored from private app backups.
+- [ ] `git status` and `./scripts/check-env.sh` show no committed live `.env` files or obvious secret leaks.
 
 ## 11. Optional automated smoke-test helper
 
