@@ -230,7 +230,9 @@ Run inside **CT 108** or from PVE host.
 ```bash
 pct exec 108 -- which hermes
 pct exec 108 -- hermes --version || true
-pct exec 108 -- systemctl status hermes-gateway.service --no-pager || true
+pct exec 108 -- systemctl is-enabled hermes-gateway.service || true
+pct exec 108 -- systemctl is-active hermes-gateway.service || true
+pct exec 108 -- systemctl --user status hermes-gateway.service --no-pager || true
 pct exec 108 -- test -f /root/.hermes/config.yaml && echo hermes-config-exists
 pct exec 108 -- test -f /root/.hermes/hindsight/config.json && echo hindsight-client-config-exists
 ```
@@ -238,12 +240,12 @@ pct exec 108 -- test -f /root/.hermes/hindsight/config.json && echo hindsight-cl
 Pass criteria:
 
 - [ ] Hermes CLI runs.
-- [ ] System-level config exists and is based on `hermes/config/config.system.example.yaml` with real secrets supplied locally only.
+- [ ] Root user-level config exists at `/root/.hermes/config.yaml` and is based on `hermes/config/config.system.example.yaml` with real secrets supplied locally only.
 - [ ] `model.base_url` points to OmniRoute, normally `http://192.168.1.109:20128/v1`.
 - [ ] Model name matches current intended provider/model.
 - [ ] Hindsight client config points to `http://192.168.1.111:8888` with the intended bank.
 - [ ] Gateway starts exactly once.
-- [ ] Duplicate gateway conflict is fixed by disabling either user-level or system-level gateway, not both running.
+- [ ] Duplicate gateway conflict is fixed by keeping root user-level enabled/active and system-level disabled/inactive.
 - [ ] `hermes config set` can change model/provider settings when needed.
 - [ ] A simple Hermes prompt returns a model answer through OmniRoute.
 - [ ] A memory save/recall operation works through Hindsight.

@@ -162,14 +162,17 @@ hermes config get memory
 hermes config set memory.provider hindsight
 ```
 
-Restart the system-level Hermes gateway if needed:
+Restart the root user-level Hermes gateway if needed:
 
 ```bash
-hermes gateway restart --system
-hermes gateway status --system
+hermes gateway restart
+hermes gateway status
+# Direct systemd equivalent:
+systemctl --user restart hermes-gateway.service
+systemctl --user status hermes-gateway.service --no-pager
 ```
 
-Use the system gateway consistently so Discord/API traffic and CLI checks read the same Hermes config.
+Use the root user-level gateway consistently so Discord/API traffic and CLI checks read the same Hermes config. The system-level `hermes-gateway.service` should remain disabled/inactive.
 
 ## Verification
 

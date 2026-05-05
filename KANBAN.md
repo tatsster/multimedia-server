@@ -81,7 +81,7 @@ No active documentation-normalization task remains. Add a new `Ready` task here 
   - Clarified the end-to-end AI request flow: Hermes -> OmniRoute for model calls, Hermes -> Hindsight for memory, and Hindsight -> OmniRoute for its own LLM extraction work.
   - Normalized canonical AI service URLs and LXC targets from `inventory/lxc-map.md`.
   - Expanded OmniRoute rebuild notes for private env creation, generated secrets, systemd checks, separate Hermes/Hindsight API keys, and placeholder-only onboarding/password recovery.
-  - Clarified Hindsight Docker startup dependency on OmniRoute, persistent data path, health endpoint, and system-level Hermes gateway restart.
+  - Clarified Hindsight Docker startup dependency on OmniRoute, persistent data path, health endpoint, and root user-level Hermes gateway restart.
   - Replaced stale open-capture notes in the integration guide with a practical rebuild summary and private data/config locations.
   - Documented common failure separation between healthy local services and upstream provider/provider-circuit errors.
 - Acceptance criteria:
@@ -97,11 +97,11 @@ No active documentation-normalization task remains. Add a new `Ready` task here 
   - `ai/integration.md`
 - Goal: make Hermes install/config/gateway docs complete enough to rebuild without remembering manual steps.
 - Progress:
-  - Clarified Hermes LXC target assumptions: privileged container, `nesting=1`, static IP, OmniRoute model route, Hindsight memory route, and system gateway only.
-  - Simplified and sanitized the system-level Hermes config example around current model, memory, platform toolsets, custom OmniRoute provider, Proxmox placeholders, and optional image generation placeholders.
+  - Clarified Hermes LXC target assumptions: privileged container, `nesting=1`, static IP, OmniRoute model route, Hindsight memory route, and root user-level gateway with system-level gateway disabled completely.
+  - Simplified and sanitized the root user-level Hermes config example around current model, memory, platform toolsets, custom OmniRoute provider, Proxmox placeholders, and optional image generation placeholders.
   - Documented placeholder-safe OmniRoute and Hindsight connection details.
   - Added explicit `hermes config set` usage for model/provider changes.
-  - Expanded duplicate user/system gateway troubleshooting with symptom, cause, fix, `--system` helper usage, and verification commands.
+  - Expanded duplicate user/system gateway troubleshooting with symptom, cause, fix, user-level helper usage, and verification commands.
   - Added secret source guidance for OmniRoute API key, Proxmox token, Discord bot/channel/allowlist IDs, and image generation provider secrets.
 - Acceptance criteria:
   - [x] Fresh Hermes LXC can be configured from docs without guessing.

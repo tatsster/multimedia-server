@@ -46,13 +46,14 @@ Next configure secrets and provider inside the LXC:
   hermes config set model.default "codex/gpt-5.5-medium"
   hermes config set memory.provider "hindsight"
 
-Use exactly one gateway service. Current live preference is the system service:
+Use exactly one gateway service. Current live preference is root user-level service, with system-level disabled completely:
 
-  systemctl daemon-reload
-  systemctl enable --now hermes-gateway.service
-  systemctl status hermes-gateway.service --no-pager
+  systemctl disable --now hermes-gateway.service
+  loginctl enable-linger root
+  systemctl --user daemon-reload
+  systemctl --user enable --now hermes-gateway.service
+  systemctl --user status hermes-gateway.service --no-pager
 
-If a user-level gateway exists, remove/disable it before enabling the system gateway.
 See hermes/README.md for duplicate gateway troubleshooting.
 EOF
 print_lxc_summary "$CTID"

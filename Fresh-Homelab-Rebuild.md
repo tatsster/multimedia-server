@@ -133,7 +133,7 @@ Hermes -> OmniRoute OpenAI-compatible API -> model provider
 Hermes -> Hindsight memory provider
 ```
 
-Current Hermes system-level config example:
+Current Hermes root user-level config example:
 
 ```text
 hermes/config/config.system.example.yaml
@@ -141,7 +141,7 @@ hermes/config/config.system.example.yaml
 
 Known troubleshooting to preserve:
 
-- Hermes duplicate gateway conflict: keep only one of user-level/system-level gateway active.
+- Hermes duplicate gateway conflict: keep root user-level gateway active and system-level gateway disabled/inactive.
 - OmniRoute onboarding/login issue: use `INITIAL_PASSWORD` or manually update `key_value` rows in SQLite as documented.
 
 ### 7. Backup, restore, and secret inventory
@@ -223,7 +223,7 @@ Minimum final sign-off after rebuild:
 - [ ] Shared mounts are visible inside CTs.
 - [ ] Backup/restore inventory above is reviewed and private archives are stored outside the repo.
 - [ ] Proxy, media, Jellyfin/Jellyseerr, OmniRoute, Hindsight, and Hermes pass `VERIFY.md`.
-- [ ] Hermes gateway starts exactly once, with no duplicate user/system gateway conflict.
+- [ ] Hermes gateway starts exactly once as the root user-level service; system-level gateway is disabled/inactive.
 - [ ] No real secrets are committed.
 
 ## Current open documentation gaps

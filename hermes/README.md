@@ -1,6 +1,6 @@
 # Hermes LXC Setup
 
-This folder captures the current Hermes LXC setup and system-level configuration in a secret-safe form. It is the rebuild guide for CT `108` / `hermes` and should be used together with the canonical inventory in [`../inventory/lxc-map.md`](../inventory/lxc-map.md).
+This folder captures the current Hermes LXC setup and root user-level configuration in a secret-safe form. It is the rebuild guide for CT `108` / `hermes` and should be used together with the canonical inventory in [`../inventory/lxc-map.md`](../inventory/lxc-map.md).
 
 Fresh rebuild target:
 
@@ -9,7 +9,7 @@ Fresh rebuild target:
 - Network: static `192.168.1.110/24` on `vmbr0`
 - Model route: Hermes -> OmniRoute at `http://192.168.1.109:20128/v1`
 - Memory route: Hermes -> Hindsight at `http://192.168.1.111:8888`
-- Gateway: system-level `hermes-gateway.service` only
+- Gateway: root user-level `hermes-gateway.service` enabled; system-level `hermes-gateway.service` disabled completely
 
 Do not commit real API keys, provider tokens, Discord tokens, Proxmox token secrets, or passwords.
 
@@ -80,13 +80,15 @@ For a controlled rebuild, clone first and run the installer/script locally inste
 
 ## Current gateway service layout
 
-The working live gateway is the **system-level** service:
+The intended working gateway is the **root user-level** service:
 
 ```text
-/etc/systemd/system/hermes-gateway.service
+/root/.config/systemd/user/hermes-gateway.service
 ```
 
-Current service shape:
+The system-level unit can remain installed at `/etc/systemd/system/hermes-gateway.service`, but it must be stopped and disabled so it does not auto-start after LXC restart. Do not run both scopes at the same time.
+
+Target user service shape:
 
 ```ini
 [Unit]
@@ -96,8 +98,6 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-User=root
-Group=root
 ExecStart=/usr/local/lib/hermes-agent/venv/bin/python -m hermes_cli.main gateway run --replace
 WorkingDirectory=/usr/local/lib/hermes-agent
 Environment="HOME=/root"
@@ -116,19 +116,27 @@ StandardOutput=journal
 StandardError=journal
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=default.target
 ```
 
-After rebuild, prefer managing the gateway as the system service only:
+After rebuild, prefer managing the gateway as the root user service only:
 
 ```bash
-systemctl enable --now hermes-gateway.service
-systemctl status hermes-gateway.service --no-pager
+# System-level gateway off.
+systemctl disable --now hermes-gateway.service
+
+# Root user-level gateway on.
+loginctl enable-linger root
+systemctl --user daemon-reload
+systemctl --user enable --now hermes-gateway.service
+systemctl --user status hermes-gateway.service --no-pager
 ```
+
+When logged in as root, `systemctl --user ...` should target root's user systemd manager directly. If running from a non-login script/shell where the user bus is not available, prefix user commands with `XDG_RUNTIME_DIR=/run/user/0`.
 
 ## Current config snapshot
 
-Sanitized system-level config example:
+Sanitized root user-level config example:
 
 ```text
 config/config.system.example.yaml
@@ -287,37 +295,49 @@ Required/optional secrets:
 
 ### 7. Enable exactly one gateway service
 
-Current desired state is **system gateway active, user gateway removed/disabled**.
+Current desired state is **root user-level gateway active, system-level gateway disabled completely**.
 
-If the installer did not create `/etc/systemd/system/hermes-gateway.service`, create or restore the system unit using the service shape shown earlier in this guide, then run:
+Both scopes can use the same unit name, `hermes-gateway.service`; the difference is the systemd manager:
 
 ```bash
+# System-level unit, if present. This must be disabled/inactive.
+systemctl status hermes-gateway.service
+
+# Root user-level unit. This is the intended active gateway.
+systemctl --user status hermes-gateway.service
+```
+
+Stop and disable the system-level gateway first:
+
+```bash
+systemctl disable --now hermes-gateway.service
 systemctl daemon-reload
-systemctl enable --now hermes-gateway.service
 ```
 
-Stop/disable the user-level gateway if present:
+Then enable the root user-level gateway:
 
 ```bash
-systemctl --user stop hermes-gateway.service 2>/dev/null || true
-systemctl --user disable hermes-gateway.service 2>/dev/null || true
-rm -f /root/.config/systemd/user/hermes-gateway.service
-systemctl --user daemon-reload 2>/dev/null || true
+loginctl enable-linger root
+mkdir -p /root/.config/systemd/user
+systemctl --user reset-failed hermes-gateway.service 2>/dev/null || true
+systemctl --user daemon-reload
+systemctl --user enable --now hermes-gateway.service
+systemctl --user status hermes-gateway.service --no-pager
 ```
 
-Restart/check the system gateway explicitly:
+Restart/check the user-level gateway explicitly:
 
 ```bash
-# Hermes helper, explicit system target
-hermes gateway restart --system
-hermes gateway status --system
+# Hermes helper, default user target
+hermes gateway restart
+hermes gateway status
 
 # Direct systemd equivalent
-systemctl restart hermes-gateway.service
-systemctl status hermes-gateway.service --no-pager
+systemctl --user restart hermes-gateway.service
+systemctl --user status hermes-gateway.service --no-pager
 ```
 
-Avoid plain `hermes gateway restart` when both user and system units exist, because the helper can target the user service by default.
+Avoid `hermes gateway restart --system` for the normal live gateway, because the system-level service is intentionally disabled.
 
 ## Troubleshooting: duplicate Hermes gateway
 
@@ -325,34 +345,46 @@ Symptom from live Hermes:
 
 ```text
 Both user and system gateway services are installed (user + system).
-Default gateway commands target the user service unless you pass --system.
+The root user-level service is the intended live gateway; the system-level service must stay disabled/inactive.
 ```
 
 Cause:
 
-- System service exists at `/etc/systemd/system/hermes-gateway.service` and is running.
-- User service exists at `/root/.config/systemd/user/hermes-gateway.service` and is failed/disabled.
-- `hermes gateway status` defaults to the user service, so it reports the failed user unit even though the system service is actually running.
+- System service exists at `/etc/systemd/system/hermes-gateway.service` and may be active from an installer/update or manual start.
+- User service exists at `/root/.config/systemd/user/hermes-gateway.service`. This is the intended active service for root in this LXC.
+- Running both can make Discord/API traffic use a different process/config than the one you inspect with CLI commands.
 
 Fix:
 
 ```bash
-systemctl --user stop hermes-gateway.service 2>/dev/null || true
-systemctl --user disable hermes-gateway.service 2>/dev/null || true
-rm -f /root/.config/systemd/user/hermes-gateway.service
-systemctl --user daemon-reload 2>/dev/null || true
+# Disable system-level completely.
+systemctl disable --now hermes-gateway.service
 systemctl daemon-reload
-systemctl enable --now hermes-gateway.service
-hermes gateway status --system
-systemctl status hermes-gateway.service --no-pager
+
+# Keep root user-level gateway active.
+loginctl enable-linger root
+systemctl --user reset-failed hermes-gateway.service 2>/dev/null || true
+systemctl --user daemon-reload
+systemctl --user enable --now hermes-gateway.service
+hermes gateway status
+systemctl --user status hermes-gateway.service --no-pager
 ```
 
-Verify only one service remains:
+Verify only the user-level service is active:
 
 ```bash
-systemctl status hermes-gateway.service --no-pager
-systemctl --user status hermes-gateway.service --no-pager 2>&1 || true
+systemctl is-enabled hermes-gateway.service || true
+systemctl is-active hermes-gateway.service || true
+systemctl --user is-enabled hermes-gateway.service
+systemctl --user is-active hermes-gateway.service
 ps -eo pid,ppid,stat,cmd | grep -E 'hermes_cli|gateway run' | grep -v grep
+```
+
+Expected service state:
+
+```text
+system-level: disabled / inactive
+user-level: enabled / active
 ```
 
 Expected active process:
@@ -368,9 +400,9 @@ hermes --version
 hermes config check
 hermes config get model
 hermes config get memory
-hermes gateway status --system
-systemctl status hermes-gateway.service --no-pager
-journalctl -u hermes-gateway -n 100 --no-pager
+hermes gateway status
+systemctl --user status hermes-gateway.service --no-pager
+journalctl --user -u hermes-gateway -n 100 --no-pager
 ```
 
 Optional endpoint checks from Hermes LXC:

@@ -18,7 +18,7 @@ User / Discord / CLI
 | Hermes LXC 108   |
 | 192.168.1.110    |
 | - agent runtime  |
-| - system gateway |
+| - user gateway   |
 | - config.yaml    |
 +----+---------+---+
      |         |
@@ -81,7 +81,7 @@ Canonical network targets come from [`inventory/lxc-map.md`](../inventory/lxc-ma
 
 | Service | Internal URL | Public exposure | Notes |
 |---|---|---|---|
-| Hermes | `192.168.1.110` / system gateway | Usually private only | CLI/Discord/API agent host; gateway ports depend on enabled platforms. |
+| Hermes | `192.168.1.110` / root user-level gateway | Usually private only | CLI/Discord/API agent host; gateway ports depend on enabled platforms. |
 | OmniRoute dashboard | `http://192.168.1.109:20128` | Private or Cloudflare Access only | Admin UI and onboarding. |
 | OmniRoute API | `http://192.168.1.109:20128/v1` | Private only | Hermes and Hindsight OpenAI-compatible `base_url`. |
 | Hindsight API | `http://192.168.1.111:8888` | Private only | Hermes memory provider endpoint. Health: `/health`. |
@@ -144,7 +144,7 @@ hermes config set model.base_url "http://<omniroute-lxc-ip>:20128/v1"
 hermes config set model.api_key '${OMNIROUTE_API_KEY}'
 hermes config set model.default "codex/gpt-5.5-medium"
 hermes config set memory.provider "hindsight"
-hermes gateway restart --system
+hermes gateway restart
 ```
 
 Do not commit the real API key. Store it in a private password manager or private env/config only. Use `hermes config set` to change model/provider values so the live change is explicit and repeatable.
@@ -226,8 +226,8 @@ After all three services are running:
 hermes config check
 hermes config get model
 hermes config get memory
-hermes gateway restart --system
-hermes gateway status --system
+hermes gateway restart
+hermes gateway status
 ```
 
 Then run a simple Hermes prompt from CLI or Discord:
@@ -248,7 +248,7 @@ Verify:
 | Symptom | Likely cause | First checks | Fix |
 |---|---|---|---|
 | Hermes says provider/API error | Wrong OmniRoute base URL or API key | `hermes config get model`; `curl /v1/models` from Hermes LXC | Update `model.base_url` and `model.api_key`; restart Hermes gateway |
-| Hermes uses wrong model/router | Duplicate user-level and system-level gateway/config | Inspect `/root/.hermes/config.yaml`; `hermes gateway status --system`; user/system units | Keep only the system gateway active; remove/disable user unit |
+| Hermes uses wrong model/router | Duplicate user-level and system-level gateway/config | Inspect `/root/.hermes/config.yaml`; `hermes gateway status`; user/system units | Keep only the root user-level gateway active; disable system unit completely |
 | OmniRoute login/onboarding stuck | Onboarding state/password missing or corrupted | `omniroute/README.md`; SQLite `key_value` settings | Use `INITIAL_PASSWORD`; fallback to SQLite update |
 | Memory not retained | Hindsight unreachable or Hermes memory provider not set | `hermes config get memory`; service status | Start Hindsight; set `memory.provider=hindsight`; verify persistence |
 | Works after boot but fails after restart | Service startup order or missing env file | `systemctl status`; journal logs | Add service dependencies/env files; document exact live units once captured |
@@ -273,7 +273,7 @@ Use these service-specific guides for the exact rebuild commands and private con
 
 | Service | Guide | Critical private data/config |
 |---|---|---|
-| Hermes | [`../hermes/README.md`](../hermes/README.md) | `/root/.hermes`, system Hermes config, private `.env` |
+| Hermes | [`../hermes/README.md`](../hermes/README.md) | `/root/.hermes`, root user-level Hermes config, private `.env` |
 | OmniRoute | [`../omniroute/README.md`](../omniroute/README.md) | `/root/.omniroute`, `/root/.omniroute/omniroute.env`, `storage.sqlite` |
 | Hindsight | [`../hindsight/README.md`](../hindsight/README.md) | `/root/.hindsight-docker`, `/root/.hindsight.env` |
 
@@ -281,5 +281,5 @@ Minimum recovery order:
 
 1. Restore/start OmniRoute and confirm `/v1/models` is reachable with a private API key.
 2. Restore/start Hindsight and confirm `/health` reports a connected database.
-3. Restore/start Hermes system gateway and confirm `model` and `memory` config point to OmniRoute/Hindsight.
+3. Restore/start Hermes root user-level gateway and confirm `model` and `memory` config point to OmniRoute/Hindsight.
 4. Run one harmless end-to-end model request and one harmless retain/recall memory check.
