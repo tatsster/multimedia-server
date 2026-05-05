@@ -17,29 +17,6 @@ Labels:
 
 ## In Progress
 
-### HL-DOC-001 — Normalize documentation scope and links
-- Labels: `docs`
-- Goal: make sure the documentation set reads as one coherent rebuild guide instead of disconnected notes.
-- Files:
-  - `Fresh-Homelab-Rebuild.md`
-  - `ARCHITECTURE.md`
-  - `VERIFY.md`
-  - `inventory/lxc-map.md`
-  - service guides under `server-arr/`, `proxy/`, `glance/`, `hermes/`, `omniroute/`, `hindsight/`, and `ai/`
-- Include:
-  - One clear top-level entry point.
-  - Consistent links from the runbook to every service guide.
-  - Consistent wording for current homelab defaults: nesting enabled, privileged LXCs, and preserved CPU defaults.
-  - Clear note that secrets must be recreated from dashboards/env examples, not committed.
-- Acceptance criteria:
-  - [ ] A fresh reader knows which file to open first.
-  - [ ] Every major service guide is linked from the main runbook.
-  - [ ] Old/duplicate wording is removed or made clearly historical.
-
----
-
-## Ready
-
 ### HL-DOC-010 — Finish Proxmox base install and storage guide
 - Labels: `docs`
 - File: `Homelab-Setup.md`
@@ -57,6 +34,10 @@ Labels:
 - Acceptance criteria:
   - [ ] Commands are copy/paste-safe with placeholders.
   - [ ] Screenshots are optional, not required to understand the steps.
+
+---
+
+## Ready
 
 ### HL-DOC-020 — Normalize canonical LXC inventory and network map
 - Labels: `docs`
@@ -152,6 +133,20 @@ Labels:
 ---
 
 ## Done
+
+### HL-DOC-001 — Normalize documentation scope and links
+- Labels: `docs`
+- Status: completed.
+- Goal: make sure the documentation set reads as one coherent rebuild guide instead of disconnected notes.
+- Progress:
+  - Added `README.md` as a short documentation index that points fresh readers to the rebuild runbook first.
+  - Updated `Fresh-Homelab-Rebuild.md` to state that it is the main entry point and to link README/architecture/kanban.
+  - Replaced old optional smoke-test focused gap list with documentation-normalization gaps only.
+  - Updated `ARCHITECTURE.md` navigation wording to point to README, the ordered runbook, inventory, and verification checklist.
+- Acceptance criteria:
+  - [x] A fresh reader knows which file to open first.
+  - [x] Every major service guide is linked from the main runbook.
+  - [x] Old/duplicate wording is removed or made clearly historical.
 
 ### HL-DOC-900 — Remove non-documentation tasks from board
 - Labels: `docs`

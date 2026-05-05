@@ -1,8 +1,16 @@
 # Fresh Homelab Rebuild Runbook
 
+This is the main entry point for rebuilding the homelab. If you are starting from a fresh Proxmox install, begin here and follow the sections in order.
+
 This repo is the source of truth to rebuild the homelab as close as possible to the current setup.
 
 Goal: after a fresh Proxmox install, follow this checklist and recreate the same LXCs, storage, proxy, media stack, and local AI services without hunting through old chats/configs.
+
+Related navigation:
+
+- [README.md](./README.md) — short documentation index.
+- [ARCHITECTURE.md](./ARCHITECTURE.md) — high-level service map and source-of-truth table.
+- [KANBAN.md](./KANBAN.md) — current documentation normalization tasks only.
 
 ## Repo location
 
@@ -156,8 +164,11 @@ Minimum final sign-off after rebuild:
 
 ## Current open documentation gaps
 
-Track detailed work in [KANBAN.md](./KANBAN.md). Biggest remaining gaps:
+Track detailed work in [KANBAN.md](./KANBAN.md). Current focus is documentation normalization only:
 
-- Optional full backup/restore smoke tests for OmniRoute/Hindsight on disposable LXCs.
-- Optional healthchecks for the media Docker compose after a fresh LXC retest.
-- Optional fresh-LXC script retests for Hermes/media/Hindsight on Proxmox.
+- Proxmox base install and storage documentation.
+- Canonical LXC inventory, network map, ports, mounts, and cross-links.
+- Hermes setup guide and duplicate gateway troubleshooting.
+- AI service documentation for Hermes, OmniRoute, and Hindsight.
+- Media/arr, proxy, and Glance guide consistency.
+- Backup, restore, and secret inventory documentation.

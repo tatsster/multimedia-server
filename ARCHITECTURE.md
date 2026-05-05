@@ -2,9 +2,10 @@
 
 This diagram is the high-level rebuild map. Use it with:
 
-- [`Fresh-Homelab-Rebuild.md`](./Fresh-Homelab-Rebuild.md)
-- [`inventory/lxc-map.md`](./inventory/lxc-map.md)
-- [`VERIFY.md`](./VERIFY.md)
+- [`README.md`](./README.md) for the short documentation index.
+- [`Fresh-Homelab-Rebuild.md`](./Fresh-Homelab-Rebuild.md) for the ordered rebuild runbook.
+- [`inventory/lxc-map.md`](./inventory/lxc-map.md) for CT IDs, IPs, ports, mounts, and creation methods.
+- [`VERIFY.md`](./VERIFY.md) for post-rebuild checks.
 
 The exact CT IDs, IPs, ports, mounts, and creation methods live in [`inventory/lxc-map.md`](./inventory/lxc-map.md). This file is intentionally secret-free.
 
