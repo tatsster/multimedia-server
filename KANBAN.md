@@ -1,394 +1,163 @@
 # Homelab Rebuild Kanban
 
-Goal: make this repo a reproducible source of truth so a fresh Proxmox homelab can be rebuilt to match the current setup with minimal guessing.
+Goal: keep the repo focused on the remaining documentation normalization work. Script smoke tests, fresh restore tests, proxy automation, and other optional validation/automation items were intentionally removed from this board for now.
 
 ## Board conventions
 
 Statuses:
-- Backlog: known work not started
-- Ready: clear enough to work next
 - In Progress: actively being edited/researched
-- Blocked: needs credentials, live machine details, screenshots, or decisions
-- Done: documented, verified, and linked from main guide
+- Ready: clear enough to work next
+- Done: documentation normalized and linked from the main guide
 
 Labels:
 - `docs`: Markdown guide/update
-- `config`: compose/config/example files
 - `secret-safe`: must avoid committing real tokens/passwords
-- `verify`: needs live validation on homelab
-- `parallel`: safe for subagent/research work
 
 ---
 
 ## In Progress
 
-
-### HL-130 — Add Proxmox shell scripts for manual LXCs
-- Labels: `config`, `docs`, `parallel`, `verify`
-- Status: initial scripts added under `scripts/pve/`.
-- Progress:
-  - Added shared helper: `scripts/pve/lib-lxc.sh`.
-  - Added `create-media-arr-lxc.sh`.
-  - Added `create-hermes-lxc.sh`.
-  - Added `create-omniroute-lxc.sh`.
-  - Added `create-hindsight-lxc.sh`.
-  - Added `scripts/pve/README.md` with Community Scripts vs manual creation strategy.
-  - Updated default storage/template values from live PVE audit: `vm_storage` rootfs and `general:vztmpl/debian-13-standard_13.1-2_amd64.tar.zst` template.
-  - Added optional `CPULIMIT` support and matched Hermes/Hindsight/media defaults from live configs where known.
-  - First live PVE script test found `pct set --unprivileged 0` fails because `unprivileged` is read-only after create; fixed helper to keep it only in `pct create` args.
-  - Verified `create-omniroute-lxc.sh` end-to-end on PVE with temporary CTID 901; script created the container, installed packages/service, printed expected config, and cleanup removed CT 901.
-- Remaining:
-  - Smoke-test Hermes/media scripts on actual PVE host with temporary CTIDs, or verify from a fresh rebuild.
-  - Optional: smoke-test Hindsight script with a temporary CTID through Docker install; exact live Docker run pattern has been captured.
-  - Retest OmniRoute fresh login/onboarding flow after latest script update; live package/service/DB layout is now documented.
-- Hermes script update:
-  - Live Hermes install layout verified from CT `108`: `/usr/local/lib/hermes-agent`, `/usr/local/bin/hermes`, `/root/.hermes`.
-  - `create-hermes-lxc.sh` now runs the official Hermes installer with `--skip-setup` and copies sanitized Hermes + Hindsight client config examples.
-  - Live PVE smoke test with temporary CTID `902` successfully created the LXC and ran the Hermes installer, but failed copying the new Hindsight example because the test archive missed the untracked file; cleanup removed CT `902` and temp files. Retest after commit if desired.
+### HL-DOC-001 — Normalize documentation scope and links
+- Labels: `docs`
+- Goal: make sure the documentation set reads as one coherent rebuild guide instead of disconnected notes.
+- Files:
+  - `Fresh-Homelab-Rebuild.md`
+  - `ARCHITECTURE.md`
+  - `VERIFY.md`
+  - `inventory/lxc-map.md`
+  - service guides under `server-arr/`, `proxy/`, `glance/`, `hermes/`, `omniroute/`, `hindsight/`, and `ai/`
+- Include:
+  - One clear top-level entry point.
+  - Consistent links from the runbook to every service guide.
+  - Consistent wording for current homelab defaults: nesting enabled, privileged LXCs, and preserved CPU defaults.
+  - Clear note that secrets must be recreated from dashboards/env examples, not committed.
 - Acceptance criteria:
-  - [x] Scripts are secret-safe and use placeholders/env vars.
-  - [x] Scripts preserve `nesting=1` and privileged container defaults.
-  - [ ] Scripts have been run successfully on fresh Proxmox.
-
-### HL-080 — Update proxy LXC guide for Caddy + Cloudflare Tunnel + Cloudflare MCP
-- Labels: `docs`, `config`, `secret-safe`, `parallel`, `verify`
-- Existing file: `proxy/Access-Setup.md`
-- Progress:
-  - Expanded proxy LXC rebuild guide.
-  - Added sanitized `proxy/config/Caddyfile.example`.
-  - Documented Cloudflare Tunnel, Access, Caddy DNS challenge, DDNS, and `CF_API_TOKEN` storage.
-  - Verified live proxy LXC `201` via PVE SSH: it runs Caddy, Cloudflare Tunnel, Node/npm/npx, and `/usr/local/bin/cloudflare-mcp` together in one LXC.
-  - Rewrote `proxy/Access-Setup.md` to make the one-LXC pattern canonical and removed confusing separate-Caddy/separate-Cloudflared guidance.
-  - Documented the sanitized Cloudflare MCP wrapper flow using `npx --yes @cloudflare/mcp-server-cloudflare run` with `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` placeholders.
-- Remaining:
-  - Optional: create a full automated `create-proxy-lxc.sh`; current documented path is Community Scripts Caddy LXC plus manual post-install.
-- Acceptance criteria:
-  - [x] Token scopes are documented without real secrets.
-  - [x] Caddy and Tunnel validation commands are included.
-  - [x] Cloudflare MCP restore steps are documented and verified from live LXC layout.
-
-### HL-001 — Repository audit and rebuild scope
-- Labels: `docs`, `parallel`
-- Status: mostly complete; keep open only until remaining tasks are normalized and every guide links from the main runbook.
-- Goal: inventory existing files and define what must be added for repeatable fresh setup.
-- Current findings:
-  - Existing guides: `Homelab-Setup.md`, `server-arr/Multimedia-Setup.md`, `proxy/Access-Setup.md`, `glance/Readme.md`
-  - Existing configs: `server-arr/arr-stack.yml`, `proxy/config/Caddyfile`, `glance/*.yml`, `.env`
-  - Missing areas: Hermes LXC, OmniRoute LXC, Hindsight LXC, how they link together, Cloudflare MCP, troubleshooting notes.
-- Acceptance criteria:
-  - Main roadmap exists.
-  - Workstreams are split into actionable tasks.
+  - [ ] A fresh reader knows which file to open first.
+  - [ ] Every major service guide is linked from the main runbook.
+  - [ ] Old/duplicate wording is removed or made clearly historical.
 
 ---
 
 ## Ready
 
-### HL-010 — Create top-level fresh rebuild runbook
+### HL-DOC-010 — Finish Proxmox base install and storage guide
 - Labels: `docs`
-- Status: initial version added at `Fresh-Homelab-Rebuild.md`; proxy/Hermes sections updated from live inspection.
-- Proposed file: `README.md` or `Fresh-Homelab-Rebuild.md`
-- Goal: one entrypoint that orders the full rebuild from bare Proxmox to working services.
+- File: `Homelab-Setup.md`
+- Goal: turn the Proxmox base notes into reproducible documentation.
 - Include:
-  - Hardware/storage assumptions
-  - Required domains/accounts/secrets checklist
-  - LXC inventory table
-  - Creation method for each LXC: Community Scripts vs repo manual script
-  - Network/IP/DNS map
-  - Rebuild order
-  - Validation checklist
+  - Disk selection and ZFS RAID0 boot setup.
+  - SSD/HDD pool layout.
+  - Partition commands with placeholders.
+  - ZFS properties: `recordsize=1M`, `atime=off`, `xattr=off`, `compression=zstd-4`, `special_small_blocks=512K`.
+  - Dataset layout.
+  - Proxmox storage UI settings.
+  - LXC defaults that preserve the current setup: nesting enabled, privileged container / `Unprivileged container=No`, and CPU defaults.
+  - Bind mount pattern `/data/general` -> `/mnt/general`.
+  - Link to canonical inventory/defaults file: `inventory/lxc-map.md`.
 - Acceptance criteria:
-  - A new user can follow the runbook and know which file to open next.
-  - Every LXC/service links to its detailed guide.
+  - [ ] Commands are copy/paste-safe with placeholders.
+  - [ ] Screenshots are optional, not required to understand the steps.
 
-### HL-020 — Document Proxmox base install and storage exactly
-- Labels: `docs`, `verify`
-- Existing file: `Homelab-Setup.md`
-- Goal: turn current notes into reproducible steps.
-- Include:
-  - Disk selection and ZFS RAID0 boot setup
-  - SSD/HDD pool layout
-  - Partition commands with placeholders
-  - ZFS properties: `recordsize=1M`, `atime=off`, `xattr=off`, `compression=zstd-4`, `special_small_blocks=512K`
-  - Dataset layout
-  - Proxmox storage UI settings
-  - LXC defaults must preserve current setup: nesting enabled, privileged container / `Unprivileged container=No`, CPU advanced settings
-  - Bind mount pattern `/data/general` -> `/mnt/general`
-  - Link to canonical inventory/defaults file: `inventory/lxc-map.md`
-- Acceptance criteria:
-  - Commands are copy/paste-safe with placeholders.
-  - Screenshots are optional, not required to understand the steps.
-
-### HL-030 — Define canonical LXC inventory and network map
-- Labels: `docs`, `config`, `verify`
+### HL-DOC-020 — Normalize canonical LXC inventory and network map
+- Labels: `docs`
 - File: `inventory/lxc-map.md`
-- Goal: list every LXC and its role/IP/ports/mounts plus whether it is created by Community Scripts or repo scripts.
-- Progress:
-  - Added canonical LXC defaults and service table.
-  - Added creation method column for Community Scripts vs manual repo scripts.
-  - Added `scripts/pve/audit-lxcs.sh` to capture live CT config into ignored local file `inventory/live-lxc-audit.md` for review.
-  - Added `inventory/live-lxc-audit.example.md` to show the safe committed format.
-  - Ran the audit on the Proxmox host via SSH and copied only reviewed, non-secret inventory values into `inventory/lxc-map.md`.
-  - Captured current CT IDs/IPs for CTs 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 201, and 250.
-  - Captured current common mounts and LXC defaults from live configs.
-- Include known LXCs:
-  - media/arr stack LXC
-  - proxy LXC: Caddy + Cloudflare Tunnel + Cloudflare MCP
-  - hermes LXC
-  - omniroute LXC
-  - hindsight LXC
-  - optional Jellyfin custom LXC if separated from arr stack
+- Goal: make the inventory the canonical place for CT IDs, roles, IPs, ports, mounts, and rebuild method.
+- Include:
+  - Current CT IDs/IPs for all known LXCs.
+  - Current common mounts and LXC defaults.
+  - Creation method: Community Scripts vs repo manual script vs manual documented setup.
+  - Ports exposed by compose, Caddy, Tunnel, and AI services.
+  - Links back to relevant service docs.
 - Acceptance criteria:
-  - [x] Fresh rebuild has a clear target IP/hostname plan.
-  - [ ] All ports exposed by compose/Caddy/Tunnel are captured.
-  - [x] There is a repeatable way to audit current live LXC config before rebuild.
+  - [ ] Fresh rebuild has a clear target IP/hostname/port plan.
+  - [ ] All major ports exposed by compose/Caddy/Tunnel/AI services are captured.
 
-### HL-040 — Add Hermes LXC setup guide
-- Labels: `docs`, `config`, `parallel`, `verify`
-- Proposed file: `ai/hermes-setup.md`
-- Goal: document install, config, model/provider setup, gateway configuration, and links to OmniRoute/Hindsight.
-- Include from current status:
-  - New LXC setup for Hermes using current LXC defaults: nesting enabled and privileged container
-  - Current sanitized system-level Hermes config example copied from live config: `hermes/config/config.system.example.yaml`
-  - How Hermes connects to OmniRoute gateway/router
-  - How Hermes uses Hindsight memory service
-  - Troubleshooting: disable duplicate gateway when both user-level and system-level gateway exist
-  - Useful command: `hermes config set` to change the model
-  - Secret guide: explain where to create OmniRoute API key, Proxmox token, Discord allowlist ID
+### HL-DOC-030 — Finish Hermes setup guide normalization
+- Labels: `docs`, `secret-safe`
+- Files:
+  - `hermes/README.md`
+  - `hermes/config/config.system.example.yaml`
+  - `ai/integration.md`
+- Goal: make Hermes install/config/gateway docs complete enough to rebuild without remembering manual steps.
+- Include:
+  - LXC assumptions: nesting enabled and privileged container.
+  - Sanitized system-level Hermes config example.
+  - OmniRoute connection details using placeholders.
+  - Hindsight memory connection details using placeholders.
+  - Duplicate user/system gateway troubleshooting: symptom, cause, fix, and verification.
+  - Useful command: `hermes config set` to change the model.
+  - Secret guide: where to create OmniRoute API key, Proxmox token, and Discord allowlist ID.
 - Acceptance criteria:
-  - Fresh Hermes LXC can be configured without remembering manual steps.
-  - Troubleshooting section explains symptom, cause, fix, and verification.
+  - [ ] Fresh Hermes LXC can be configured from docs without guessing.
+  - [ ] Troubleshooting explains the duplicate gateway issue clearly.
 
-### HL-050 — Add OmniRoute LXC setup guide
-- Labels: `docs`, `config`, `parallel`, `verify`
-- File: `omniroute/README.md`
-- Goal: document OmniRoute install, onboarding, password/database workaround, gateway endpoints, and Hermes integration.
-- Progress:
-  - Verified live OmniRoute LXC `107` via PVE SSH: Debian 13, IP `192.168.1.109`, privileged (`unprivileged: 0`), `features: nesting=1`, `memory: 4096`, `swap: 512`, rootfs `4G`.
-  - Verified live package/deployment: npm package `omniroute@3.7.8`, binary `/usr/bin/omniroute -> /usr/lib/node_modules/omniroute/bin/omniroute.mjs`, Node `v24.15.0`.
-  - Verified live service: `/etc/systemd/system/omniroute.service`, `ExecStart=/usr/bin/omniroute`, `PORT=20128`, `DATA_DIR=/root/.omniroute`, listens on `0.0.0.0:20128`.
-  - Verified persistence path: `/root/.omniroute/storage.sqlite`, WAL/SHM files, `db_backups`, and `call_logs`.
-  - Added sanitized examples: `omniroute/config/omniroute.env.example` and `omniroute/systemd/omniroute.service.example`.
-  - Documented live sanitized SQLite settings rows and model aliases without real credentials/tokens.
-  - Documented onboarding/password fix: prefer `INITIAL_PASSWORD`; fallback to `key_value` rows `password`, `setupComplete`, `requireLogin` in `storage.sqlite`.
-  - Updated `create-omniroute-lxc.sh` to match the live binary path/service shape and keep secrets in `/root/.omniroute/omniroute.env`.
+### HL-DOC-040 — Normalize AI service docs
+- Labels: `docs`, `secret-safe`
+- Files:
+  - `omniroute/README.md`
+  - `hindsight/README.md`
+  - `ai/integration.md`
+- Goal: make Hermes + OmniRoute + Hindsight docs consistent and secret-safe.
+- Include:
+  - OmniRoute install/service/storage paths.
+  - OmniRoute onboarding/password recovery notes using placeholders only.
+  - Hindsight Docker ports, health endpoint, and data path.
+  - Integration startup order and end-to-end request flow.
+  - Common failure modes: provider errors, OmniRoute onboarding/login issue, Hindsight health vs upstream provider errors.
 - Acceptance criteria:
-  - [x] Workaround is documented safely with placeholders.
-  - [x] The exact DB update command is captured from the live schema.
-  - [ ] Full fresh login/onboarding flow retested after the script update.
+  - [ ] AI stack can be understood from the docs without inspecting live LXCs.
+  - [ ] No provider keys, API keys, passwords, or tokens are committed.
 
-### HL-060 — Add Hindsight LXC setup guide
-- Labels: `docs`, `config`, `parallel`, `verify`
-- File: `hindsight/README.md`
-- Goal: document Hindsight install, persistence/storage, API endpoint, and Hermes integration.
-- Progress:
-  - Verified live Hindsight LXC `109` via PVE SSH: Debian 12, privileged, `features: nesting=1`, IP `192.168.1.111`, `memory: 8192`, `swap: 1024`, `cpulimit: 4`, rootfs `20G`.
-  - Verified deployment uses Docker container `hindsight` from `ghcr.io/vectorize-io/hindsight:latest`, restart policy `unless-stopped`.
-  - Verified ports: API `8888`, control plane/UI `9999`.
-  - Verified persistent data bind mount: `/root/.hindsight-docker -> /home/hindsight/.pg0`.
-  - Verified health endpoint: `http://127.0.0.1:8888/health` returns `{"status":"healthy","database":"connected"}`.
-  - Added sanitized `hindsight/config/hindsight.env.example` copied from live env shape, with secret/API key placeholder only.
-  - Updated `create-hindsight-lxc.sh` to install Docker, copy env example, create `/root/.hindsight-docker`, and print the live Docker run command.
-  - Documented live provider warning: Hindsight can be healthy while OmniRoute/upstream provider returns `provider_circuit_open` errors.
+### HL-DOC-050 — Normalize media/arr, proxy, and Glance docs
+- Labels: `docs`, `secret-safe`
+- Files:
+  - `server-arr/Multimedia-Setup.md`
+  - `server-arr/arr-live-settings.md`
+  - `server-arr/arr-stack.yml`
+  - `proxy/Access-Setup.md`
+  - `proxy/config/Caddyfile.example`
+  - `glance/Readme.md`
+  - `glance/.env.example`
+- Goal: make service docs consistent with the top-level rebuild flow.
+- Include:
+  - Media LXC paths, mounts, Docker compose usage, and UI settings summary.
+  - qBittorrent note: configure it to operate only over the VPN connection.
+  - Proxy LXC one-container pattern: Caddy + Cloudflare Tunnel + Cloudflare MCP.
+  - Caddy/Cloudflare placeholders and secret storage guidance.
+  - Glance deployment, widget env vars, and maintenance process.
 - Acceptance criteria:
-  - [x] Memory data path is documented for backup/restore.
-  - [x] Hermes client endpoint and bank are documented.
-  - [x] Health checks are documented.
-  - [ ] Full backup/restore test performed on a disposable or rebuilt LXC.
+  - [ ] Service docs have consistent structure and links.
+  - [ ] Secret placeholders/env vars are used everywhere.
 
-### HL-070 — Document AI services integration: Hermes + OmniRoute + Hindsight
-- Labels: `docs`, `config`, `parallel`, `verify`
-- File: `ai/integration.md`
-- Status: initial integration guide added and linked from `Fresh-Homelab-Rebuild.md`.
-- Goal: one diagram/table showing how the three AI LXCs link together.
-- Progress:
-  - Added architecture/request-flow diagram.
-  - Documented Hermes -> OmniRoute model flow.
-  - Documented Hermes -> Hindsight memory flow.
-  - Added startup order and end-to-end verification checklist.
-  - Added troubleshooting map for provider, onboarding, duplicate gateway, and memory issues.
-  - Verified Hermes live install/service layout from CT `108`: system service `hermes-gateway.service`, install dir `/usr/local/lib/hermes-agent`, Hindsight client config `/root/.hermes/hindsight/config.json`.
-  - Verified Hermes uses external Hindsight endpoint pattern `http://<hindsight-lxc-ip>:8888` with bank `hermes`.
-  - Verified Hindsight live API/control-plane ports and Docker container/data path from CT `109`.
+### HL-DOC-060 — Normalize backup, restore, and secret inventory docs
+- Labels: `docs`, `secret-safe`
+- Files:
+  - `Fresh-Homelab-Rebuild.md`
+  - `VERIFY.md`
+  - `.env.example`
+  - service-specific `.env.example` files
+- Goal: document what must be backed up and which secrets/accounts must be recreated, without storing actual values.
+- Include:
+  - Proxmox LXC config files.
+  - Docker config directories under `/docker/*`.
+  - Media/data mounts.
+  - Caddy config/env and Cloudflare tunnel credentials if locally stored.
+  - Hermes/OmniRoute/Hindsight data/config/db paths.
+  - Glance config/API keys.
+  - Secret/account inventory with generation location and minimum scopes.
 - Acceptance criteria:
-  - [x] Clear enough to debug broken integration after fresh install.
-  - [x] All live service names/ports have been verified, including Hindsight server.
-
-### HL-090 — Convert Caddyfile into safer template
-- Labels: `config`, `secret-safe`, `verify`
-- Existing file: `proxy/config/Caddyfile`
-- Status: initial sanitized template added at `proxy/config/Caddyfile.example`
-- Remaining:
-  - Optional `Caddyfile.current.md` notes for real internal mapping if not secret.
-  - Fix naming mismatch if `flaresolverr` vs `flaresolver` hostname is intentional/not intentional.
-- Acceptance criteria:
-  - [x] Fresh setup can copy template and replace placeholders.
-  - [x] No private tokens committed.
-
-### HL-100 — Document arr stack exact settings
-- Labels: `docs`, `config`, `verify`
-- Existing files: `server-arr/Multimedia-Setup.md`, `server-arr/arr-stack.yml`
-- Status: live settings captured in `server-arr/arr-live-settings.md`.
-- Progress:
-  - Verified live multimedia LXC `101`: Ubuntu 22.04, IP `192.168.1.103`, privileged, `features: nesting=1`, `memory: 6144`, `swap: 512`, `cpulimit: 8`, rootfs `40G`.
-  - Verified mounts: `/main/docker -> /docker`, `/data/media -> /media`, GPU passthrough for `/dev/dri/card0` and `/dev/dri/renderD128`.
-  - Verified running containers/ports for qBittorrent, Prowlarr, Sonarr, Radarr, Bazarr, Tdarr, FlareSolverr, QBWrapper, Lingarr, Portainer, and Glance.
-  - Captured qBittorrent paths/settings, including completed/incomplete/torrent export paths and first-login password lookup.
-  - Captured Prowlarr indexer list, priorities, minimum seeders, FlareSolverr proxy, and Sonarr/Radarr application sync flow without API keys.
-  - Captured Sonarr/Radarr root folders, qBittorrent categories, remove-completed settings, naming formats, and lack of remote path mappings.
-  - Captured Bazarr providers/settings, Jellyfin service paths, and Jellyseerr integration paths/settings with all tokens/webhooks redacted.
-  - Added backup/restore procedure and secret recreation checklist.
-- Acceptance criteria:
-  - [x] All manual UI steps are listed in order.
-  - [x] API key placeholders and where to find them are documented.
-  - [ ] Optional: perform fresh restore test from documented backups.
-
-### HL-110 — Improve arr stack compose/env safety
-- Labels: `config`, `secret-safe`, `verify`
-- Existing files: `server-arr/arr-stack.yml`, `.env`
-- Status: initial service-specific env example added.
-- Progress:
-  - Added `server-arr/.env.example` for PUID/PGID/TZ, qBittorrent username/password, and QBWrapper token.
-  - Updated `arr-stack.yml` to externalize PUID/PGID/TZ and QBWrapper username/password/token.
-  - Updated `create-media-arr-lxc.sh` to copy `server-arr/.env.example` to `.env` inside the new LXC and link to the live settings guide.
-- Acceptance criteria:
-  - [x] `docker compose --env-file .env up -d` works after copying `.env.example`.
-  - [x] No real secrets in repo.
-  - [ ] Optional: add healthchecks after the stack is retested from a fresh LXC.
+  - [ ] Restore checklist says what to back up and where each item lives.
+  - [ ] `.env.example` files cover required variables without real secrets.
 
 ---
 
 ## Done
 
-### HL-120 — Add post-rebuild verification checklist
-- Labels: `docs`, `verify`
-- File: `VERIFY.md`
-- Goal: fast smoke test after fresh rebuild.
-- Progress:
-  - Added dedicated `VERIFY.md` with pass/fail checks for Proxmox storage, LXC defaults, mounts, proxy, media/arr stack, Jellyfin/Jellyseerr, OmniRoute, Hindsight, Hermes, end-to-end AI flow, and backup/restore readiness.
-  - Added optional non-destructive helper `scripts/smoke-test.sh` for HTTP/TCP checks against common internal service endpoints.
-  - Linked `VERIFY.md` and `scripts/smoke-test.sh` from `Fresh-Homelab-Rebuild.md`.
-  - Kept authenticated checks optional via local-only environment variables, for example `OMNIROUTE_API_KEY`.
-- Acceptance criteria:
-  - [x] Pass/fail checklist exists for each critical service.
-  - [x] Optional smoke-test helper does not require or store secrets.
-
-
-### HL-150 — Update Glance/dashboard docs
-- Labels: `docs`, `config`, `verify`
-- Existing folder: `glance/`
-- Goal: document dashboard deployment and widgets.
-- Status: live Glance deployment documented and sanitized examples updated.
-- Progress:
-  - Verified live Glance runs in CT `101` as Docker container `glance` using image `glanceapp/glance`.
-  - Verified live port mapping `8081:8080`, restart policy `unless-stopped`, and config mount `/docker/glance -> /app/config`.
-  - Rewrote `glance/Readme.md` as the dashboard rebuild/restore guide.
-  - Added `glance/.env.example` with placeholders for Proxmox VE, PBS, Jellyfin, QBWrapper/qbproxy, and timezone variables.
-  - Updated Glance config to include the current live To-do widget, Hindsight health check URL, and qBittorrent widget include.
-  - Renamed qBittorrent widget example to `glance/widgets/qbittorrent.yml` and kept QBWrapper auth via `AUTH_TOKEN` env var.
-  - Linked Glance docs from `Fresh-Homelab-Rebuild.md`.
-- Acceptance criteria:
-  - [x] Dashboard can be recreated after fresh setup.
-  - [x] Widget secrets are placeholders/env vars only.
-  - [x] Service list maintenance process is documented.
-
-### HL-160 — Add automation scripts where simple and stable
-- Labels: `config`, `parallel`
-- Goal: reduce manual repetition without overengineering.
-- Progress:
-  - Added `scripts/smoke-test.sh` for optional non-destructive HTTP/TCP checks after rebuild.
-  - Added `scripts/check-env.sh` to verify committed `.env.example` files exist and secret-like variables use placeholder values.
-  - `scripts/check-env.sh` also compares local `.env` files to examples when present and warns when local env files still need to be created.
-  - Linked helpers from `Fresh-Homelab-Rebuild.md` and `scripts/pve/README.md`.
-- Remaining candidates:
-  - `scripts/validate-compose.sh` after Docker validation environment is available.
-  - `scripts/render-caddy-template.sh` only if Caddy templating becomes repetitive enough to justify it.
-- Acceptance criteria:
-  - [x] Scripts are simple, readable, and optional.
-  - [x] Env helper does not print or require real secrets.
-
-### HL-170 — Add architecture diagram
+### HL-DOC-900 — Remove non-documentation tasks from board
 - Labels: `docs`
-- Goal: visual map of LXCs, DNS, proxy paths, storage, and AI services.
-- File: `ARCHITECTURE.md`
-- Progress:
-  - Added high-level Mermaid service map covering Proxmox, storage mounts, proxy, media stack, Jellyfin/Jellyseerr, AI services, PBS, and external Cloudflare paths.
-  - Added rebuild flow diagram, network-path table, storage/mount table, secret-boundary checklist, and source-of-truth links.
-  - Linked `ARCHITECTURE.md` from `Fresh-Homelab-Rebuild.md`.
-- Acceptance criteria:
-  - [x] Diagram exists in Mermaid or Markdown table.
-  - [x] Diagram is secret-free and points to detailed service docs.
-
----
-
-## Backlog
-
-### HL-180 — Add backup and restore plan
-- Labels: `docs`, `verify`
-- Status: renamed from duplicate `HL-130` to keep task IDs unique.
-- Goal: document what must be backed up to recreate current state exactly.
-- Include:
-  - Proxmox LXC config files
-  - Docker config directories under `/docker/*`
-  - Media/data mounts
-  - Caddy config/env
-  - Cloudflare tunnel credentials if locally stored
-  - Hermes/OmniRoute/Hindsight data/config/db
-  - Glance config/API keys
-- Acceptance criteria:
-  - Restore steps are documented and tested for at least one service.
-
-### HL-140 — Add service ownership and secret inventory
-- Labels: `docs`, `secret-safe`
-- Goal: create a private checklist of required accounts/tokens without storing the actual values.
-- Include:
-  - Cloudflare DNS token
-  - Cloudflare Tunnel token
-  - Cloudflare MCP token/config
-  - Proxmox API token
-  - PBS API token
-  - Jellyfin API key
-  - qBittorrent/qbwrapper auth
-  - AI provider keys used by OmniRoute/Hermes
-- Acceptance criteria:
-  - `.env.example` has every required variable.
-  - Docs say where to generate each secret and minimum scopes.
-
----
-
-## Blocked / Needs user or live homelab details
-
-### HL-200 — Capture exact current IPs, hostnames, CT IDs, and mounts
-- Labels: `docs`, `verify`
-- Needed:
-  - Proxmox node name
-  - LXC IDs/names/IPs
-  - Storage pool/dataset names
-  - Bind mount source/destination paths
-  - Domain/subdomain list
-
-### HL-210 — Capture exact Hermes/OmniRoute/Hindsight install/config commands
-- Labels: `docs`, `config`, `verify`
-- Needed:
-  - Install method used for each service
-  - Config file paths
-  - Service manager commands
-  - Ports and health endpoints
-  - Exact duplicate gateway fix
-  - Exact OmniRoute password DB update command
-
-### HL-220 — Capture current arr UI settings screenshots/exports if available
-- Labels: `docs`, `verify`
-- Needed:
-  - Radarr/Sonarr/Prowlarr/Bazarr settings screenshots or config export
-  - qBittorrent settings
-  - Jellyfin libraries/transcoding settings
-
----
-
-## Suggested parallel subagent workstreams
-
-1. AI stack docs: research/structure Hermes + OmniRoute + Hindsight guides and integration doc.
-2. Proxy docs: update Caddy/Cloudflare Tunnel/Cloudflare MCP guide and Caddyfile template.
-3. Arr stack docs/config: expand manual settings and improve `.env.example`/compose portability.
-4. Proxmox/rebuild docs: improve top-level runbook, LXC inventory, storage, verification, backups.
-
+- Status: completed by reducing this board to documentation normalization tasks only.
+- Notes:
+  - Removed script smoke-test tasks.
+  - Removed fresh restore/live validation tasks as active board items.
+  - Removed optional automation tasks such as proxy script creation and extra validators.
+  - Kept documentation-only normalization tasks as the current focus.
