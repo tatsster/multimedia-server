@@ -121,16 +121,37 @@ From the Proxmox shell:
 
 ```bash
 cd /root/repos/multimedia-server
-CTID=107 IP_CIDR=192.168.1.109/24 HOSTNAME=omniroute INITIAL_PASSWORD='replace-with-strong-password' bash scripts/pve/create-omniroute-lxc.sh
+CTID=107 \
+IP_CIDR=192.168.1.109/24 \
+HOSTNAME=omniroute \
+INITIAL_PASSWORD='replace-with-strong-password' \
+bash scripts/pve/create-omniroute-lxc.sh
 ```
 
-Then inside the LXC:
+Then inside the LXC, create the private env file from the example and generate fresh secrets locally:
 
 ```bash
 pct exec 107 -- bash
+install -d -m 0700 /root/.omniroute
+cp /root/repos/multimedia-server/omniroute/config/omniroute.env.example /root/.omniroute/omniroute.env
+chmod 0600 /root/.omniroute/omniroute.env
 nano /root/.omniroute/omniroute.env
+```
+
+Set placeholder values before first start:
+
+```text
+JWT_SECRET=<generated-with-openssl-rand-base64-48>
+API_KEY_SECRET=<generated-with-openssl-rand-hex-32>
+INITIAL_PASSWORD=<strong-password-from-password-manager>
+```
+
+Then start/restart and check the service:
+
+```bash
 systemctl restart omniroute.service
 systemctl status omniroute.service --no-pager
+journalctl -u omniroute.service -n 50 --no-pager
 ```
 
 Open:
@@ -139,7 +160,7 @@ Open:
 http://192.168.1.109:20128
 ```
 
-Add provider connections and create the API key used by Hermes/Hindsight.
+Add provider connections and create separate client API keys for Hermes and Hindsight. Store those keys only in the corresponding private env/config on each client LXC.
 
 ## Password / onboarding SQLite workaround
 

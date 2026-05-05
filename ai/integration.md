@@ -15,34 +15,44 @@ User / Discord / CLI
         |
         v
 +------------------+
-| Hermes LXC       |
+| Hermes LXC 108   |
+| 192.168.1.110    |
 | - agent runtime  |
-| - tool gateway   |
+| - system gateway |
 | - config.yaml    |
-+--------+---------+
-         | model requests
-         | OpenAI-compatible API
-         v
++----+---------+---+
+     |         |
+     |         | memory retain/recall/search
+     |         v
+     |   +------------------+
+     |   | Hindsight LXC109 |
+     |   | 192.168.1.111    |
+     |   | - API :8888      |
+     |   | - CP  :9999      |
+     |   | - persistent DB  |
+     |   +---------+--------+
+     |             |
+     |             | optional LLM extraction/summarization
+     |             v
+     | model requests / OpenAI-compatible API
+     v
 +------------------+
-| OmniRoute LXC    |
+| OmniRoute LXC107 |
+| 192.168.1.109    |
+| - API/UI :20128  |
 | - providers      |
-| - models         |
 | - API keys       |
 | - SQLite config  |
 +------------------+
-
-+------------------+
-| Hindsight LXC    |
-| - retain/recall  |
-| - persistent DB  |
-+---------^--------+
-          |
-          | memory retain/recall/search
-          |
-+---------+--------+
-| Hermes LXC       |
-+------------------+
 ```
+
+Normal request flow:
+
+1. User talks to Hermes through CLI or Discord.
+2. Hermes sends model requests to OmniRoute at `http://192.168.1.109:20128/v1`.
+3. OmniRoute selects the configured provider/model and returns the response.
+4. Hermes sends memory retain/recall/search requests to Hindsight at `http://192.168.1.111:8888`.
+5. Hindsight persists memory in `/root/.hindsight-docker` and may call OmniRoute for its own LLM extraction work.
 
 ## Canonical LXC requirements
 
@@ -67,23 +77,24 @@ pct config <ctid> | grep -E '^(features|unprivileged|cores|cpulimit|memory|net0)
 
 ## Ports and URLs
 
-Fill this table during rebuild from `inventory/lxc-map.md`.
+Canonical network targets come from [`inventory/lxc-map.md`](../inventory/lxc-map.md).
 
 | Service | Internal URL | Public exposure | Notes |
 |---|---|---|---|
-| Hermes | `http://<hermes-lxc-ip>:<hermes-port>` | Usually private only | CLI/gateway host. Fill exact port after live verification. |
-| OmniRoute dashboard | `http://<omniroute-lxc-ip>:20128` | Private or Cloudflare Access only | Admin UI and onboarding. |
-| OmniRoute API | `http://<omniroute-lxc-ip>:20128/v1` | Private only | Hermes model `base_url`. |
-| Hindsight API | `http://192.168.1.111:8888` | Private only | Memory provider endpoint. Health: `/health`. |
+| Hermes | `192.168.1.110` / system gateway | Usually private only | CLI/Discord/API agent host; gateway ports depend on enabled platforms. |
+| OmniRoute dashboard | `http://192.168.1.109:20128` | Private or Cloudflare Access only | Admin UI and onboarding. |
+| OmniRoute API | `http://192.168.1.109:20128/v1` | Private only | Hermes and Hindsight OpenAI-compatible `base_url`. |
+| Hindsight API | `http://192.168.1.111:8888` | Private only | Hermes memory provider endpoint. Health: `/health`. |
 | Hindsight control plane | `http://192.168.1.111:9999/dashboard` | Private only / Cloudflare Access if exposed | Optional UI. |
 
-Current known Hermes model route:
+Current known Hermes routes:
 
 ```text
 Hermes model.default = codex/gpt-5.5-medium
 Hermes model.provider = custom
-Hermes model.base_url = http://<omniroute-lxc-ip>:20128/v1
+Hermes model.base_url = http://192.168.1.109:20128/v1
 Hermes memory.provider = hindsight
+Hermes Hindsight API URL = http://192.168.1.111:8888
 ```
 
 ## Startup order
@@ -249,15 +260,26 @@ Verify:
 | OmniRoute admin password | OmniRoute onboarding or `INITIAL_PASSWORD` | OmniRoute UI login | Password manager only |
 | OmniRoute Hermes API key | OmniRoute dashboard/API keys | Hermes model API calls | Private Hermes config/env only |
 | Provider API/OAuth credentials | Provider dashboard or OmniRoute provider login flow | OmniRoute | OmniRoute encrypted/local DB or private env only |
-| Hindsight auth token, if enabled | Hindsight setup | Hermes memory calls | Private Hermes/Hindsight env only |
+| Hindsight API auth token, if enabled later | Hindsight setup | Hermes memory calls | Private Hermes/Hindsight env only; current documented local setup does not enable one |
 | Proxmox API token ID/secret | Proxmox -> Datacenter -> Permissions -> API Tokens | Hermes Proxmox tools | `/root/.hermes/.env` or password manager only |
 | Discord bot token | Discord Developer Portal | Hermes Discord gateway | `/root/.hermes/.env` only |
 | Discord allowlist/user/channel IDs | Discord developer mode / channel settings | Hermes Discord routing/allowlist | Config/env placeholders; no private notes |
 
 Never commit real secrets. Commit only examples with placeholders.
 
-## Open items to capture from live LXCs
+## Rebuild summary
 
-- Exact Hermes install command and service unit.
-- Exact OmniRoute deployment method currently used: npm, Docker, or other.
-- Exact startup dependencies between Hermes gateway, OmniRoute, and Hindsight.
+Use these service-specific guides for the exact rebuild commands and private config locations:
+
+| Service | Guide | Critical private data/config |
+|---|---|---|
+| Hermes | [`../hermes/README.md`](../hermes/README.md) | `/root/.hermes`, system Hermes config, private `.env` |
+| OmniRoute | [`../omniroute/README.md`](../omniroute/README.md) | `/root/.omniroute`, `/root/.omniroute/omniroute.env`, `storage.sqlite` |
+| Hindsight | [`../hindsight/README.md`](../hindsight/README.md) | `/root/.hindsight-docker`, `/root/.hindsight.env` |
+
+Minimum recovery order:
+
+1. Restore/start OmniRoute and confirm `/v1/models` is reachable with a private API key.
+2. Restore/start Hindsight and confirm `/health` reports a connected database.
+3. Restore/start Hermes system gateway and confirm `model` and `memory` config point to OmniRoute/Hindsight.
+4. Run one harmless end-to-end model request and one harmless retain/recall memory check.

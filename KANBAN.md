@@ -17,27 +17,6 @@ Labels:
 
 ## In Progress
 
-### HL-DOC-040 — Normalize AI service docs
-- Labels: `docs`, `secret-safe`
-- Files:
-  - `omniroute/README.md`
-  - `hindsight/README.md`
-  - `ai/integration.md`
-- Goal: make Hermes + OmniRoute + Hindsight docs consistent and secret-safe.
-- Include:
-  - OmniRoute install/service/storage paths.
-  - OmniRoute onboarding/password recovery notes using placeholders only.
-  - Hindsight Docker ports, health endpoint, and data path.
-  - Integration startup order and end-to-end request flow.
-  - Common failure modes: provider errors, OmniRoute onboarding/login issue, Hindsight health vs upstream provider errors.
-- Acceptance criteria:
-  - [ ] AI stack can be understood from the docs without inspecting live LXCs.
-  - [ ] No provider keys, API keys, passwords, or tokens are committed.
-
----
-
-## Ready
-
 ### HL-DOC-050 — Normalize media/arr, proxy, and Glance docs
 - Labels: `docs`, `secret-safe`
 - Files:
@@ -58,6 +37,10 @@ Labels:
 - Acceptance criteria:
   - [ ] Service docs have consistent structure and links.
   - [ ] Secret placeholders/env vars are used everywhere.
+
+---
+
+## Ready
 
 ### HL-DOC-060 — Normalize backup, restore, and secret inventory docs
 - Labels: `docs`, `secret-safe`
@@ -82,6 +65,25 @@ Labels:
 ---
 
 ## Done
+
+### HL-DOC-040 — Normalize AI service docs
+- Labels: `docs`, `secret-safe`
+- Status: completed.
+- Files:
+  - `omniroute/README.md`
+  - `hindsight/README.md`
+  - `ai/integration.md`
+- Goal: make Hermes + OmniRoute + Hindsight docs consistent and secret-safe.
+- Progress:
+  - Clarified the end-to-end AI request flow: Hermes -> OmniRoute for model calls, Hermes -> Hindsight for memory, and Hindsight -> OmniRoute for its own LLM extraction work.
+  - Normalized canonical AI service URLs and LXC targets from `inventory/lxc-map.md`.
+  - Expanded OmniRoute rebuild notes for private env creation, generated secrets, systemd checks, separate Hermes/Hindsight API keys, and placeholder-only onboarding/password recovery.
+  - Clarified Hindsight Docker startup dependency on OmniRoute, persistent data path, health endpoint, and system-level Hermes gateway restart.
+  - Replaced stale open-capture notes in the integration guide with a practical rebuild summary and private data/config locations.
+  - Documented common failure separation between healthy local services and upstream provider/provider-circuit errors.
+- Acceptance criteria:
+  - [x] AI stack can be understood from the docs without inspecting live LXCs.
+  - [x] No provider keys, API keys, passwords, or tokens are committed.
 
 ### HL-DOC-030 — Finish Hermes setup guide normalization
 - Labels: `docs`, `secret-safe`

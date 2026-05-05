@@ -59,6 +59,8 @@ This contains the embedded `pg0` PostgreSQL data used by the all-in-one Docker i
 
 ## Install / rebuild
 
+Start OmniRoute first, because Hindsight's LLM extraction calls route through the OmniRoute OpenAI-compatible API.
+
 From the Proxmox host, either run the repo script:
 
 ```bash
@@ -160,11 +162,14 @@ hermes config get memory
 hermes config set memory.provider hindsight
 ```
 
-Restart the Hermes gateway if needed:
+Restart the system-level Hermes gateway if needed:
 
 ```bash
-hermes gateway restart
+hermes gateway restart --system
+hermes gateway status --system
 ```
+
+Use the system gateway consistently so Discord/API traffic and CLI checks read the same Hermes config.
 
 ## Verification
 
