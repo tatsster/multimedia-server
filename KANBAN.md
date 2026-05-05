@@ -17,31 +17,6 @@ Labels:
 
 ## In Progress
 
-### HL-DOC-050 — Normalize media/arr, proxy, and Glance docs
-- Labels: `docs`, `secret-safe`
-- Files:
-  - `server-arr/Multimedia-Setup.md`
-  - `server-arr/arr-live-settings.md`
-  - `server-arr/arr-stack.yml`
-  - `proxy/Access-Setup.md`
-  - `proxy/config/Caddyfile.example`
-  - `glance/Readme.md`
-  - `glance/.env.example`
-- Goal: make service docs consistent with the top-level rebuild flow.
-- Include:
-  - Media LXC paths, mounts, Docker compose usage, and UI settings summary.
-  - qBittorrent note: configure it to operate only over the VPN connection.
-  - Proxy LXC one-container pattern: Caddy + Cloudflare Tunnel + Cloudflare MCP.
-  - Caddy/Cloudflare placeholders and secret storage guidance.
-  - Glance deployment, widget env vars, and maintenance process.
-- Acceptance criteria:
-  - [ ] Service docs have consistent structure and links.
-  - [ ] Secret placeholders/env vars are used everywhere.
-
----
-
-## Ready
-
 ### HL-DOC-060 — Normalize backup, restore, and secret inventory docs
 - Labels: `docs`, `secret-safe`
 - Files:
@@ -65,6 +40,30 @@ Labels:
 ---
 
 ## Done
+
+### HL-DOC-050 — Normalize media/arr, proxy, and Glance docs
+- Labels: `docs`, `secret-safe`
+- Status: completed.
+- Files:
+  - `server-arr/Multimedia-Setup.md`
+  - `server-arr/arr-live-settings.md`
+  - `server-arr/arr-stack.yml`
+  - `proxy/Access-Setup.md`
+  - `proxy/config/Caddyfile.example`
+  - `glance/Readme.md`
+  - `glance/.env.example`
+- Goal: make service docs consistent with the top-level rebuild flow.
+- Progress:
+  - Rewrote the media/Arr guide into a practical CT 101 rebuild flow with target layout, service map, mounts, compose usage, app configuration order, Glance integration, backup/restore notes, and secret recreation checklist.
+  - Added explicit qBittorrent guidance to bind torrent traffic only to the intended VPN connection/interface while keeping VPN credentials out of Git.
+  - Cross-linked live Arr settings, canonical compose, inventory, proxy, and Glance docs.
+  - Added compose/env comments documenting required CT 101 mounts and shared QBWrapper/Glance token behavior.
+  - Clarified proxy docs around one proxy LXC running Caddy + Cloudflare Tunnel + Cloudflare MCP, related docs, and secret storage.
+  - Expanded the Caddy example with placeholder-safe service routes for Jellyfin, Jellyseerr, Arr apps, Glance, and FlareSolverr.
+  - Clarified Glance restore/deployment location, widget env vars, and shared `AUTH_TOKEN` generation.
+- Acceptance criteria:
+  - [x] Service docs have consistent structure and links.
+  - [x] Secret placeholders/env vars are used everywhere.
 
 ### HL-DOC-040 — Normalize AI service docs
 - Labels: `docs`, `secret-safe`

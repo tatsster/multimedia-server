@@ -27,10 +27,45 @@
 		resolvers 1.1.1.1
 	}
 
-	# Example HTTP backend, copied from the current live pattern used for Jellyfin.
+	# Media/service examples. Keep hostname spelling consistent with Cloudflare DNS/Tunnel.
 	@jellyfin host play.example.com
 	handle @jellyfin {
-		reverse_proxy http://JELLYFIN_LXC_IP:8096
+		reverse_proxy http://192.168.1.104:8096
+	}
+
+	@jellyseerr host media.example.com
+	handle @jellyseerr {
+		reverse_proxy http://192.168.1.105:5055
+	}
+
+	@sonarr host sonarr.example.com
+	handle @sonarr {
+		reverse_proxy http://192.168.1.103:8989
+	}
+
+	@radarr host radarr.example.com
+	handle @radarr {
+		reverse_proxy http://192.168.1.103:7878
+	}
+
+	@prowlarr host prowlarr.example.com
+	handle @prowlarr {
+		reverse_proxy http://192.168.1.103:9696
+	}
+
+	@bazarr host bazarr.example.com
+	handle @bazarr {
+		reverse_proxy http://192.168.1.103:6767
+	}
+
+	@tdarr host tdarr.example.com
+	handle @tdarr {
+		reverse_proxy http://192.168.1.103:8265
+	}
+
+	@glance host glance.example.com
+	handle @glance {
+		reverse_proxy http://192.168.1.103:8081
 	}
 
 	# Example HTTPS backend with self-signed/internal certificate.
@@ -45,9 +80,8 @@
 		}
 	}
 
-	# Example utility service. Keep hostname spelling consistent with Cloudflare DNS/Tunnel.
 	@flaresolverr host flaresolverr.example.com
 	handle @flaresolverr {
-		reverse_proxy http://MULTIMEDIA_LXC_IP:8191
+		reverse_proxy http://192.168.1.103:8191
 	}
 }

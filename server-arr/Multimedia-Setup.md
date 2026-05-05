@@ -1,140 +1,300 @@
-# Automated Jellyfin cluster
-Main instruction from [Techhut](https://github.com/TechHutTV/homelab/tree/main/media)
+# Media / Arr Stack Rebuild Guide
 
-## The Stack
-**Jellyfin** is an open source media server.
+This guide is the practical rebuild flow for the media services. It should stay consistent with the canonical inventory in [`../inventory/lxc-map.md`](../inventory/lxc-map.md).
 
-**qBittorrent** is a torrent client. Transmission and Deluge are also popular choices but I chose qBittorrent because you can easily configure it to only operate over the VPN connection.
+Related files:
 
-**Glutun** is a VPN running in docker. This will allow you to connect the qBittorrent container to your VPN without having to put your entire system behind it
-    - Consider put entire system behind Cloudflare Tunnel
+- Live settings snapshot: [`arr-live-settings.md`](./arr-live-settings.md)
+- Rebuild compose file: [`arr-stack.yml`](./arr-stack.yml)
+- Secret-safe env template: [`.env.example`](./.env.example)
+- Proxy/public access guide: [`../proxy/Access-Setup.md`](../proxy/Access-Setup.md)
+- Glance dashboard guide: [`../glance/Readme.md`](../glance/Readme.md)
 
-**Prowlarr** is a tool that Sonarr and Radarr use to search indexers and trackers for torrents
+> Secret-safety note: never commit real app passwords, API keys, webhook URLs, VPN credentials, or private tokens. Commit only placeholder values and recreate secrets in each app UI or local `.env` file.
 
-**Sonarr** is a tool for automating and managing your TV library. It automates the process of searching for torrents, downloading them then "moving" them to your library. It also checks RSS feeds to automatically download new shows as soon as they're uploaded!
+---
 
-**Radarr** is a fork of Sonarr that does all the same stuff but for Movies
+## Target layout
 
-[**Jellyseerr**](https://github.com/Fallenbagel/jellyseerr) is an application for managing requests for your media library. It is a fork of Overseerr built to bring support for Jellyfin servers!
+### CT 101 — `multimedia`
 
-[**Bazarr**](https://wiki.bazarr.media/Getting-Started/Setup-Guide/) is a tool for Sonarr and Radarr to download subtitles for your content
+| Item | Target value |
+|---|---|
+| IP | `192.168.1.103/24` |
+| Role | Docker Arr/media stack |
+| LXC type | privileged / `unprivileged: 0` |
+| LXC feature | `features: nesting=1` |
+| Main mounts | `/main/docker -> /docker`, `/data/media -> /media` |
+| GPU passthrough | `/dev/dri/card0`, `/dev/dri/renderD128` when needed |
+| Compose file | `server-arr/arr-stack.yml` |
+| Local env file | `server-arr/.env` copied from `server-arr/.env.example` |
 
-## Optional
-[**jfa-go**](https://github.com/hrfee/jfa-go) is a user manager for Jellyfin that allows your users to sign up via an invite code and reset their passwords
+The live stack was originally managed by Portainer, but this repo's [`arr-stack.yml`](./arr-stack.yml) is the canonical rebuild compose file.
 
-[**Unmanic**](https://docs.unmanic.app) is a great tool for optimising media files. For example, you can use it to remove unneccessary subtitles/audio tracks and transcode media to your desired format.
+### Separate media LXCs
 
-## Current live settings
+| CT | Service | IP | Notes |
+|---|---|---|---|
+| 102 | Jellyfin | `192.168.1.104` | Community Scripts LXC, `/data/media -> /media`, service port `8096` |
+| 103 | Jellyseerr | `192.168.1.105` | Community Scripts LXC, service port `5055` |
 
-The current homelab's inspected CT IDs, ports, app paths, UI settings, indexers, download-client categories, backup paths, and secret recreation notes are documented in:
+Detailed inspected values are in [`arr-live-settings.md`](./arr-live-settings.md).
 
-- [`arr-live-settings.md`](./arr-live-settings.md)
-- [`arr-stack.yml`](./arr-stack.yml)
-- [`.env.example`](./.env.example)
+---
 
-Use this file for the high-level setup flow, and use `arr-live-settings.md` when you need exact values during a fresh rebuild.
+## Service map
 
-## Setup
-### Add GPU devices (only for Proxmox)
-Go to `/dev/dri/` in Proxmox host and run `ls -l`. Should have something like this
+| Service | Container/LXC | URL | Persistent config/data |
+|---|---|---|---|
+| qBittorrent | CT 101 Docker | `http://192.168.1.103:8080` | `/docker/qbittorrent`, downloads under `/media/downloads/qbittorrent` |
+| Prowlarr | CT 101 Docker | `http://192.168.1.103:9696` | `/docker/prowlarr` |
+| Sonarr | CT 101 Docker | `http://192.168.1.103:8989` | `/docker/sonarr`, library root `/data/tv` inside app |
+| Radarr | CT 101 Docker | `http://192.168.1.103:7878` | `/docker/radarr`, library root `/data/movies` inside app |
+| Bazarr | CT 101 Docker | `http://192.168.1.103:6767` | `/docker/bazarr` |
+| Tdarr | CT 101 Docker | `http://192.168.1.103:8265` | `/docker/tdarr`, `/media`, `/dev/dri` |
+| FlareSolverr | CT 101 Docker | `http://192.168.1.103:8191` | container only |
+| QBWrapper/qbproxy | CT 101 Docker | `http://192.168.1.103:9911` | env only; token must match Glance |
+| Lingarr | CT 101 Docker | `http://192.168.1.103:9876` | `/docker/lingarr`, `/media/movies`, `/media/tv` |
+| Jellyfin | CT 102 service | `http://192.168.1.104:8096` | `/etc/jellyfin`, `/var/lib/jellyfin`, `/media` |
+| Jellyseerr | CT 103 service | `http://192.168.1.105:5055` | `/etc/seerr`, `/opt/seerr/config`, optional legacy `/docker/jellyseerr` |
+
+---
+
+## LXC requirements
+
+Use the same LXC defaults as the rest of the homelab unless intentionally changing the design:
+
+```text
+features: nesting=1
+unprivileged: 0
 ```
-root@proxmox:/dev/dri# ls -l
-total 0
-drwxr-xr-x 2 root root         80 Apr 18 04:19 by-path
-crw-rw---- 1 root video  226,   0 Apr 18 04:19 card0
-crw-rw---- 1 root render 226, 128 Apr 18 04:19 renderD128
-```
-Rremember those numbers for card0 and render128 and then edit you lxc conf file `/etc/pve/lxc/###.conf`
 
+For CT 101, also preserve the media bind mounts:
+
+```text
+mp0: /main/docker,mp=/docker
+mp1: /data/media,mp=/media
 ```
+
+For GPU passthrough, confirm devices on the Proxmox host:
+
+```bash
+ls -l /dev/dri
+```
+
+Typical CT config pattern:
+
+```text
 lxc.cgroup2.devices.allow: c 226:0 rwm
 lxc.cgroup2.devices.allow: c 226:128 rwm
 lxc.mount.entry: /dev/dri/card0 dev/dri/card0 none bind,optional,create=file
 lxc.mount.entry: /dev/dri/renderD128 dev/dri/renderD128 none bind,optional,create=file
 ```
 
-### Linux/Mac
-Change all User id, Group id services with:
-```
-- PUID=${PUID:-$(id -u)}
-- PGID=${PGID:-$(id -g)}
-```
+---
 
-### Public access
-- Deploy cloudflare stack 
-- Add/migrate domain to Cloudflare
-- Create & get secret for Tunnel
-- Assign that value in .env file
-- Create subdomain url for each services
+## Start CT 101 Docker stack
 
-### How to run
-Just simple
+Inside CT `101` after Docker is installed and the repo is available:
+
 ```bash
+cd /root/repos/multimedia-server/server-arr
 cp .env.example .env
+chmod 0600 .env
 nano .env
-# Fill QB_USERNAME, QB_PASSWORD, AUTH_TOKEN, then start:
-docker compose --env-file .env -f arr-stack.yml up -d
 ```
 
-### Torrent Client
-For 1st login, check container log for 1 time password login 
-- Change password in Option > WebUI
-- Auto remove torrents & files after 15min
-    - Option > BitTorrent
-    - Scroll to Seeding Limits
-    - Check `When total seeding time reaches`
-    - Choice `Remove torrent & its files`
+Fill only placeholder values:
 
-### Prowlarr
-Add Indexeres, the choice is simple:
-- Public server
-- en_US language
-- Server Movies, TV and maybe Anime
+```text
+QB_USERNAME=replace-with-qbittorrent-webui-username
+QB_PASSWORD=replace-with-qbittorrent-webui-password
+AUTH_TOKEN=replace-with-random-qbwrapper-token
+```
 
-Add applications, this is the same setup for both Radarr & Sonarr. Because all these in same network, we can use container name as endpoint:
-- Prowlarr Server: http://prowlarr:9696
-- Radarr Server: http://radarr:7878
-- Sonarr Server: http://sonarr:8989
+Start the stack:
 
-Also go to Radarr/Sonarr to grab API key and insert here, just in Settings > General
+```bash
+docker compose --env-file .env -f arr-stack.yml up -d
+docker compose --env-file .env -f arr-stack.yml ps
+```
 
-Edit Default profile:
-- Minimum seeders: 5 (can be higher for better downloading exp)
+Verify:
 
-Also, enable authentication, just make it simple with Forms login page
+```bash
+docker ps
+curl -fsS http://127.0.0.1:8080 >/dev/null
+curl -fsS http://127.0.0.1:9696 >/dev/null
+curl -fsS http://127.0.0.1:8989 >/dev/null
+curl -fsS http://127.0.0.1:7878 >/dev/null
+```
 
-### Radarr / Sonarr
-Add root folder, according to docker compose file, root folder for each:
-- Radarr: /movies
-- Sonarr: /tv
+---
 
-Add Torrent client:
-- Can be different if with VPN
-- If no VPN, then host is container name
-- Use newly-created login in qBitTorrent for authen
-- Check `Remove Completed`
+## qBittorrent setup
 
-Also remember to create authentication for Radarr/Sonarr with Forms
+qBittorrent is used because it can be configured to operate only over the VPN connection/interface.
 
-### Bazarr
-Add subtitles providers, some free for recommendation:
-- YIFY Subtitles
-- Gestdown 
-- Anime Tosho
-- TVSubtitles
-- OpenSubtitles.com (free but must have account)
+Fresh first login:
 
-Create Language profile
-- Check as `Default language profiles for newly added shows`
+```bash
+docker logs qbittorrent | grep -i password
+```
 
-Then just enable for Radarr/Sonarr
+Then open:
 
-### Jellyfin / Jellyseerr
-Follow Jellyfin Setup wizard to mount correct Movies & TV folder
+```text
+http://192.168.1.103:8080
+```
 
-For Jellyseer:
-- Use Jellyfin account to authen 
-- Grab Radarr/Sonarr API key to sync services
-- And follow setup wizard, this is easy
+Minimum settings to restore:
 
-Another solution is using custom Jellyfin LXC from https://community-scripts.github.io/ProxmoxVE/scripts?id=jellyfin. Follow quick setup and we can use out-of-the-box
+1. Set permanent WebUI username/password in **Tools -> Options -> WebUI**.
+2. Configure qBittorrent to bind torrent traffic only to the VPN interface/connection used in your final setup.
+3. Keep UPnP disabled unless intentionally needed.
+4. Use these download paths:
+   - Completed: `/data/downloads/qbittorrent/completed`
+   - Incomplete: `/data/downloads/qbittorrent/incomplete`
+   - `.torrent` export: `/data/downloads/qbittorrent/torrents`
+5. Enable incomplete downloads.
+6. Use seeding/removal settings from [`arr-live-settings.md`](./arr-live-settings.md) if you want like-for-like behavior.
+
+If VPN/Glutun is added later, update both `arr-stack.yml` and this guide together. Keep VPN credentials in local env/config only.
+
+---
+
+## Arr app configuration order
+
+If restoring old `/docker/<app>` databases, most settings should come back automatically. If starting fresh, configure in this order:
+
+1. **qBittorrent**
+   - Set WebUI credentials.
+   - Confirm download paths.
+   - Confirm VPN/interface binding.
+2. **Sonarr**
+   - Root folder: `/data/tv/`.
+   - Download client: qBittorrent at `172.18.0.1:8080` or the working Docker/LAN endpoint.
+   - Category: `tv-sonarr`.
+   - Enable remove completed/failed downloads.
+3. **Radarr**
+   - Root folder: `/data/movies/`.
+   - Download client: qBittorrent at `172.18.0.1:8080` or the working Docker/LAN endpoint.
+   - Category: `radarr`.
+   - Enable remove completed/failed downloads.
+4. **Prowlarr**
+   - Add indexers.
+   - Add FlareSolverr proxy if needed.
+   - Add Sonarr/Radarr applications using their API keys.
+   - Sync app indexers.
+5. **Bazarr**
+   - Connect Sonarr and Radarr using their API keys.
+   - Add subtitle providers.
+   - Recreate provider credentials from each provider account.
+6. **Tdarr / Lingarr**
+   - Confirm `/media` paths and GPU visibility where needed.
+7. **Jellyfin**
+   - Mount libraries from `/media/movies` and `/media/tv`.
+8. **Jellyseerr**
+   - Connect Jellyfin, Radarr, and Sonarr.
+   - Recreate notification webhooks if used.
+
+Current live settings, profile names, indexer list, and category mappings are captured in [`arr-live-settings.md`](./arr-live-settings.md).
+
+---
+
+## Public access / proxy
+
+Public access is handled by the dedicated proxy LXC:
+
+```text
+CT 201 proxy / 192.168.1.201
+Caddy + Cloudflare Tunnel + Cloudflare MCP in one LXC
+```
+
+Use [`../proxy/Access-Setup.md`](../proxy/Access-Setup.md) and [`../proxy/config/Caddyfile.example`](../proxy/config/Caddyfile.example) for proxy rebuild details.
+
+Keep proxy hostnames and internal targets consistent with [`../inventory/lxc-map.md`](../inventory/lxc-map.md). Put Cloudflare tokens/tunnel credentials only in the proxy LXC or password manager, never in this repo.
+
+---
+
+## Glance dashboard integration
+
+Glance monitors the media stack from CT `101`:
+
+```text
+http://192.168.1.103:8081
+```
+
+See [`../glance/Readme.md`](../glance/Readme.md) for deployment and widget env vars.
+
+Important shared token:
+
+```text
+server-arr/.env AUTH_TOKEN == /docker/glance/.env AUTH_TOKEN
+```
+
+This token is used by Glance to call QBWrapper/qbproxy. Generate it locally and never commit it.
+
+---
+
+## Backup / restore checklist
+
+Back up before rebuilding:
+
+- CT 101 Proxmox config, especially mounts and GPU passthrough.
+- `/docker/qbittorrent`
+- `/docker/prowlarr`
+- `/docker/sonarr`
+- `/docker/radarr`
+- `/docker/bazarr`
+- `/docker/tdarr`
+- `/docker/lingarr`
+- `/docker/glance` if Glance is kept on CT 101.
+- Jellyfin: `/etc/jellyfin`, `/var/lib/jellyfin`.
+- Jellyseerr: `/etc/seerr`, `/opt/seerr/config`, and any active legacy config path.
+
+Example CT 101 config backup:
+
+```bash
+cd /
+tar -czf /root/servarr-config-backup-$(date +%F).tgz \
+  docker/qbittorrent \
+  docker/prowlarr \
+  docker/sonarr \
+  docker/radarr \
+  docker/bazarr \
+  docker/tdarr \
+  docker/lingarr \
+  docker/glance
+```
+
+Do not include local `.env` files in Git. Store real `.env` backups only in your private backup/password-manager process.
+
+---
+
+## Secret recreation checklist
+
+| Secret | Where to recreate |
+|---|---|
+| qBittorrent temporary password | `docker logs qbittorrent` on first start |
+| qBittorrent permanent password | qBittorrent -> Tools -> Options -> WebUI |
+| QBWrapper `AUTH_TOKEN` | Generate locally, e.g. `openssl rand -hex 32` |
+| Sonarr API key | Sonarr -> Settings -> General -> Security |
+| Radarr API key | Radarr -> Settings -> General -> Security |
+| Prowlarr API key | Prowlarr -> Settings -> General -> Security |
+| Bazarr API key/provider credentials | Bazarr settings/provider account pages |
+| Jellyfin API key | Jellyfin Dashboard -> Advanced -> API Keys |
+| Jellyseerr service keys/webhooks | Jellyseerr Settings -> Services / Notifications |
+| VPN credentials | VPN provider account/app; store only in local config/env |
+
+---
+
+## Maintenance
+
+When changing the media stack:
+
+1. Update [`arr-stack.yml`](./arr-stack.yml) for compose changes.
+2. Update [`arr-live-settings.md`](./arr-live-settings.md) for UI/path/port behavior.
+3. Update [`../inventory/lxc-map.md`](../inventory/lxc-map.md) for CT IDs, IPs, ports, or mounts.
+4. Update [`../glance/Readme.md`](../glance/Readme.md) / `glance/glance.yml` if dashboard checks change.
+5. Update [`../proxy/config/Caddyfile.example`](../proxy/config/Caddyfile.example) if public hostnames or reverse proxy targets change.

@@ -2,7 +2,9 @@
 
 This file records the settings inspected from the live media LXCs so a fresh rebuild can be made to behave like the current homelab.
 
-All secrets are intentionally omitted. API keys, qBittorrent passwords, Jellyfin keys, subtitle-provider credentials, webhook URLs, and private tokens must be recreated from each app UI after restore.
+Use [`Multimedia-Setup.md`](./Multimedia-Setup.md) for the rebuild flow, [`arr-stack.yml`](./arr-stack.yml) for the canonical CT 101 compose file, and [`../inventory/lxc-map.md`](../inventory/lxc-map.md) for CT/IP/port mapping.
+
+All secrets are intentionally omitted. API keys, qBittorrent passwords, Jellyfin keys, subtitle-provider credentials, webhook URLs, VPN credentials, and private tokens must be recreated from each app UI or local private config after restore.
 
 ## Live LXC inventory
 
@@ -107,6 +109,8 @@ Secrets to recreate:
 - Jellyseerr Discord webhook, if re-enabled: Discord channel -> Integrations -> Webhooks.
 
 ## qBittorrent settings
+
+qBittorrent must be configured after restore so torrent traffic only operates over the intended VPN connection/interface. Keep VPN credentials in local private config/env only; do not add them to this repo.
 
 Live config path:
 

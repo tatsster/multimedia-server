@@ -1,3 +1,13 @@
+# Canonical Arr/media rebuild compose for CT 101 (`multimedia`).
+#
+# Required host/LXC paths:
+# - /main/docker bind-mounted to /docker
+# - /data/media bind-mounted to /media
+#
+# Secret values are read from an uncommitted `.env` copied from `.env.example`.
+# qBittorrent should be configured after first login to only operate over the
+# intended VPN connection/interface.
+
 networks:
   servarrnetwork:
     ipam:

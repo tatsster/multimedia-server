@@ -39,6 +39,8 @@ These files mirror the current live dashboard structure but keep secrets in envi
 
 ## Fresh install / restore
 
+Run Glance on CT `101` beside the media stack so it can read the same `/docker` mount and call QBWrapper/qbproxy on the local media network. Keep public access in the proxy LXC; Glance itself only needs to listen on LAN port `8081`.
+
 Inside CT `101` after Docker is installed and `/docker` is mounted:
 
 ```bash

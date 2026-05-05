@@ -6,6 +6,13 @@ This guide documents the **current preferred proxy pattern** for this homelab:
 
 Do **not** create separate Caddy and Cloudflared LXCs for the normal rebuild unless you intentionally want to split them later. The older separate-LXC approach is more confusing and not needed for the current setup.
 
+## Related docs
+
+- Canonical inventory/network map: [`../inventory/lxc-map.md`](../inventory/lxc-map.md)
+- Caddy template: [`config/Caddyfile.example`](./config/Caddyfile.example)
+- Media stack guide: [`../server-arr/Multimedia-Setup.md`](../server-arr/Multimedia-Setup.md)
+- Glance dashboard guide: [`../glance/Readme.md`](../glance/Readme.md)
+
 ## Current live target
 
 Current live proxy LXC verified from Proxmox:
@@ -80,7 +87,7 @@ Record final CT ID/IP in:
 
 Do **not** commit real Cloudflare tokens/API keys/account IDs.
 
-Use placeholders in repo examples and store real values only on the proxy LXC, password manager, or sealed backup.
+Use placeholders in repo examples and store real values only on the proxy LXC, password manager, or sealed backup. Prefer systemd environment overrides or root-only env files on the proxy LXC; do not put live values in `proxy/config/Caddyfile.example`.
 
 Secrets used by this LXC:
 
