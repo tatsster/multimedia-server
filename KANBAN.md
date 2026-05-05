@@ -17,28 +17,6 @@ Labels:
 
 ## In Progress
 
-### HL-DOC-010 — Finish Proxmox base install and storage guide
-- Labels: `docs`
-- File: `Homelab-Setup.md`
-- Goal: turn the Proxmox base notes into reproducible documentation.
-- Include:
-  - Disk selection and ZFS RAID0 boot setup.
-  - SSD/HDD pool layout.
-  - Partition commands with placeholders.
-  - ZFS properties: `recordsize=1M`, `atime=off`, `xattr=off`, `compression=zstd-4`, `special_small_blocks=512K`.
-  - Dataset layout.
-  - Proxmox storage UI settings.
-  - LXC defaults that preserve the current setup: nesting enabled, privileged container / `Unprivileged container=No`, and CPU defaults.
-  - Bind mount pattern `/data/general` -> `/mnt/general`.
-  - Link to canonical inventory/defaults file: `inventory/lxc-map.md`.
-- Acceptance criteria:
-  - [ ] Commands are copy/paste-safe with placeholders.
-  - [ ] Screenshots are optional, not required to understand the steps.
-
----
-
-## Ready
-
 ### HL-DOC-020 — Normalize canonical LXC inventory and network map
 - Labels: `docs`
 - File: `inventory/lxc-map.md`
@@ -52,6 +30,10 @@ Labels:
 - Acceptance criteria:
   - [ ] Fresh rebuild has a clear target IP/hostname/port plan.
   - [ ] All major ports exposed by compose/Caddy/Tunnel/AI services are captured.
+
+---
+
+## Ready
 
 ### HL-DOC-030 — Finish Hermes setup guide normalization
 - Labels: `docs`, `secret-safe`
@@ -133,6 +115,21 @@ Labels:
 ---
 
 ## Done
+
+### HL-DOC-010 — Finish Proxmox base install and storage guide
+- Labels: `docs`
+- Status: completed.
+- File: `Homelab-Setup.md`
+- Goal: turn the Proxmox base notes into reproducible documentation.
+- Progress:
+  - Rewrote the guide as a reproducible Proxmox base install and storage checklist.
+  - Added placeholder-safe disk, partition, pool, special vdev, dataset, and verification commands.
+  - Documented ZFS properties: `recordsize=1M`, `atime=off`, `xattr=off`, `compression=zstd-4`, `special_small_blocks=512K`.
+  - Added Proxmox storage UI settings, LXC defaults, and bind mount pattern `/data/general` -> `/mnt/general`.
+  - Linked back to the canonical inventory/defaults file: `inventory/lxc-map.md`.
+- Acceptance criteria:
+  - [x] Commands are copy/paste-safe with placeholders.
+  - [x] Screenshots are optional, not required to understand the steps.
 
 ### HL-DOC-001 — Normalize documentation scope and links
 - Labels: `docs`
