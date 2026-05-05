@@ -17,24 +17,6 @@ Labels:
 
 ## In Progress
 
-### HL-DOC-020 — Normalize canonical LXC inventory and network map
-- Labels: `docs`
-- File: `inventory/lxc-map.md`
-- Goal: make the inventory the canonical place for CT IDs, roles, IPs, ports, mounts, and rebuild method.
-- Include:
-  - Current CT IDs/IPs for all known LXCs.
-  - Current common mounts and LXC defaults.
-  - Creation method: Community Scripts vs repo manual script vs manual documented setup.
-  - Ports exposed by compose, Caddy, Tunnel, and AI services.
-  - Links back to relevant service docs.
-- Acceptance criteria:
-  - [ ] Fresh rebuild has a clear target IP/hostname/port plan.
-  - [ ] All major ports exposed by compose/Caddy/Tunnel/AI services are captured.
-
----
-
-## Ready
-
 ### HL-DOC-030 — Finish Hermes setup guide normalization
 - Labels: `docs`, `secret-safe`
 - Files:
@@ -53,6 +35,10 @@ Labels:
 - Acceptance criteria:
   - [ ] Fresh Hermes LXC can be configured from docs without guessing.
   - [ ] Troubleshooting explains the duplicate gateway issue clearly.
+
+---
+
+## Ready
 
 ### HL-DOC-040 — Normalize AI service docs
 - Labels: `docs`, `secret-safe`
@@ -115,6 +101,22 @@ Labels:
 ---
 
 ## Done
+
+### HL-DOC-020 — Normalize canonical LXC inventory and network map
+- Labels: `docs`
+- Status: completed.
+- File: `inventory/lxc-map.md`
+- Goal: make the inventory the canonical place for CT IDs, roles, IPs, ports, mounts, and rebuild method.
+- Progress:
+  - Rewrote the inventory as the canonical network, LXC, service port, and mount map.
+  - Added network defaults for subnet, gateway, Proxmox host, `vmbr0`, and proxy/Tunnel pattern.
+  - Preserved standard LXC defaults: privileged containers, `nesting=1`, CPU defaults, and static `vmbr0` networking.
+  - Expanded CT map with current CT IDs/IPs, creation methods, roles, key ports, mounts/devices, and guide/script links.
+  - Added service port tables for Proxmox/PBS/proxy, media/arr, AI/agent services, and utilities.
+  - Added mount map, rebuild method legend, audit-helper instructions, and update checklist.
+- Acceptance criteria:
+  - [x] Fresh rebuild has a clear target IP/hostname/port plan.
+  - [x] All major ports exposed by compose/Caddy/Tunnel/AI services are captured.
 
 ### HL-DOC-010 — Finish Proxmox base install and storage guide
 - Labels: `docs`
