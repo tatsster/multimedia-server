@@ -28,6 +28,7 @@ Public/proxied URL is managed by Caddy/Cloudflare in the proxy docs.
 
 ```text
 glance/glance.yml
+glance/docker-compose.portainer.yml
 glance/.env.example
 glance/widgets/proxmox-ve.yml
 glance/widgets/proxmox-pbs.yml
@@ -50,28 +51,54 @@ mkdir -p /docker/glance/widgets
 cd /root/repos/multimedia-server
 cp glance/glance.yml /docker/glance/glance.yml
 cp glance/widgets/*.yml /docker/glance/widgets/
-cp glance/.env.example /docker/glance/.env
-chmod 600 /docker/glance/.env
 ```
 
-Edit `/docker/glance/.env` and replace all placeholders with locally recreated secrets.
+### Preferred: Portainer `dashboard` stack
 
-Run Glance:
+Create or update the real Portainer stack named `dashboard` with this compose file:
 
-```bash
-docker run -d \
-  --name glance \
-  --restart unless-stopped \
-  --env-file /docker/glance/.env \
-  -p 8081:8080 \
-  -v /docker/glance:/app/config \
-  glanceapp/glance
+```yaml
+services:
+  glance:
+    image: glanceapp/glance
+    restart: unless-stopped
+    volumes:
+      - /docker/glance:/app/config
+    env_file:
+      - stack.env
+    environment:
+      - TZ=${TZ:-Asia/Ho_Chi_Minh}
+    ports:
+      - 8081:8080
 ```
 
-If the container already exists:
+The same compose is stored at:
+
+```text
+glance/docker-compose.portainer.yml
+```
+
+Do **not** set `container_name: glance` in the Portainer-managed stack. Let Compose/Portainer name the container, for example `dashboard-glance-1`. This avoids conflicts with old standalone containers.
+
+Add the variables from `glance/.env.example` to the stack environment in Portainer. Portainer stores them in `stack.env`; the widget files read them with `${VAR_NAME}`.
+
+If an old standalone or broken stack container named `glance` exists, remove only that container before deploying the real `dashboard` stack:
 
 ```bash
 docker rm -f glance
+```
+
+Do not redeploy old numeric projects like stack/project `10` from the CLI after Portainer says "created outside of Portainer". Delete that broken stack state and recreate/update the real `dashboard` stack in Portainer.
+
+### Fallback: manual Docker run
+
+Only use this if Portainer is not managing the dashboard:
+
+```bash
+cp glance/.env.example /docker/glance/.env
+chmod 600 /docker/glance/.env
+# edit /docker/glance/.env and replace placeholders with locally recreated secrets
+
 docker run -d \
   --name glance \
   --restart unless-stopped \
@@ -309,20 +336,25 @@ When adding or changing a service:
 
 Restart after config changes:
 
+For the Portainer-managed `dashboard` stack, redeploy/restart from Portainer. If you are checking from CT `101`, use the actual Compose-created container name from `docker ps`; do not assume it is named exactly `glance`.
+
+Manual fallback only:
+
 ```bash
 docker restart glance
 docker logs --tail 50 glance
 ```
 
-Glance also detects config file changes and reloads, but a restart is the simplest restore-time check.
+Glance also detects config file changes and reloads, but a restart/redeploy is the simplest restore-time check.
 
 ## Verification
 
 From CT `101`:
 
 ```bash
-docker ps --filter name=glance
-docker logs --tail 50 glance
+docker ps --format 'table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}' | grep -i glance
+# Replace <container> with the actual Portainer/Compose container name, e.g. dashboard-glance-1.
+docker logs --tail 50 <container>
 curl -fsS http://127.0.0.1:8081/ | head
 ```
 
@@ -351,11 +383,18 @@ Back up:
 tar -C /docker -czf /root/glance-config-$(date +%F).tgz glance
 ```
 
-Restore:
+Restore config files:
 
 ```bash
 mkdir -p /docker
 tar -C /docker -xzf /root/glance-config-YYYY-MM-DD.tgz
+```
+
+Then redeploy the Portainer `dashboard` stack with `glance/docker-compose.portainer.yml` and stack environment variables from `glance/.env.example`.
+
+Manual fallback only:
+
+```bash
 docker rm -f glance || true
 docker run -d \
   --name glance \
