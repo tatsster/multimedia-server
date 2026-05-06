@@ -104,8 +104,8 @@ Required variables:
 | `AUTH_TOKEN` | qBittorrent widget | random token | must match `AUTH_TOKEN` in `server-arr/.env` for QBWrapper/qbproxy |
 | `N8N_API_URL` | n8n widget | `http://192.168.1.107:5678/api/v1` | n8n public API base URL |
 | `N8N_API_KEY` | n8n widget | API key string | n8n UI -> Settings -> n8n API |
-| `OMNIROUTE_GLANCE_PROXY_URL` | OmniRoute widget | `http://192.168.1.109:20129` | OmniRoute Glance proxy base URL, no trailing slash |
-| `OMNIROUTE_GLANCE_TOKEN` | OmniRoute widget/proxy | random token | must match the proxy `OMNIROUTE_GLANCE_TOKEN`; generate with `openssl rand -hex 32` |
+| `OMNIROUTE_METRICS_PROXY_URL` | OmniRoute widget | `http://192.168.1.109:20129` | OmniRoute metrics proxy base URL, no trailing slash |
+| `OMNIROUTE_DASHBOARD_TOKEN` | OmniRoute widget/proxy | random token | must match the proxy `OMNIROUTE_DASHBOARD_TOKEN`; generate with `openssl rand -hex 32` |
 
 Never commit `/docker/glance/.env` or real token values.
 
@@ -211,23 +211,25 @@ openssl rand -base64 32
 
 Do not commit the generated value.
 
-## OmniRoute widget / Glance proxy
+## OmniRoute widget / metrics proxy
 
 The OmniRoute widget does not call OmniRoute dashboard APIs directly. Dashboard APIs such as `/api/usage/analytics` require the browser-style `auth_token` cookie, and the normal OmniRoute `/v1` API key is not accepted there.
 
-Use the small proxy in this repo instead:
+Use the small generic metrics proxy in this repo instead:
 
 ```text
-omniroute/glance-proxy/
+omniroute/metrics-proxy/
 ```
 
-The proxy runs on CT `107`, reads the local OmniRoute-generated `JWT_SECRET` from `/root/omniroute/data/server.env`, creates a short-lived dashboard JWT per request, calls OmniRoute with `Cookie: auth_token=...`, then returns simplified JSON for Glance.
+The proxy is not Glance-specific. Glance, Homepage, Grafana JSON/API panels, scripts, or any other trusted LAN dashboard can call it.
+
+The proxy runs on CT `107`, reads the local OmniRoute-generated `JWT_SECRET` from `/root/omniroute/data/server.env`, creates a short-lived dashboard JWT per request, calls OmniRoute with `Cookie: auth_token=...`, then returns simplified JSON from `/summary`.
 
 Glance only needs:
 
 ```text
-OMNIROUTE_GLANCE_PROXY_URL=http://192.168.1.109:20129
-OMNIROUTE_GLANCE_TOKEN=<same random token configured on the proxy>
+OMNIROUTE_METRICS_PROXY_URL=http://192.168.1.109:20129
+OMNIROUTE_DASHBOARD_TOKEN=<same random token configured on the proxy>
 ```
 
 This avoids putting `JWT_SECRET` or a 30-day browser session cookie in Glance config.
@@ -235,7 +237,7 @@ This avoids putting `JWT_SECRET` or a 30-day browser session cookie in Glance co
 Build and run instructions are in:
 
 ```text
-omniroute/glance-proxy/README.md
+omniroute/metrics-proxy/README.md
 ```
 
 ## Dashboard layout

@@ -1,10 +1,10 @@
 services:
-  omniroute-glance-proxy:
+  omniroute-metrics-proxy:
     build: .
-    container_name: omniroute-glance-proxy
+    container_name: omniroute-metrics-proxy
     restart: unless-stopped
     env_file:
-      - /root/omniroute/glance-proxy.env
+      - /root/omniroute/metrics-proxy.env
     ports:
       - "20129:20129"
     volumes:

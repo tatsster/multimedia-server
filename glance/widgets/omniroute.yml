@@ -1,10 +1,10 @@
 - type: custom-api
   title: Omniroute usage
   cache: 5m
-  url: "${OMNIROUTE_GLANCE_PROXY_URL}/summary?range=7d"
+  url: "${OMNIROUTE_METRICS_PROXY_URL}/summary?range=7d"
   method: GET
   headers:
-    Authorization: "Bearer ${OMNIROUTE_GLANCE_TOKEN}"
+    Authorization: "Bearer ${OMNIROUTE_DASHBOARD_TOKEN}"
   template: |
     {{ if eq .Response.StatusCode 200 }}
       {{ $tokens := .JSON.Int "summary.totalTokens" }}
@@ -49,5 +49,5 @@
         </div>
       </div>
     {{ else }}
-      <p class="color-negative">Omniroute proxy error: {{ .Response.Status }}</p>
+      <p class="color-negative">Omniroute metrics proxy error: {{ .Response.Status }}</p>
     {{ end }}

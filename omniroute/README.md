@@ -261,17 +261,19 @@ Generated secrets: /root/omniroute/data/server.env
 
 Do not manually add `JWT_SECRET` to `/root/omniroute/.env`. OmniRoute generates and reads it from `data/server.env`.
 
-## Glance usage proxy
+## Metrics proxy for dashboards
 
-The Glance OmniRoute widget should use the small proxy in:
+Dashboard clients should use the small generic metrics proxy in:
 
 ```text
-omniroute/glance-proxy/
+omniroute/metrics-proxy/
 ```
 
 Reason: `/api/usage/analytics` is a dashboard API. It accepts the `auth_token` cookie, but rejects the normal OpenAI-compatible `/v1` API key and also rejects the dashboard JWT when sent as `Authorization: Bearer`.
 
-The proxy runs beside OmniRoute on CT `107`, reads `/root/omniroute/data/server.env` read-only, creates a short-lived dashboard JWT, calls OmniRoute with `Cookie: auth_token=...`, and exposes a simple token-protected endpoint for Glance:
+The proxy is not Glance-specific. Glance, Homepage, Grafana JSON/API panels, scripts, or any other trusted LAN dashboard can call it.
+
+The proxy runs beside OmniRoute on CT `107`, reads `/root/omniroute/data/server.env` read-only, creates a short-lived dashboard JWT, calls OmniRoute with `Cookie: auth_token=...`, and exposes a simple token-protected endpoint:
 
 ```text
 http://192.168.1.109:20129/summary?range=7d
@@ -280,7 +282,7 @@ http://192.168.1.109:20129/summary?range=7d
 Build/run guide:
 
 ```text
-omniroute/glance-proxy/README.md
+omniroute/metrics-proxy/README.md
 ```
 
 ## Health / verification

@@ -5,15 +5,15 @@ const http = require('http');
 const crypto = require('crypto');
 const fs = require('fs');
 
-const PORT = Number(process.env.PORT || process.env.OMNIROUTE_GLANCE_PROXY_PORT || 20129);
-const HOST = process.env.HOST || process.env.OMNIROUTE_GLANCE_PROXY_HOST || '0.0.0.0';
-const OMNIROUTE_URL = (process.env.OMNIROUTE_URL || 'http://127.0.0.1:20128').replace(/\/$/, '');
+const PORT = Number(process.env.PORT || process.env.OMNIROUTE_METRICS_PROXY_PORT || process.env.OMNIROUTE_GLANCE_PROXY_PORT || 20129);
+const HOST = process.env.HOST || process.env.OMNIROUTE_METRICS_PROXY_HOST || process.env.OMNIROUTE_GLANCE_PROXY_HOST || '0.0.0.0';
+const OMNIROUTE_URL = (process.env.OMNIROUTE_URL || process.env.OMNIROUTE_BASE_URL || 'http://127.0.0.1:20128').replace(/\/$/, '');
 const SERVER_ENV = process.env.OMNIROUTE_SERVER_ENV || '/app/omniroute-data/server.env';
-const GLANCE_TOKEN = process.env.OMNIROUTE_GLANCE_TOKEN || '';
-const CACHE_SECONDS = Number(process.env.CACHE_SECONDS || process.env.OMNIROUTE_GLANCE_PROXY_CACHE_SECONDS || 60);
-const TIMEOUT_MS = Number(process.env.TIMEOUT_MS || process.env.OMNIROUTE_GLANCE_PROXY_TIMEOUT_MS || 10000);
+const DASHBOARD_TOKEN = process.env.OMNIROUTE_DASHBOARD_TOKEN || process.env.OMNIROUTE_GLANCE_TOKEN || '';
+const CACHE_SECONDS = Number(process.env.CACHE_SECONDS || process.env.OMNIROUTE_METRICS_PROXY_CACHE_SECONDS || process.env.OMNIROUTE_GLANCE_PROXY_CACHE_SECONDS || 60);
+const TIMEOUT_MS = Number(process.env.TIMEOUT_MS || process.env.OMNIROUTE_METRICS_PROXY_TIMEOUT_MS || process.env.OMNIROUTE_GLANCE_PROXY_TIMEOUT_MS || 10000);
 
-let cache = { expires: 0, body: null };
+let cache = { key: '', expires: 0, body: null };
 
 function json(res, status, body) {
   const payload = JSON.stringify(body);
@@ -52,10 +52,12 @@ function makeDashboardJwt() {
 }
 
 function checkAuth(req) {
-  if (!GLANCE_TOKEN) return true;
+  if (!DASHBOARD_TOKEN) return true;
   const auth = req.headers.authorization || '';
-  if (auth === `Bearer ${GLANCE_TOKEN}`) return true;
-  if (req.headers['x-omniroute-glance-token'] === GLANCE_TOKEN) return true;
+  if (auth === `Bearer ${DASHBOARD_TOKEN}`) return true;
+  if (req.headers['x-omniroute-dashboard-token'] === DASHBOARD_TOKEN) return true;
+  // Backward compatibility for existing Glance deployment.
+  if (req.headers['x-omniroute-glance-token'] === DASHBOARD_TOKEN) return true;
   return false;
 }
 
@@ -126,16 +128,18 @@ function simplifyAnalytics(analytics) {
 }
 
 async function getSummary(reqUrl) {
-  const now = Date.now();
-  if (cache.body && cache.expires > now) return cache.body;
   const range = new URL(reqUrl, 'http://local').searchParams.get('range') || '7d';
+  const cacheKey = `summary:${range}`;
+  const now = Date.now();
+  if (cache.body && cache.key === cacheKey && cache.expires > now) return cache.body;
+
   const jwt = makeDashboardJwt();
   const analytics = await fetchJson(`${OMNIROUTE_URL}/api/usage/analytics?range=${encodeURIComponent(range)}`, {
     cookie: `auth_token=${jwt}`,
     accept: 'application/json',
   });
   const body = simplifyAnalytics(analytics);
-  cache = { expires: now + CACHE_SECONDS * 1000, body };
+  cache = { key: cacheKey, expires: now + CACHE_SECONDS * 1000, body };
   return body;
 }
 
@@ -156,7 +160,7 @@ const server = http.createServer(async (req, res) => {
 
     return json(res, 404, { status: 'error', error: 'not_found' });
   } catch (error) {
-    console.error(`[proxy] ${error.message}`);
+    console.error(`[metrics-proxy] ${error.message}`);
     return json(res, error.status || 500, {
       status: 'error',
       error: error.status ? 'omniroute_request_failed' : 'proxy_error',
@@ -166,5 +170,5 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, HOST, () => {
-  console.log(`[proxy] listening on ${HOST}:${PORT}; upstream=${OMNIROUTE_URL}; serverEnv=${SERVER_ENV}`);
+  console.log(`[metrics-proxy] listening on ${HOST}:${PORT}; upstream=${OMNIROUTE_URL}; serverEnv=${SERVER_ENV}`);
 });
