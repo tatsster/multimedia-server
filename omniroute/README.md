@@ -248,6 +248,41 @@ settings|requireLogin|true
 settings|setupComplete|true
 ```
 
+## Docker layout notes
+
+The current Docker deployment uses:
+
+```text
+Install dir: /root/omniroute
+Compose file: /root/omniroute/docker-compose.yml
+Data dir: /root/omniroute/data
+Generated secrets: /root/omniroute/data/server.env
+```
+
+Do not manually add `JWT_SECRET` to `/root/omniroute/.env`. OmniRoute generates and reads it from `data/server.env`.
+
+## Glance usage proxy
+
+The Glance OmniRoute widget should use the small proxy in:
+
+```text
+omniroute/glance-proxy/
+```
+
+Reason: `/api/usage/analytics` is a dashboard API. It accepts the `auth_token` cookie, but rejects the normal OpenAI-compatible `/v1` API key and also rejects the dashboard JWT when sent as `Authorization: Bearer`.
+
+The proxy runs beside OmniRoute on CT `107`, reads `/root/omniroute/data/server.env` read-only, creates a short-lived dashboard JWT, calls OmniRoute with `Cookie: auth_token=...`, and exposes a simple token-protected endpoint for Glance:
+
+```text
+http://192.168.1.109:20129/summary?range=7d
+```
+
+Build/run guide:
+
+```text
+omniroute/glance-proxy/README.md
+```
+
 ## Health / verification
 
 From inside LXC:

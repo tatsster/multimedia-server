@@ -33,6 +33,8 @@ glance/widgets/proxmox-ve.yml
 glance/widgets/proxmox-pbs.yml
 glance/widgets/jellyfin.yml
 glance/widgets/qbittorrent.yml
+glance/widgets/n8n.yml
+glance/widgets/omniroute.yml
 ```
 
 These files mirror the current live dashboard structure but keep secrets in environment variables.
@@ -100,6 +102,10 @@ Required variables:
 | `JELLYFIN_KEY` | Jellyfin session widget | API key string | Jellyfin Dashboard -> API Keys |
 | `QBW_URL` | qBittorrent widget | `192.168.1.103:9911` | QBWrapper/qbproxy service endpoint |
 | `AUTH_TOKEN` | qBittorrent widget | random token | must match `AUTH_TOKEN` in `server-arr/.env` for QBWrapper/qbproxy |
+| `N8N_API_URL` | n8n widget | `http://192.168.1.107:5678/api/v1` | n8n public API base URL |
+| `N8N_API_KEY` | n8n widget | API key string | n8n UI -> Settings -> n8n API |
+| `OMNIROUTE_GLANCE_PROXY_URL` | OmniRoute widget | `http://192.168.1.109:20129` | OmniRoute Glance proxy base URL, no trailing slash |
+| `OMNIROUTE_GLANCE_TOKEN` | OmniRoute widget/proxy | random token | must match the proxy `OMNIROUTE_GLANCE_TOKEN`; generate with `openssl rand -hex 32` |
 
 Never commit `/docker/glance/.env` or real token values.
 
@@ -205,6 +211,33 @@ openssl rand -base64 32
 
 Do not commit the generated value.
 
+## OmniRoute widget / Glance proxy
+
+The OmniRoute widget does not call OmniRoute dashboard APIs directly. Dashboard APIs such as `/api/usage/analytics` require the browser-style `auth_token` cookie, and the normal OmniRoute `/v1` API key is not accepted there.
+
+Use the small proxy in this repo instead:
+
+```text
+omniroute/glance-proxy/
+```
+
+The proxy runs on CT `107`, reads the local OmniRoute-generated `JWT_SECRET` from `/root/omniroute/data/server.env`, creates a short-lived dashboard JWT per request, calls OmniRoute with `Cookie: auth_token=...`, then returns simplified JSON for Glance.
+
+Glance only needs:
+
+```text
+OMNIROUTE_GLANCE_PROXY_URL=http://192.168.1.109:20129
+OMNIROUTE_GLANCE_TOKEN=<same random token configured on the proxy>
+```
+
+This avoids putting `JWT_SECRET` or a 30-day browser session cookie in Glance config.
+
+Build and run instructions are in:
+
+```text
+omniroute/glance-proxy/README.md
+```
+
 ## Dashboard layout
 
 Current pages:
@@ -240,6 +273,8 @@ Small column:
 - Work tasks to-do widget
 - Jellyfin active sessions widget
 - qBittorrent widget via QBWrapper/qbproxy
+- n8n status/executions widget
+- OmniRoute model/cache summary widget
 
 ### `Update`
 
@@ -302,6 +337,8 @@ Expected:
 - Proxmox/PBS widgets render without `401`/`403` errors.
 - Jellyfin widget shows active sessions or `nothing is playing right now`.
 - qBittorrent widget shows torrents or `No torrents found`.
+- n8n widget shows health and recent execution counts without `401`/`403` errors.
+- OmniRoute widget shows model count and cache stats without exposing keys.
 - Monitor checks are green for expected running services.
 
 ## Backup / restore

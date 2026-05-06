@@ -1,0 +1,81 @@
+- type: custom-api
+  title: n8n health
+  cache: 5m
+  subrequests:
+    recent:
+      url: "${N8N_API_URL}/executions"
+      method: GET
+      parameters:
+        limit: 100
+      headers:
+        X-N8N-API-KEY: "${N8N_API_KEY}"
+    failed:
+      url: "${N8N_API_URL}/executions"
+      method: GET
+      parameters:
+        limit: 100
+        status: error
+      headers:
+        X-N8N-API-KEY: "${N8N_API_KEY}"
+  template: |
+    {{ $recent := .Subrequest "recent" }}
+    {{ $failed := .Subrequest "failed" }}
+
+    {{ if and (eq $recent.Response.StatusCode 200) (eq $failed.Response.StatusCode 200) }}
+      {{ $since := offsetNow "-168h" }}
+      {{ $total7d := 0 }}
+      {{ $errors7d := 0 }}
+      {{ $lastRun := "" }}
+      {{ $items := $recent.JSON.Array "data.results" }}
+      {{ if eq (len $items) 0 }}{{ $items = $recent.JSON.Array "data" }}{{ end }}
+      {{ if eq (len $items) 0 }}{{ $items = $recent.JSON.Array "results" }}{{ end }}
+
+      {{ range $items }}
+        {{ $started := .String "startedAt" }}
+        {{ if eq $started "" }}{{ $started = .String "createdAt" }}{{ end }}
+        {{ if ne $started "" }}
+          {{ $t := parseTime "RFC3339" $started }}
+          {{ if $t.After $since }}{{ $total7d = add $total7d 1 }}{{ end }}
+          {{ if eq $lastRun "" }}{{ $lastRun = $started }}{{ end }}
+        {{ end }}
+      {{ end }}
+
+      {{ $failedItems := $failed.JSON.Array "data.results" }}
+      {{ if eq (len $failedItems) 0 }}{{ $failedItems = $failed.JSON.Array "data" }}{{ end }}
+      {{ if eq (len $failedItems) 0 }}{{ $failedItems = $failed.JSON.Array "results" }}{{ end }}
+      {{ range $failedItems }}
+        {{ $started := .String "startedAt" }}
+        {{ if eq $started "" }}{{ $started = .String "createdAt" }}{{ end }}
+        {{ if ne $started "" }}
+          {{ if (parseTime "RFC3339" $started).After $since }}{{ $errors7d = add $errors7d 1 }}{{ end }}
+        {{ end }}
+      {{ end }}
+
+      {{ $ok7d := sub $total7d $errors7d }}
+      {{ $successRate := 0 }}
+      {{ if gt $total7d 0 }}{{ $successRate = div (mul $ok7d 100) $total7d }}{{ end }}
+
+      <div class="flex flex-column gap-10">
+        <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align:center;">
+          <div class="card">
+            <div class="size-h2 color-highlight">{{ printf "%.0f" $total7d }}</div>
+            <div class="size-h6 color-subdue">EXEC 7D</div>
+          </div>
+          <div class="card">
+            <div class="size-h2 {{ if gt $errors7d 0 }}color-negative{{ else }}color-positive{{ end }}">{{ printf "%.0f" $errors7d }}</div>
+            <div class="size-h6 color-subdue">ERRORS</div>
+          </div>
+          <div class="card">
+            <div class="size-h2 {{ if ge $successRate 95 }}color-positive{{ else if ge $successRate 80 }}color-primary{{ else }}color-negative{{ end }}">{{ printf "%.0f%%" $successRate }}</div>
+            <div class="size-h6 color-subdue">SUCCESS</div>
+          </div>
+        </div>
+        {{ if ne $lastRun "" }}
+          <div class="size-h6 color-subdue">Last execution <span {{ $lastRun | parseTime "RFC3339" | toRelativeTime }}></span></div>
+        {{ else }}
+          <div class="size-h6 color-subdue">No recent executions returned</div>
+        {{ end }}
+      </div>
+    {{ else }}
+      <p class="color-negative">n8n API error: recent {{ $recent.Response.Status }} / failed {{ $failed.Response.Status }}</p>
+    {{ end }}

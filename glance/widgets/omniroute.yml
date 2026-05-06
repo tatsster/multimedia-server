@@ -1,0 +1,53 @@
+- type: custom-api
+  title: Omniroute usage
+  cache: 5m
+  url: "${OMNIROUTE_GLANCE_PROXY_URL}/summary?range=7d"
+  method: GET
+  headers:
+    Authorization: "Bearer ${OMNIROUTE_GLANCE_TOKEN}"
+  template: |
+    {{ if eq .Response.StatusCode 200 }}
+      {{ $tokens := .JSON.Int "summary.totalTokens" }}
+      {{ $requests := .JSON.Int "summary.totalRequests" }}
+      {{ $success := .JSON.Float "summary.successRatePct" }}
+      {{ $latency := .JSON.Int "summary.avgLatencyMs" }}
+      {{ $cacheRate := .JSON.Float "summary.cacheHitRatePct" }}
+      {{ $fallbacks := .JSON.Int "summary.fallbackCount" }}
+      {{ $models := .JSON.Int "summary.uniqueModels" }}
+
+      <div class="flex flex-column gap-10">
+        <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align:center;">
+          <div class="card">
+            <div class="size-h2 color-highlight">{{ formatApproxNumber $tokens }}</div>
+            <div class="size-h6 color-subdue">TOKENS 7D</div>
+          </div>
+          <div class="card">
+            <div class="size-h2">{{ formatApproxNumber $requests }}</div>
+            <div class="size-h6 color-subdue">REQ 7D</div>
+          </div>
+          <div class="card">
+            <div class="size-h2 {{ if ge $success 95.0 }}color-positive{{ else if ge $success 80.0 }}color-primary{{ else }}color-negative{{ end }}">{{ printf "%.0f%%" $success }}</div>
+            <div class="size-h6 color-subdue">SUCCESS</div>
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align:center;">
+          <div class="card">
+            <div class="size-h3">{{ printf "%.0f%%" $cacheRate }}</div>
+            <div class="size-h6 color-subdue">CACHE RATE</div>
+          </div>
+          <div class="card">
+            <div class="size-h3">{{ $latency }}ms</div>
+            <div class="size-h6 color-subdue">AVG LATENCY</div>
+          </div>
+          <div class="card">
+            <div class="size-h3">{{ $models }}</div>
+            <div class="size-h6 color-subdue">MODELS</div>
+          </div>
+        </div>
+        <div class="size-h6 color-subdue">
+          Fallbacks: {{ $fallbacks }} · last request <span {{ .JSON.String "summary.lastRequest" | parseTime "RFC3339" | toRelativeTime }}></span>
+        </div>
+      </div>
+    {{ else }}
+      <p class="color-negative">Omniroute proxy error: {{ .Response.Status }}</p>
+    {{ end }}

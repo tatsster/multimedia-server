@@ -1,0 +1,12 @@
+services:
+  omniroute-glance-proxy:
+    build: .
+    container_name: omniroute-glance-proxy
+    restart: unless-stopped
+    env_file:
+      - /root/omniroute/glance-proxy.env
+    ports:
+      - "20129:20129"
+    volumes:
+      # Read-only access to OmniRoute-generated JWT_SECRET.
+      - /root/omniroute/data:/app/omniroute-data:ro

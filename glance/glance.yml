@@ -84,6 +84,8 @@ pages:
           - type: to-do
             title: Work tasks
             id: work
+          - $include: ./widgets/n8n.yml
+          - $include: ./widgets/omniroute.yml
           - $include: ./widgets/jellyfin.yml
           - $include: ./widgets/qbittorrent.yml
           
