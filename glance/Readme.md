@@ -34,7 +34,6 @@ glance/widgets/proxmox-ve.yml
 glance/widgets/proxmox-pbs.yml
 glance/widgets/jellyfin.yml
 glance/widgets/qbittorrent.yml
-glance/widgets/n8n.yml
 glance/widgets/omniroute.yml
 ```
 
@@ -129,8 +128,8 @@ Required variables:
 | `JELLYFIN_KEY` | Jellyfin session widget | API key string | Jellyfin Dashboard -> API Keys |
 | `QBW_URL` | qBittorrent widget | `192.168.1.103:9911` | QBWrapper/qbproxy service endpoint |
 | `AUTH_TOKEN` | qBittorrent widget | random token | must match `AUTH_TOKEN` in `server-arr/.env` for QBWrapper/qbproxy |
-| `N8N_API_URL` | n8n widget | `http://192.168.1.107:5678/api/v1` | n8n public API base URL |
-| `N8N_API_KEY` | n8n widget | API key string | n8n UI -> Settings -> n8n API |
+| `MEALIE_URL` | Mealie daily recipe widget | `https://mealie.liftlab.dev` | Mealie public/proxied URL |
+| `MEALIE_API_TOKEN` | Mealie daily recipe widget | API token string | Mealie user/profile settings -> API tokens |
 | `OMNIROUTE_METRICS_PROXY_URL` | OmniRoute widget | `http://192.168.1.109:20129` | OmniRoute metrics proxy base URL, no trailing slash |
 | `OMNIROUTE_DASHBOARD_TOKEN` | OmniRoute widget/proxy | random token | must match the proxy `OMNIROUTE_DASHBOARD_TOKEN`; generate with `openssl rand -hex 32` |
 
@@ -283,6 +282,7 @@ Full column:
   - Portainer
   - VaultWarden
   - n8n
+  - Mealie
   - Omniroute
   - Hindsight
   - Proxmox Backup Server
@@ -302,7 +302,10 @@ Small column:
 - Work tasks to-do widget
 - Jellyfin active sessions widget
 - qBittorrent widget via QBWrapper/qbproxy
-- n8n status/executions widget
+
+Full-column split row:
+
+- Mealie daily recipe widget
 - OmniRoute model/cache summary widget
 
 ### `Update`
@@ -371,7 +374,6 @@ Expected:
 - Proxmox/PBS widgets render without `401`/`403` errors.
 - Jellyfin widget shows active sessions or `nothing is playing right now`.
 - qBittorrent widget shows torrents or `No torrents found`.
-- n8n widget shows health and recent execution counts without `401`/`403` errors.
 - OmniRoute widget shows model count and cache stats without exposing keys.
 - Monitor checks are green for expected running services.
 

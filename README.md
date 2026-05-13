@@ -19,7 +19,6 @@ That runbook links out to the architecture map, LXC inventory, service guides, s
 | Proxmox base install/storage notes | [`Homelab-Setup.md`](./Homelab-Setup.md) |
 | Canonical LXC IDs, IPs, ports, mounts | [`inventory/lxc-map.md`](./inventory/lxc-map.md) |
 | Post-rebuild verification checklist | [`VERIFY.md`](./VERIFY.md) |
-| Current documentation task board | [`KANBAN.md`](./KANBAN.md) |
 
 ## Service guides
 

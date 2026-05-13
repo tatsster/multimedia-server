@@ -36,6 +36,10 @@ pages:
                 url: https://n8n.liftlab.dev
                 check-url: http://192.168.1.107:5678
                 icon: di:n8n
+              - title: Mealie
+                url: https://mealie.liftlab.dev
+                check-url: http://192.168.1.112:9925
+                icon: sh:mealie
               - title: Omniroute
                 url: https://omniroute.liftlab.dev
                 check-url: http://192.168.1.109:20128
@@ -76,6 +80,11 @@ pages:
                 url: https://torrent.liftlab.dev
                 icon: di:qbittorrent
 
+          - type: split-column
+            widgets:
+              - $include: ./widgets/mealie.yml
+              - $include: ./widgets/omniroute.yml
+
       - size: small
         widgets:
           - type: clock
@@ -84,8 +93,6 @@ pages:
           - type: to-do
             title: Work tasks
             id: work
-          - $include: ./widgets/n8n.yml
-          - $include: ./widgets/omniroute.yml
           - $include: ./widgets/jellyfin.yml
           - $include: ./widgets/qbittorrent.yml
           

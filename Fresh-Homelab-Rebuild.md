@@ -10,7 +10,6 @@ Related navigation:
 
 - [README.md](./README.md) — short documentation index.
 - [ARCHITECTURE.md](./ARCHITECTURE.md) — high-level service map and source-of-truth table.
-- [KANBAN.md](./KANBAN.md) — current documentation normalization tasks only.
 
 ## Repo location
 
@@ -228,7 +227,7 @@ Minimum final sign-off after rebuild:
 
 ## Current open documentation gaps
 
-Track detailed work in [KANBAN.md](./KANBAN.md). Current focus is documentation normalization only:
+Use the Hermes Kanban feature for task tracking. Keep this repo focused on source-of-truth docs, not an in-repo Kanban board. Current documentation gap categories:
 
 - Proxmox base install and storage documentation.
 - Canonical LXC inventory, network map, ports, mounts, and cross-links.

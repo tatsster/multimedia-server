@@ -69,6 +69,7 @@ For GPU passthrough to media/Jellyfin/Tdarr containers, see [`../server-arr/Mult
 | 107 | omniroute | `192.168.1.109` | Manual repo script | AI model router/OpenAI-compatible API gateway | 20128 dashboard and `/v1` API | `/root/.omniroute` data on rootfs unless bind-mounted later | [`../omniroute/README.md`](../omniroute/README.md), [`../scripts/pve/create-omniroute-lxc.sh`](../scripts/pve/create-omniroute-lxc.sh) |
 | 108 | hermes | `192.168.1.110` | Manual repo script | Hermes agent/gateway | Hermes gateway/API ports as configured; outbound to OmniRoute/Hindsight | `/root/.hermes` config/data on rootfs unless bind-mounted later | [`../hermes/README.md`](../hermes/README.md), [`../scripts/pve/create-hermes-lxc.sh`](../scripts/pve/create-hermes-lxc.sh) |
 | 109 | hindsight | `192.168.1.111` | Manual repo script | Hermes memory backend | 8888 API; 9999 control plane/UI | `/root/.hindsight-docker -> /home/hindsight/.pg0` inside Docker container | [`../hindsight/README.md`](../hindsight/README.md), [`../scripts/pve/create-hindsight-lxc.sh`](../scripts/pve/create-hindsight-lxc.sh) |
+| 110 | mealie | `192.168.1.112` | Manual documented setup | Recipe manager, meal planner, daily meal suggestion API | 9925 Mealie; 8777 daily random meal fallback API | `/opt/mealie/data`; `/opt/daily-meal` | Dedicated service guide TBD |
 | 201 | proxy | `192.168.1.201` | Community Scripts: Caddy, then post-install Cloudflare Tunnel/MCP | Caddy reverse proxy + Cloudflare Tunnel/MCP | 80 HTTP; 443 HTTPS; 2019 Caddy admin if enabled; cloudflared outbound | `/etc/caddy`; Caddy/Cloudflare env and tunnel credentials | [`../proxy/Access-Setup.md`](../proxy/Access-Setup.md), [`../proxy/config/Caddyfile.example`](../proxy/config/Caddyfile.example) |
 | 250 | pbs | `192.168.1.250` | Community Scripts: verify exact script | Proxmox Backup Server | 8007 PBS UI/API | `/main/backup -> /backup`; optional USB/serial mappings | TBD |
 
@@ -124,6 +125,8 @@ qBittorrent rebuild note: configure qBittorrent so torrent traffic only operates
 | Vaultwarden | `vaultwarden` / `192.168.1.106` | `http://192.168.1.106:<vaultwarden-port>` | `vaultwarden.<domain>` | Exact internal port depends on Community Script install |
 | n8n | `n8n` / `192.168.1.107` | `http://192.168.1.107:5678` | `n8n.<domain>` | Glance check URL |
 | Redis | `redis` / `192.168.1.108` | `192.168.1.108:6379` | internal only | Do not expose publicly |
+| Mealie | `mealie` / `192.168.1.112` | `http://192.168.1.112:9925` | `mealie.<domain>` / current `mealie.liftlab.dev` | Cloudflare Tunnel route; recipe manager and meal planner |
+| Daily meal fallback API | `mealie` / `192.168.1.112` | `http://192.168.1.112:8777` | internal Glance custom API only | Deterministic random daily meal until Mealie meal plans are populated |
 
 ---
 
