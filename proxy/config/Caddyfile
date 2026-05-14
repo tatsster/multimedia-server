@@ -6,8 +6,17 @@
 			liftlab.dev play vaultwarden flaresolverr
 		}
 		dynamic_domains
-        versions ipv4
+		versions ipv4
 	}
+}
+
+liftlab.dev {
+	tls {
+		dns cloudflare {env.CF_API_TOKEN}
+		propagation_delay 2m
+		resolvers 1.1.1.1
+	}
+	reverse_proxy http://192.168.1.114:3000
 }
 
 *.liftlab.dev {
@@ -32,7 +41,7 @@
 		}
 	}
 
-	@flaresolverr host flaresolver.liftlab.dev
+	@flaresolverr host flaresolverr.liftlab.dev
 	handle @flaresolverr {
 		reverse_proxy http://192.168.1.103:8191
 	}

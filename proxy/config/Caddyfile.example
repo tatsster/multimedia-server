@@ -63,10 +63,6 @@
 		reverse_proxy http://192.168.1.103:8265
 	}
 
-	@glance host glance.example.com
-	handle @glance {
-		reverse_proxy http://192.168.1.103:8081
-	}
 
 	# Example HTTPS backend with self-signed/internal certificate.
 	# Use tls_insecure_skip_verify only for trusted LAN services.
@@ -84,4 +80,15 @@
 	handle @flaresolverr {
 		reverse_proxy http://192.168.1.103:8191
 	}
+}
+
+
+# Root dashboard example. Keep the root domain outside the wildcard block.
+example.com {
+	tls {
+		dns cloudflare {env.CF_API_TOKEN}
+		propagation_delay 2m
+		resolvers 1.1.1.1
+	}
+	reverse_proxy http://HOMEPAGE_LXC_IP:3000
 }

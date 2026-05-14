@@ -11,7 +11,6 @@ Do **not** create separate Caddy and Cloudflared LXCs for the normal rebuild unl
 - Canonical inventory/network map: [`../inventory/lxc-map.md`](../inventory/lxc-map.md)
 - Caddy template: [`config/Caddyfile.example`](./config/Caddyfile.example)
 - Media stack guide: [`../server-arr/Multimedia-Setup.md`](../server-arr/Multimedia-Setup.md)
-- Glance dashboard guide: [`../glance/Readme.md`](../glance/Readme.md)
 
 ## Current live target
 
@@ -288,6 +287,24 @@ In the Cloudflare Tunnel UI, add public hostnames for each service:
 4. Type:
    - `HTTP`: simplest for normal LAN services.
    - `HTTPS`: if the service enables HTTPS by default, open `Additional settings -> TLS` and enable `No TLS Verify` for self-signed/internal certs.
+
+Current live root dashboard route is **Caddy only**, not Cloudflare Tunnel:
+
+| Public hostname | Live upstream | Notes |
+|---|---|---|
+| `liftlab.dev` | `http://192.168.1.114:3000` | Homepage dashboard; replaced old Glance dashboard; keep out of Cloudflare Tunnel public hostnames |
+
+Current live public hostnames routed through Cloudflare Tunnel include:
+
+| Public hostname | Live upstream | Notes |
+|---|---|---|
+| `play.liftlab.dev` | `http://192.168.1.104:8096` | Jellyfin |
+| `vaultwarden.liftlab.dev` | `https://192.168.1.106:8000` with no TLS verify | Vaultwarden |
+| `flaresolverr.liftlab.dev` | `http://192.168.1.103:8191` | FlareSolverr |
+
+Do not add `dashboard.liftlab.dev` back to Caddy, DNS, or Cloudflare Tunnel; it was only a temporary Homepage test URL and is retired.
+
+The old Glance container on `multimedia` / port `8081` was retired after Homepage cutover, and `/docker/glance` was deleted.
 
 For sensitive public services, add Cloudflare Access login:
 

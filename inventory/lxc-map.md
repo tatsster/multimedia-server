@@ -1,6 +1,6 @@
 # LXC Inventory and Network Map
 
-This file is the canonical place for CT IDs, names, target IPs, roles, service ports, host/container mounts, and rebuild method. Use it as the first reference when recreating containers or wiring proxy/Glance/Hermes integrations.
+This file is the canonical place for CT IDs, names, target IPs, roles, service ports, host/container mounts, and rebuild method. Use it as the first reference when recreating containers or wiring proxy/Homepage/Hermes integrations.
 
 Related docs:
 
@@ -70,6 +70,8 @@ For GPU passthrough to media/Jellyfin/Tdarr containers, see [`../server-arr/Mult
 | 108 | hermes | `192.168.1.110` | Manual repo script | Hermes agent/gateway | Hermes gateway/API ports as configured; outbound to OmniRoute/Hindsight | `/root/.hermes` config/data on rootfs unless bind-mounted later | [`../hermes/README.md`](../hermes/README.md), [`../scripts/pve/create-hermes-lxc.sh`](../scripts/pve/create-hermes-lxc.sh) |
 | 109 | hindsight | `192.168.1.111` | Manual repo script | Hermes memory backend | 8888 API; 9999 control plane/UI | `/root/.hindsight-docker -> /home/hindsight/.pg0` inside Docker container | [`../hindsight/README.md`](../hindsight/README.md), [`../scripts/pve/create-hindsight-lxc.sh`](../scripts/pve/create-hindsight-lxc.sh) |
 | 110 | mealie | `192.168.1.112` | Manual documented setup | Recipe manager, meal planner, daily meal suggestion API | 9925 Mealie; 8777 daily random meal fallback API | `/opt/mealie/data`; `/opt/daily-meal` | Dedicated service guide TBD |
+| 111 | speedtest | `192.168.1.113` | Community Scripts / manual service tuning | Speedtest Tracker | app port as installed; proxied/linked in Homepage | app data path TBD | Dedicated service guide TBD |
+| 112 | homepage | `192.168.1.114` | Community Scripts: Homepage | Main homelab dashboard replacing Glance | 3000 Homepage | `/opt/homepage/config` | Homepage community script; config managed live in CT |
 | 201 | proxy | `192.168.1.201` | Community Scripts: Caddy, then post-install Cloudflare Tunnel/MCP | Caddy reverse proxy + Cloudflare Tunnel/MCP | 80 HTTP; 443 HTTPS; 2019 Caddy admin if enabled; cloudflared outbound | `/etc/caddy`; Caddy/Cloudflare env and tunnel credentials | [`../proxy/Access-Setup.md`](../proxy/Access-Setup.md), [`../proxy/config/Caddyfile.example`](../proxy/config/Caddyfile.example) |
 | 250 | pbs | `192.168.1.250` | Community Scripts: verify exact script | Proxmox Backup Server | 8007 PBS UI/API | `/main/backup -> /backup`; optional USB/serial mappings | TBD |
 
@@ -81,7 +83,7 @@ For GPU passthrough to media/Jellyfin/Tdarr containers, see [`../server-arr/Mult
 
 | Service | LXC / host | Internal URL | Public/proxied hostname pattern | Notes |
 |---|---|---|---|---|
-| Proxmox VE | host `192.168.1.101` | `https://192.168.1.101:8006` | optional `proxmox.<domain>` | Used by Glance/Hermes tools with scoped token |
+| Proxmox VE | host `192.168.1.101` | `https://192.168.1.101:8006` | optional `proxmox.<domain>` | Used by Homepage/Hermes tools with scoped token |
 | Proxmox Backup Server | `pbs` / `192.168.1.250` | `https://192.168.1.250:8007` | `pbs.<domain>` | Backup datastore mounted from `/main/backup` |
 | Caddy | `proxy` / `192.168.1.201` | `http://192.168.1.201:80`, `https://192.168.1.201:443` | `*.example.com` in docs | Reverse proxy front door |
 | Caddy admin | `proxy` / `192.168.1.201` | `http://localhost:2019` preferred | not public | Example keeps admin on localhost by default |
@@ -89,7 +91,7 @@ For GPU passthrough to media/Jellyfin/Tdarr containers, see [`../server-arr/Mult
 
 ### Media and Arr stack
 
-Ports below are from [`../server-arr/arr-stack.yml`](../server-arr/arr-stack.yml) and the current Glance monitor config.
+Ports below are from [`../server-arr/arr-stack.yml`](../server-arr/arr-stack.yml) and the current Homepage monitor config.
 
 | Service | LXC | Internal URL | Public/proxied hostname pattern | Source |
 |---|---|---|---|---|
@@ -101,10 +103,10 @@ Ports below are from [`../server-arr/arr-stack.yml`](../server-arr/arr-stack.yml
 | Tdarr UI | `multimedia` / `192.168.1.103` | `http://192.168.1.103:8265` | `tdarr.<domain>` | compose port `8265:8265` |
 | Tdarr server | `multimedia` / `192.168.1.103` | `192.168.1.103:8266` | usually not public | compose port `8266:8266` |
 | FlareSolverr | `multimedia` / `192.168.1.103` | `http://192.168.1.103:8191` | `flaresolverr.<domain>` if exposed | compose port `8191:8191` |
-| QBWrapper/qbproxy | `multimedia` / `192.168.1.103` | `http://192.168.1.103:9911` | usually internal for Glance widget | compose port `9911:9911` |
+| QBWrapper/qbproxy | `multimedia` / `192.168.1.103` | `http://192.168.1.103:9911` | usually internal for dashboard widget | compose port `9911:9911` |
 | Lingarr | `multimedia` / `192.168.1.103` | `http://192.168.1.103:9876` | `lingarr.<domain>` | compose port `9876:9876` |
-| Jellyfin | `jellyfin` / `192.168.1.104` | `http://192.168.1.104:8096` | `play.<domain>` | Glance check URL |
-| Jellyseerr | `jellyseerr` / `192.168.1.105` | `http://192.168.1.105:5055` | `media.<domain>` | Glance check URL |
+| Jellyfin | `jellyfin` / `192.168.1.104` | `http://192.168.1.104:8096` | `play.<domain>` | Homepage check URL |
+| Jellyseerr | `jellyseerr` / `192.168.1.105` | `http://192.168.1.105:5055` | `media.<domain>` | Homepage check URL |
 
 qBittorrent rebuild note: configure qBittorrent so torrent traffic only operates over the VPN connection/interface. Keep any VPN credentials in local env/config only, never in this repo.
 
@@ -123,10 +125,12 @@ qBittorrent rebuild note: configure qBittorrent so torrent traffic only operates
 | Service | LXC | Internal URL | Public/proxied hostname pattern | Notes |
 |---|---|---|---|---|
 | Vaultwarden | `vaultwarden` / `192.168.1.106` | `http://192.168.1.106:<vaultwarden-port>` | `vaultwarden.<domain>` | Exact internal port depends on Community Script install |
-| n8n | `n8n` / `192.168.1.107` | `http://192.168.1.107:5678` | `n8n.<domain>` | Glance check URL |
+| n8n | `n8n` / `192.168.1.107` | `http://192.168.1.107:5678` | `n8n.<domain>` | Homepage check URL |
 | Redis | `redis` / `192.168.1.108` | `192.168.1.108:6379` | internal only | Do not expose publicly |
 | Mealie | `mealie` / `192.168.1.112` | `http://192.168.1.112:9925` | `mealie.<domain>` / current `mealie.liftlab.dev` | Cloudflare Tunnel route; recipe manager and meal planner |
-| Daily meal fallback API | `mealie` / `192.168.1.112` | `http://192.168.1.112:8777` | internal Glance custom API only | Deterministic random daily meal until Mealie meal plans are populated |
+| Daily meal fallback API | `mealie` / `192.168.1.112` | `http://192.168.1.112:8777` | internal dashboard custom API only | Deterministic random daily meal until Mealie meal plans are populated |
+| Homepage dashboard | `homepage` / `192.168.1.114` | `http://192.168.1.114:3000` | `liftlab.dev` | Replaced retired Glance container; Caddy proxies root hostname only; not exposed through Cloudflare Tunnel |
+| Speedtest Tracker | `speedtest` / `192.168.1.113` | app URL as installed | linked/widget in Homepage | Homepage widget uses API token stored only in live Homepage env |
 
 ---
 
@@ -189,6 +193,6 @@ Update this file whenever any of these change:
 - Public/proxied hostname.
 - Docker compose port mapping.
 - Caddy reverse proxy target.
-- Glance monitor check URL.
+- Homepage monitor check URL.
 - Bind mount, GPU passthrough, USB passthrough, or service data path.
 - Hermes/OmniRoute/Hindsight integration endpoint.
