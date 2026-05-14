@@ -315,6 +315,8 @@ curl -fsS http://<ip>:<port>/ || true
 
 ## Final response format
 
+Always include a handoff block when the service has a Web UI, so `expose-service-public` can run next without asking again for service name or internal URL.
+
 ```text
 Installed <service> in Proxmox LXC
 - CTID: <id>
@@ -328,6 +330,16 @@ Installed <service> in Proxmox LXC
 - SSH key installed: yes
 - Services verified: <systemd units>
 - Notes/credentials: <path or instructions>
+
+Service handoff for expose-service-public:
+- Service name: <service>
+- Internal service URL: http://<ip>:<port>
+- Internal IP: <ip>
+- Web UI port: <port>
+- CTID: <id>
+- Hostname: <hostname>
+- Auth status: known-auth / no-auth / unknown
+- Notes: <proxying notes, no secrets>
 ```
 
 If installation failed, report:
