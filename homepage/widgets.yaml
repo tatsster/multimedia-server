@@ -1,0 +1,24 @@
+---
+- datetime:
+    text_size: xl
+    format:
+      timeStyle: short
+      hourCycle: h23
+
+- openmeteo:
+    label: Ho Chi Minh City
+    latitude: 10.8231
+    longitude: 106.6297
+    timezone: Asia/Ho_Chi_Minh
+    units: metric
+    cache: 5
+
+- search:
+    provider: duckduckgo
+    target: _blank
+
+- resources:
+    label: Homepage LXC
+    cpu: true
+    memory: true
+    disk: /

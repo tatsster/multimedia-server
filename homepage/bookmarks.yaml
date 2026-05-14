@@ -1,0 +1,35 @@
+---
+- Self-hosted:
+    - Community Scripts:
+        - icon: github.svg
+          href: https://community-scripts.org/
+          description: Proxmox VE helper scripts
+    - Homepage Docs:
+        - icon: homepage.svg
+          href: https://gethomepage.dev/
+          description: Dashboard config and widgets
+
+- Updates:
+    - Hacker News:
+        - icon: hacker-news.svg
+          href: https://news.ycombinator.com/
+          description: Tech news
+    - r/selfhosted:
+        - icon: reddit.svg
+          href: https://www.reddit.com/r/selfhosted/
+          description: Self-hosted community
+    - r/dataisbeautiful:
+        - icon: reddit.svg
+          href: https://www.reddit.com/r/dataisbeautiful/
+          description: Data visualization
+
+- Video:
+    - Fireship:
+        - icon: youtube.svg
+          href: https://www.youtube.com/@Fireship
+    - Veritasium:
+        - icon: youtube.svg
+          href: https://www.youtube.com/@veritasium
+    - Kurzgesagt:
+        - icon: youtube.svg
+          href: https://www.youtube.com/@kurzgesagt

@@ -1,0 +1,3 @@
+---
+# Homepage is installed directly in a dedicated LXC by community-scripts, not as Docker.
+# Keep Docker integration disabled unless Homepage is moved to a Docker deployment later.

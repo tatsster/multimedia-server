@@ -1,0 +1,30 @@
+---
+title: LiftLab Homelab
+startUrl: https://liftlab.dev
+theme: dark
+color: slate
+language: en
+hideVersion: true
+showStats: true
+statusStyle: dot
+quicklaunch:
+  searchDescriptions: true
+  hideInternetSearch: false
+  showSearchSuggestions: true
+
+layout:
+  Infrastructure:
+    style: row
+    columns: 4
+  Media:
+    style: row
+    columns: 4
+  Arr Suite:
+    style: row
+    columns: 4
+  AI & Agents:
+    style: row
+    columns: 4
+  Utilities:
+    style: row
+    columns: 4
