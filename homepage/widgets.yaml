@@ -17,12 +17,12 @@
     format:
       maximumFractionDigits: 1
 
-- pvehealth:
+- glances:
+    url: http://192.168.1.101:61208
+    version: 4
     label: PVE Main
-    href: https://beszel.liftlab.dev
-    source: beszel
-    systemId: "{{HOMEPAGE_VAR_BESZEL_SYSTEM_ID}}"
-    refresh: 30000
-    tempwarn: 70
-    tempcrit: 85
-    tempmax: 90
+    cpu: true
+    mem: true
+    cputemp: true
+    cpuSensorLabel: Package id
+    uptime: true

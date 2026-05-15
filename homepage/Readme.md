@@ -25,12 +25,11 @@ homepage/bookmarks.yaml
 homepage/docker.yaml
 homepage/kubernetes.yaml
 homepage/.env.example
-homepage/custom-src/pages/api/widgets/pvehealth.js
-homepage/custom-src/components/widgets/pvehealth/pvehealth.jsx
-homepage/custom-src/components/widgets/widget.jsx.patch.md
 ```
 
 These files are secret-safe templates for the live `/opt/homepage/config` directory. Real tokens/passwords stay only in the live Homepage environment or local secret files.
+
+There are no custom Homepage JavaScript widgets required for the PVE temperature/uptime card. Homepage now uses its native `glances` info widget against Glances running on the Proxmox host.
 
 ## Restore / update config
 
@@ -46,24 +45,6 @@ cp homepage/docker.yaml /opt/homepage/config/docker.yaml
 cp homepage/kubernetes.yaml /opt/homepage/config/kubernetes.yaml
 ```
 
-Custom widget source files must also be copied into the Homepage source tree and registered:
-
-```bash
-mkdir -p /opt/homepage/src/pages/api/widgets
-mkdir -p /opt/homepage/src/components/widgets/pvehealth
-cp homepage/custom-src/pages/api/widgets/pvehealth.js /opt/homepage/src/pages/api/widgets/pvehealth.js
-cp homepage/custom-src/components/widgets/pvehealth/pvehealth.jsx /opt/homepage/src/components/widgets/pvehealth/pvehealth.jsx
-# Apply the one-line mapping documented in:
-# homepage/custom-src/components/widgets/widget.jsx.patch.md
-```
-
-Then rebuild if using a source/community-scripts install:
-
-```bash
-cd /opt/homepage
-pnpm build
-```
-
 Then reload/restart Homepage using the live install method. For community-scripts installs, inspect the service name first:
 
 ```bash
@@ -73,6 +54,26 @@ systemctl status homepage --no-pager --lines=50
 ```
 
 If Homepage was deployed with Docker instead, restart the container/stack instead of using systemd.
+
+## PVE temperature/uptime widget
+
+The top-row PVE card uses the native Homepage Glances info widget:
+
+```yaml
+- glances:
+    url: http://192.168.1.101:61208
+    version: 4
+    label: PVE Main
+    cpu: true
+    mem: true
+    cputemp: true
+    cpuSensorLabel: Package id
+    uptime: true
+```
+
+Glances runs on the Proxmox host so it can see real host sensors. See `glances/README.md` for the PVE-side service config.
+
+Beszel is still kept as the main monitoring/history/alerts dashboard and service link, but Homepage does not need custom Beszel-backed JS for the PVE top-row card anymore.
 
 ## Environment variables / secrets
 
@@ -99,10 +100,6 @@ Required variables:
 | `HOMEPAGE_VAR_JELLYSEERR_KEY` | Seerr/Jellyseerr widget | Jellyseerr API key |
 | `HOMEPAGE_VAR_MEALIE_URL` | Mealie widget | Internal Mealie base URL |
 | `HOMEPAGE_VAR_MEALIE_API_TOKEN` | Mealie widget | Mealie user API token |
-| `HOMEPAGE_VAR_BESZEL_URL` | PVE health widget | Internal Beszel base URL, e.g. `http://192.168.1.115:8090` |
-| `HOMEPAGE_VAR_BESZEL_USERNAME` | PVE health widget | Beszel superuser/API login for Homepage |
-| `HOMEPAGE_VAR_BESZEL_PASSWORD` | PVE health widget | Beszel password; never commit real value |
-| `HOMEPAGE_VAR_BESZEL_SYSTEM_ID` | PVE health widget | Proxmox Beszel system ID/name, currently `qmh9xghiecj8phu` |
 | `HOMEPAGE_VAR_SPEEDTEST_URL` | Speedtest widget | Internal Speedtest Tracker base URL |
 | `HOMEPAGE_VAR_SPEEDTEST_API_TOKEN` | Speedtest widget | Required for widget version 2 |
 | `HOMEPAGE_VAR_QBITTORRENT_USERNAME` | qBittorrent widget | WebUI username |
@@ -148,6 +145,13 @@ for p in pathlib.Path('homepage').glob('*.yaml'):
     print('ok', p)
 PY
 
+# Glances API from Proxmox
+curl -fsS http://127.0.0.1:61208/api/4/status
+curl -fsS http://127.0.0.1:61208/api/4/sensors
+
+# Homepage proxy for the Glances info widget
+curl -fsS "http://127.0.0.1:3000/api/widgets/glances?index=2&version=4&cputemp=true&uptime=true"
+
 # Internal service
 curl -I http://192.168.1.114:3000
 
@@ -157,6 +161,7 @@ curl -I https://liftlab.dev
 
 In the UI, verify:
 
+- Top-row Glances widget shows PVE CPU/mem/temp/uptime.
 - Infrastructure widgets load without leaking credentials.
 - Media and Arr service links open correctly.
 - qBittorrent still only uses VPN-bound torrent traffic.

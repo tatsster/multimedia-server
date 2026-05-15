@@ -1,9 +1,8 @@
 # Beszel monitoring config
 
-Beszel is the monitoring source for both:
+Beszel is the main monitoring/history/alerts dashboard for the homelab. It also shows the Proxmox dashboard temperature correctly in Beszel's own all-systems table.
 
-- Beszel's own all-systems dashboard temperature column.
-- Homepage's top-row `pvehealth` widget for Proxmox temperature and uptime.
+Homepage keeps a normal Beszel service link/monitor card, but the top-row PVE temperature/uptime card no longer uses custom Beszel-backed Homepage JavaScript. Homepage now uses its native Glances widget for that card. See `glances/README.md`.
 
 This avoids the old custom `homepage-pve-metrics.service` and removes the need for the extra `9912` metrics port on Proxmox.
 
@@ -89,36 +88,27 @@ Beszel API summary should have a correct dashboard temperature:
 }
 ```
 
-`info.t` may still be a different/low sensor value on this host. Do not use it for the Homepage top-row PVE temperature.
+`info.t` may still be a different/low sensor value on this host. Do not use it as the CPU package temperature.
 
 ## Homepage integration
 
-Homepage uses a custom `pvehealth` widget that logs in to Beszel and reads the latest detailed `system_stats.t` record for Proxmox. This is intentional because detailed Beszel stats contain the reliable CPU/core/package values.
-
-Required Homepage env vars:
-
-```env
-HOMEPAGE_VAR_BESZEL_URL=http://192.168.1.115:8090
-HOMEPAGE_VAR_BESZEL_USERNAME=homepage-widget@example.local
-HOMEPAGE_VAR_BESZEL_PASSWORD=replace-with-beszel-superuser-password
-HOMEPAGE_VAR_BESZEL_SYSTEM_ID=qmh9xghiecj8phu
-```
-
-The live username is stored only in the live Homepage environment. Do not commit the real password.
-
-Homepage widget config lives in `homepage/widgets.yaml`:
+Homepage service config should keep Beszel simple/link/monitor-only, for example:
 
 ```yaml
-- pvehealth:
-    label: PVE Main
+- Beszel:
+    icon: beszel.png
     href: https://beszel.liftlab.dev
-    source: beszel
-    systemId: "{{HOMEPAGE_VAR_BESZEL_SYSTEM_ID}}"
-    refresh: 30000
-    tempwarn: 70
-    tempcrit: 85
-    tempmax: 90
+    siteMonitor: http://192.168.1.115:8090
+    description: Proxmox monitoring
 ```
+
+For Homepage top-row host temp/uptime, use Glances instead of Beszel because Homepage's native Beszel widget currently supports only:
+
+```text
+name, status, updated, cpu, memory, disk, network
+```
+
+It does not expose Beszel `info.dt` or uptime as native fields yet.
 
 ## Removed old custom endpoint
 
