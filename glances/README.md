@@ -96,10 +96,40 @@ curl -fsS "http://127.0.0.1:3000/api/widgets/glances?index=2&version=4&cputemp=t
 ```
 
 Expected sensor data includes `Package id 0`, for example:
+```json
+{"label":"Package id 0","unit":"C","value":50,"warning":80,"critical":90}
+```
+
+## Homepage warning temperature
+
+Homepage's native Glances info widget uses the `warning` field returned by `/api/4/sensors` as the expanded `Warn` value and for the temperature bar scale. On this Proxmox host, the kernel/coretemp sensor reports `temp*_max` as `100°C`, so a small local Glances patch is applied to report CPU package/core warning as `80°C` and critical as `90°C` for Homepage display.
+
+Live patch target:
+
+```text
+/usr/lib/python3/dist-packages/glances/plugins/sensors/__init__.py
+```
+
+Tracked patch:
+
+```bash
+patch -p0 < glances/homepage-warning-80.patch
+systemctl restart glances
+```
+
+Verify:
+
+```bash
+curl -fsS http://127.0.0.1:61208/api/4/sensors | grep -A6 'Package id 0'
+```
+
+Expected:
 
 ```json
-{"label":"Package id 0","unit":"C","value":50}
+{"label":"Package id 0","unit":"C","value":55,"warning":80,"critical":90,"type":"temperature_core"}
 ```
+
+If Glances is upgraded/reinstalled, re-check this endpoint because the package file may be replaced.
 
 From Homepage, use:
 
