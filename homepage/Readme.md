@@ -25,6 +25,9 @@ homepage/bookmarks.yaml
 homepage/docker.yaml
 homepage/kubernetes.yaml
 homepage/.env.example
+homepage/custom-src/pages/api/widgets/pvehealth.js
+homepage/custom-src/components/widgets/pvehealth/pvehealth.jsx
+homepage/custom-src/components/widgets/widget.jsx.patch.md
 ```
 
 These files are secret-safe templates for the live `/opt/homepage/config` directory. Real tokens/passwords stay only in the live Homepage environment or local secret files.
@@ -41,6 +44,24 @@ cp homepage/widgets.yaml /opt/homepage/config/widgets.yaml
 cp homepage/bookmarks.yaml /opt/homepage/config/bookmarks.yaml
 cp homepage/docker.yaml /opt/homepage/config/docker.yaml
 cp homepage/kubernetes.yaml /opt/homepage/config/kubernetes.yaml
+```
+
+Custom widget source files must also be copied into the Homepage source tree and registered:
+
+```bash
+mkdir -p /opt/homepage/src/pages/api/widgets
+mkdir -p /opt/homepage/src/components/widgets/pvehealth
+cp homepage/custom-src/pages/api/widgets/pvehealth.js /opt/homepage/src/pages/api/widgets/pvehealth.js
+cp homepage/custom-src/components/widgets/pvehealth/pvehealth.jsx /opt/homepage/src/components/widgets/pvehealth/pvehealth.jsx
+# Apply the one-line mapping documented in:
+# homepage/custom-src/components/widgets/widget.jsx.patch.md
+```
+
+Then rebuild if using a source/community-scripts install:
+
+```bash
+cd /opt/homepage
+pnpm build
 ```
 
 Then reload/restart Homepage using the live install method. For community-scripts installs, inspect the service name first:
@@ -73,15 +94,23 @@ Required variables:
 | `HOMEPAGE_VAR_PROXMOXVE_PASSWORD` | Proxmox widget | Token secret only |
 | `HOMEPAGE_VAR_PROXMOXBACKUP_USERNAME` | PBS widget | Token id |
 | `HOMEPAGE_VAR_PROXMOXBACKUP_PASSWORD` | PBS widget | Token secret only |
+| `HOMEPAGE_VAR_JELLYFIN_URL` | Jellyfin widget | Public/internal Jellyfin base URL |
 | `HOMEPAGE_VAR_JELLYFIN_KEY` | Jellyfin widget | Jellyfin API key |
 | `HOMEPAGE_VAR_JELLYSEERR_KEY` | Seerr/Jellyseerr widget | Jellyseerr API key |
+| `HOMEPAGE_VAR_MEALIE_URL` | Mealie widget | Internal Mealie base URL |
 | `HOMEPAGE_VAR_MEALIE_API_TOKEN` | Mealie widget | Mealie user API token |
+| `HOMEPAGE_VAR_BESZEL_URL` | PVE health widget | Internal Beszel base URL, e.g. `http://192.168.1.115:8090` |
+| `HOMEPAGE_VAR_BESZEL_USERNAME` | PVE health widget | Beszel superuser/API login for Homepage |
+| `HOMEPAGE_VAR_BESZEL_PASSWORD` | PVE health widget | Beszel password; never commit real value |
+| `HOMEPAGE_VAR_BESZEL_SYSTEM_ID` | PVE health widget | Proxmox Beszel system ID/name, currently `qmh9xghiecj8phu` |
 | `HOMEPAGE_VAR_SPEEDTEST_URL` | Speedtest widget | Internal Speedtest Tracker base URL |
 | `HOMEPAGE_VAR_SPEEDTEST_API_TOKEN` | Speedtest widget | Required for widget version 2 |
 | `HOMEPAGE_VAR_QBITTORRENT_USERNAME` | qBittorrent widget | WebUI username |
 | `HOMEPAGE_VAR_QBITTORRENT_PASSWORD` | qBittorrent widget | WebUI password |
-| `HOMEPAGE_VAR_RADARR_KEY` | Radarr widget | Radarr API key |
-| `HOMEPAGE_VAR_SONARR_KEY` | Sonarr widget | Sonarr API key |
+| `HOMEPAGE_VAR_QBITTORRENT_DASHBOARD_TOKEN` | qBittorrent custom API widget | Token for qBittorrent dashboard proxy |
+| `HOMEPAGE_VAR_RADARR_API_KEY` | Radarr widget | Radarr API key |
+| `HOMEPAGE_VAR_SONARR_API_KEY` | Sonarr widget | Sonarr API key |
+| `HOMEPAGE_VAR_PROWLARR_API_KEY` | Prowlarr widget | Prowlarr API key |
 | `HOMEPAGE_VAR_OMNIROUTE_DASHBOARD_TOKEN` | OmniRoute custom API widget | Must match metrics proxy token |
 
 Never commit real values.
@@ -90,11 +119,9 @@ Never commit real values.
 
 Current config groups:
 
-- `Infrastructure`: Proxmox VE, PBS, Portainer, Homepage
-- `Media`: Jellyfin, Jellyseerr, Mealie, Speedtest Tracker
-- `Arr Suite`: qBittorrent, Radarr, Sonarr, Prowlarr, Bazarr, Tdarr, FlareSolverr, Lingarr
-- `AI & Agents`: OmniRoute, Hermes, Hindsight
-- `Utilities`: Vaultwarden, n8n, Redis, Daily Meal API
+- `Infrastructure`: Proxmox VE, PBS, Beszel, OmniRoute Usage
+- `Services`: Jellyfin, Mealie, Speedtest Tracker, Jellyseerr, Portainer, VaultWarden, n8n, OmniRoute, Hindsight
+- `Arr-suite`: Radarr, Sonarr, Prowlarr, qBittorrent, Bazarr, Tdarr, FlareSolverr, Lingarr
 
 ## Public routing
 

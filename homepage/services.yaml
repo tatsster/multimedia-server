@@ -1,215 +1,207 @@
 ---
 - Infrastructure:
     - Proxmox VE:
-        icon: proxmox.svg
+        icon: proxmox.png
         href: https://192.168.1.101:8006
-        description: PVE host and LXC/VM cluster
-        ping: 192.168.1.101
+        description: Proxmox cluster
         widget:
           type: proxmox
           url: https://192.168.1.101:8006
           username: "{{HOMEPAGE_VAR_PROXMOXVE_USERNAME}}"
           password: "{{HOMEPAGE_VAR_PROXMOXVE_PASSWORD}}"
-          fields: ["vms", "lxc", "resources.cpu", "resources.mem"]
 
     - Proxmox Backup Server:
-        icon: proxmox.svg
+        icon: proxmox.png
         href: https://pbs.liftlab.dev
-        description: Backup server and datastore status
-        ping: 192.168.1.250
+        description: Backup server
         widget:
           type: proxmoxbackupserver
           url: https://192.168.1.250:8007
           username: "{{HOMEPAGE_VAR_PROXMOXBACKUP_USERNAME}}"
           password: "{{HOMEPAGE_VAR_PROXMOXBACKUP_PASSWORD}}"
-          fields: ["datastore_usage", "failed_tasks_24h", "cpu_usage", "memory_usage"]
 
-    - Portainer:
-        icon: portainer.svg
-        href: https://portainer.liftlab.dev
-        description: Docker stack management
-        ping: 192.168.1.103
+    - Beszel:
+        icon: beszel.png
+        href: https://beszel.liftlab.dev
+        siteMonitor: http://192.168.1.115:8090
+        description: Proxmox monitoring
 
-    - Homepage:
-        icon: homepage.svg
-        href: https://liftlab.dev
-        description: Main homelab dashboard
-        ping: 192.168.1.114
+    - OmniRoute Usage:
+        icon: openai.png
+        href: https://omniroute.liftlab.dev
+        description: 7-day LLM usage summary
+        widget:
+          type: customapi
+          url: "http://192.168.1.109:20129/summary?range=7d"
+          refreshInterval: 60000
+          headers:
+            Authorization: "Bearer {{HOMEPAGE_VAR_OMNIROUTE_DASHBOARD_TOKEN}}"
+          display: block
+          mappings:
+            - field: summary.totalRequests
+              label: Requests
+              format: number
+            - field: summary.totalTokens
+              label: Tokens
+              format: number
+            - field: summary.successRatePct
+              label: Success
+              format: percent
+            - field: summary.avgLatencyMs
+              label: Latency
+              suffix: ms
+            - field: summary.uniqueModels
+              label: Models
+              format: number
+            - field: summary.totalCost
+              label: Cost
+              prefix: $
+              format: float
 
-- Media:
+- Services:
     - Jellyfin:
-        icon: jellyfin.svg
+        icon: jellyfin.png
         href: https://play.liftlab.dev
-        description: Movies and TV streaming
         siteMonitor: http://192.168.1.104:8096
+        description: Media server
         widget:
           type: jellyfin
-          url: http://192.168.1.104:8096
+          url: "{{HOMEPAGE_VAR_JELLYFIN_URL}}"
           key: "{{HOMEPAGE_VAR_JELLYFIN_KEY}}"
           version: 2
-          enableBlocks: true
           enableNowPlaying: true
+          enableBlocks: true
           enableUser: true
-          fields: ["movies", "series", "episodes"]
-
-    - Jellyseerr:
-        icon: jellyseerr.svg
-        href: https://media.liftlab.dev
-        description: Media requests
-        siteMonitor: http://192.168.1.105:5055
-        widget:
-          type: seerr
-          url: http://192.168.1.105:5055
-          key: "{{HOMEPAGE_VAR_JELLYSEERR_KEY}}"
 
     - Mealie:
-        icon: mealie.svg
+        icon: mealie.png
         href: https://mealie.liftlab.dev
-        description: Recipes and meal planning
         siteMonitor: http://192.168.1.112:9925
+        description: Meal planner
         widget:
           type: mealie
-          url: http://192.168.1.112:9925
+          url: "{{HOMEPAGE_VAR_MEALIE_URL}}"
           key: "{{HOMEPAGE_VAR_MEALIE_API_TOKEN}}"
           version: 2
-          fields: ["recipes", "categories", "tags"]
 
     - Speedtest Tracker:
-        icon: speedtest-tracker.svg
-        href: http://192.168.1.113
-        description: Internet speed history
-        ping: 192.168.1.113
+        icon: librespeed.png
+        href: https://speedtest.liftlab.dev
+        siteMonitor: http://192.168.1.113
+        description: Internet speed tests
         widget:
           type: speedtest
           url: "{{HOMEPAGE_VAR_SPEEDTEST_URL}}"
           version: 2
           key: "{{HOMEPAGE_VAR_SPEEDTEST_API_TOKEN}}"
           bitratePrecision: 2
-          fields: ["download", "upload", "ping"]
 
-- Arr Suite:
-    - qBittorrent:
-        icon: qbittorrent.svg
-        href: https://torrent.liftlab.dev
-        description: Torrent client; keep traffic locked to VPN only
-        siteMonitor: http://192.168.1.103:8080
-        widget:
-          type: qbittorrent
-          url: http://192.168.1.103:8080
-          username: "{{HOMEPAGE_VAR_QBITTORRENT_USERNAME}}"
-          password: "{{HOMEPAGE_VAR_QBITTORRENT_PASSWORD}}"
-          fields: ["leech", "download", "seed", "upload"]
-          enableLeechProgress: true
-          enableLeechSize: true
+    - Jellyseerr:
+        icon: jellyseerr.png
+        href: https://media.liftlab.dev
+        siteMonitor: http://192.168.1.105:5055
+        description: Media requests
 
+    - Portainer:
+        icon: portainer.png
+        href: https://portainer.liftlab.dev
+        description: Container management
+
+    - VaultWarden:
+        icon: vaultwarden.png
+        href: https://vaultwarden.liftlab.dev
+        description: Password vault
+
+    - n8n:
+        icon: n8n.png
+        href: https://n8n.liftlab.dev
+        siteMonitor: http://192.168.1.107:5678
+        description: Automation
+
+    - OmniRoute:
+        icon: openai.png
+        href: https://omniroute.liftlab.dev
+        siteMonitor: http://192.168.1.109:20128
+        description: LLM routing
+
+    - Hindsight:
+        icon: mdi-brain
+        href: https://hindsight.liftlab.dev
+        siteMonitor: http://192.168.1.111:9999
+        description: Memory provider
+
+- Arr-suite:
     - Radarr:
-        icon: radarr.svg
+        icon: radarr.png
         href: https://radarr.liftlab.dev
-        description: Movie library automation
         siteMonitor: http://192.168.1.103:7878
         widget:
           type: radarr
           url: http://192.168.1.103:7878
-          key: "{{HOMEPAGE_VAR_RADARR_KEY}}"
-          fields: ["wanted", "missing", "queued", "movies"]
+          key: "{{HOMEPAGE_VAR_RADARR_API_KEY}}"
 
     - Sonarr:
-        icon: sonarr.svg
+        icon: sonarr.png
         href: https://sonarr.liftlab.dev
-        description: TV library automation
         siteMonitor: http://192.168.1.103:8989
         widget:
           type: sonarr
           url: http://192.168.1.103:8989
-          key: "{{HOMEPAGE_VAR_SONARR_KEY}}"
-          fields: ["wanted", "queued", "series"]
+          key: "{{HOMEPAGE_VAR_SONARR_API_KEY}}"
 
     - Prowlarr:
-        icon: prowlarr.svg
+        icon: prowlarr.png
         href: https://prowlarr.liftlab.dev
-        description: Indexer management
         siteMonitor: http://192.168.1.103:9696
+        widget:
+          type: prowlarr
+          url: http://192.168.1.103:9696
+          key: "{{HOMEPAGE_VAR_PROWLARR_API_KEY}}"
 
-    - Bazarr:
-        icon: bazarr.svg
-        href: https://bazarr.liftlab.dev
-        description: Subtitle management
-        siteMonitor: http://192.168.1.103:6767
-
-    - Tdarr:
-        icon: tdarr.svg
-        href: https://tdarr.liftlab.dev
-        description: Media transcoding automation
-        siteMonitor: http://192.168.1.103:8265
-
-    - FlareSolverr:
-        icon: flaresolverr.svg
-        href: https://flaresolverr.liftlab.dev
-        description: Cloudflare challenge solver for indexers
-        siteMonitor: http://192.168.1.103:8191
-
-    - Lingarr:
-        icon: lingarr.svg
-        href: https://lingarr.liftlab.dev
-        description: Translation/subtitle helper
-        siteMonitor: http://192.168.1.103:9876
-
-- AI & Agents:
-    - OmniRoute:
-        icon: openai.svg
-        href: https://omniroute.liftlab.dev
-        description: AI router and OpenAI-compatible API gateway
-        siteMonitor: http://192.168.1.109:20128
+    - qBittorrent:
+        icon: qbittorrent.png
+        href: https://torrent.liftlab.dev
+        description: Torrents via VPN
         widget:
           type: customapi
-          url: http://192.168.1.109:20129/summary?range=7d
-          refreshInterval: 300000
+          url: "http://192.168.1.103:9911/qb/torrents"
+          refreshInterval: 60000
           headers:
-            Authorization: "Bearer {{HOMEPAGE_VAR_OMNIROUTE_DASHBOARD_TOKEN}}"
+            Authorization: "Bearer {{HOMEPAGE_VAR_QBITTORRENT_DASHBOARD_TOKEN}}"
           mappings:
-            - field: summary.totalRequests
-              label: Requests 7d
+            - field: total_download_speed
+              label: Down
+              format: bytes
+              suffix: /s
+            - field: total_upload_speed
+              label: Up
+              format: bytes
+              suffix: /s
+              remap:
+                - value: null
+                  to: 0
+            - field: seeding_count
+              label: Seeding
               format: number
-            - field: summary.totalTokens
-              label: Tokens 7d
+            - field: leeching_count
+              label: Leeching
               format: number
-            - field: summary.successRatePct
-              label: Success
-              format: percent
+            - field: torrents
+              label: Torrents
+              format: size
 
-    - Hermes:
-        icon: mdi-robot-outline.svg
-        href: http://192.168.1.110
-        description: Personal assistant / automation agent
-        ping: 192.168.1.110
+    - Bazarr:
+        icon: bazarr.png
+        href: https://bazarr.liftlab.dev
 
-    - Hindsight:
-        icon: mdi-brain.svg
-        href: https://hindsight.liftlab.dev
-        description: Hermes memory backend and control plane
-        siteMonitor: http://192.168.1.111:9999/dashboard
+    - Tdarr:
+        icon: tdarr.png
+        href: https://tdarr.liftlab.dev
 
-- Utilities:
-    - Vaultwarden:
-        icon: vaultwarden.svg
-        href: https://vaultwarden.liftlab.dev
-        description: Password manager
-        siteMonitor: https://192.168.1.106:8000
+    - Flaresolverr:
+        icon: flaresolverr.png
+        href: https://flaresolverr.liftlab.dev
 
-    - n8n:
-        icon: n8n.svg
-        href: https://n8n.liftlab.dev
-        description: Automation workflows
-        siteMonitor: http://192.168.1.107:5678
-
-    - Redis:
-        icon: redis.svg
-        href: http://192.168.1.108:6379
-        description: Internal cache/database; do not expose publicly
-        ping: 192.168.1.108
-
-    - Daily Meal API:
-        icon: mealie.svg
-        href: http://192.168.1.112:8777
-        description: Internal dashboard fallback random meal API
-        siteMonitor: http://192.168.1.112:8777
+    - Lingarr:
+        icon: mdi-translate
+        href: https://lingarr.liftlab.dev

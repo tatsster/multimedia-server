@@ -1,7 +1,9 @@
 ---
 - datetime:
     text_size: xl
+    locale: en-GB
     format:
+      dateStyle: long
       timeStyle: short
       hourCycle: h23
 
@@ -12,13 +14,15 @@
     timezone: Asia/Ho_Chi_Minh
     units: metric
     cache: 5
+    format:
+      maximumFractionDigits: 1
 
-- search:
-    provider: duckduckgo
-    target: _blank
-
-- resources:
-    label: Homepage LXC
-    cpu: true
-    memory: true
-    disk: /
+- pvehealth:
+    label: PVE Main
+    href: https://beszel.liftlab.dev
+    source: beszel
+    systemId: "{{HOMEPAGE_VAR_BESZEL_SYSTEM_ID}}"
+    refresh: 30000
+    tempwarn: 70
+    tempcrit: 85
+    tempmax: 90
