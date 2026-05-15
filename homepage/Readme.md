@@ -64,14 +64,15 @@ The top-row PVE card uses the native Homepage Glances info widget:
     url: http://192.168.1.101:61208
     version: 4
     label: PVE Main
-    cpu: true
-    mem: true
+    cpu: false
+    mem: false
     cputemp: true
     cpuSensorLabel: Package id
     uptime: true
+    expanded: true
 ```
 
-Glances runs on the Proxmox host so it can see real host sensors. See `glances/README.md` for the PVE-side service config.
+This shows only current package temperature, the Glances warning temperature in expanded view, and uptime. Glances runs on the Proxmox host so it can see real host sensors. See `glances/README.md` for the PVE-side service config.
 
 Beszel is still kept as the main monitoring/history/alerts dashboard and service link, but Homepage does not need custom Beszel-backed JS for the PVE top-row card anymore.
 

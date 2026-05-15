@@ -108,12 +108,15 @@ From Homepage, use:
     url: http://192.168.1.101:61208
     version: 4
     label: PVE Main
-    cpu: true
-    mem: true
+    cpu: false
+    mem: false
     cputemp: true
     cpuSensorLabel: Package id
     uptime: true
+    expanded: true
 ```
+
+This keeps the Homepage top row focused on current PVE package temperature, the Glances warning temperature in expanded view, and uptime only.
 
 ## Security note
 
