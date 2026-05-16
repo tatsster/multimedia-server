@@ -1,10 +1,14 @@
 # Beszel monitoring config
 
-Beszel is the main monitoring/history/alerts dashboard for the homelab. It also shows the Proxmox dashboard temperature correctly in Beszel's own all-systems table.
+Beszel is the main monitoring/history/alerts dashboard for the homelab and the single place to check Proxmox host metrics such as temperature and uptime.
 
-Homepage keeps a normal Beszel service link/monitor card, but the top-row PVE temperature/uptime card no longer uses custom Beszel-backed Homepage JavaScript. Homepage now uses its native Glances widget for that card. See `glances/README.md`.
+Homepage keeps a normal Beszel service link/monitor card. The old custom `homepage-pve-metrics.service` and the later separate Homepage temp/uptime widget are no longer needed.
 
-This avoids the old custom `homepage-pve-metrics.service` and removes the need for the extra `9912` metrics port on Proxmox.
+This keeps the setup simpler:
+
+- no custom Homepage JavaScript widget
+- no custom Proxmox metrics endpoint on port `9912`
+- no extra host metrics web/API port for Homepage
 
 ## Live services
 
@@ -35,11 +39,59 @@ systemctl enable --now beszel-hub
 systemctl status beszel-hub --no-pager --lines=50
 ```
 
-## Proxmox Beszel agent sensor config
+## Proxmox Beszel agent environment
 
-The Proxmox agent must select the CPU package sensor as its dashboard temperature.
+The Proxmox Beszel agent should select the CPU package sensor as its dashboard temperature.
 
-Use this in the Beszel agent environment/config on the Proxmox host:
+A secret-safe example is tracked here:
+
+```text
+beszel/proxmox-agent.env.example
+```
+
+Copy those values into the live Beszel agent environment on the Proxmox host. Keep secrets such as the agent key/token out of the repo.
+
+### Where to add the env vars
+
+Recommended simple location on Proxmox:
+
+```text
+/etc/beszel-agent.env
+```
+
+Example file contents:
+
+```env
+# Keep the real KEY/TOKEN here too if your live agent uses one.
+SENSORS=coretemp*
+PRIMARY_SENSOR=coretemp_package_id_0
+```
+
+Then make sure the systemd unit reads that file. Create or edit a drop-in:
+
+```bash
+mkdir -p /etc/systemd/system/beszel-agent.service.d
+nano /etc/systemd/system/beszel-agent.service.d/env.conf
+```
+
+Drop-in contents:
+
+```ini
+[Service]
+EnvironmentFile=-/etc/beszel-agent.env
+```
+
+Reload and restart:
+
+```bash
+systemctl daemon-reload
+systemctl restart beszel-agent
+systemctl status beszel-agent --no-pager --lines=50
+```
+
+If the live `beszel-agent.service` already has an `EnvironmentFile=...` line, use that existing file instead of creating a new one.
+
+### Required sensor env vars
 
 ```env
 SENSORS=coretemp*
@@ -51,13 +103,6 @@ Why the normalized key matters:
 - `Package id 0` is the human label from `sensors`.
 - Beszel stores the detailed stats key as `coretemp_package_id_0`.
 - Beszel's all-systems dashboard uses its dashboard/summary temperature (`info.dt`), which follows the primary sensor selection.
-
-After changing the config:
-
-```bash
-systemctl restart beszel-agent
-systemctl status beszel-agent --no-pager --lines=50
-```
 
 Then wait 1-2 minutes and refresh Beszel.
 
@@ -92,7 +137,7 @@ Beszel API summary should have a correct dashboard temperature:
 
 ## Homepage integration
 
-Homepage service config should keep Beszel simple/link/monitor-only, for example:
+Homepage service config should keep Beszel simple/link/monitor-only:
 
 ```yaml
 - Beszel:
@@ -102,13 +147,7 @@ Homepage service config should keep Beszel simple/link/monitor-only, for example
     description: Proxmox monitoring
 ```
 
-For Homepage top-row host temp/uptime, use Glances instead of Beszel because Homepage's native Beszel widget currently supports only:
-
-```text
-name, status, updated, cpu, memory, disk, network
-```
-
-It does not expose Beszel `info.dt` or uptime as native fields yet.
+Do not add a separate custom PVE metrics widget just for temperature/uptime unless Beszel cannot provide the needed information.
 
 ## Removed old custom endpoint
 

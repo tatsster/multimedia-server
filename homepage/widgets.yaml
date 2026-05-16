@@ -16,14 +16,3 @@
     cache: 5
     format:
       maximumFractionDigits: 1
-
-- glances:
-    url: http://192.168.1.101:61208
-    version: 4
-    label: PVE Main
-    cpu: false
-    mem: false
-    cputemp: true
-    cpuSensorLabel: Package id
-    uptime: true
-    expanded: true

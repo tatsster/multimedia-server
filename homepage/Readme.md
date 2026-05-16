@@ -29,7 +29,7 @@ homepage/.env.example
 
 These files are secret-safe templates for the live `/opt/homepage/config` directory. Real tokens/passwords stay only in the live Homepage environment or local secret files.
 
-There are no custom Homepage JavaScript widgets required for the PVE temperature/uptime card. Homepage now uses its native `glances` info widget against Glances running on the Proxmox host.
+No custom Homepage JavaScript widgets or custom PVE metrics services are required. PVE host monitoring/history/alerts should be handled by Beszel.
 
 ## Restore / update config
 
@@ -55,26 +55,19 @@ systemctl status homepage --no-pager --lines=50
 
 If Homepage was deployed with Docker instead, restart the container/stack instead of using systemd.
 
-## PVE temperature/uptime widget
+## PVE monitoring
 
-The top-row PVE card uses the native Homepage Glances info widget:
+Use Beszel as the single source of truth for Proxmox host monitoring, history, and alerts. Homepage keeps Beszel as a normal service link/monitor card in `services.yaml`:
 
 ```yaml
-- glances:
-    url: http://192.168.1.101:61208
-    version: 4
-    label: PVE Main
-    cpu: false
-    mem: false
-    cputemp: true
-    cpuSensorLabel: Package id
-    uptime: true
-    expanded: true
+- Beszel:
+    icon: beszel.png
+    href: https://beszel.liftlab.dev
+    siteMonitor: http://192.168.1.115:8090
+    description: Proxmox monitoring
 ```
 
-This shows only current package temperature, the Glances warning temperature in expanded view, and uptime. The Proxmox-side Glances API is configured to return `warning: 80` and `critical: 90` for CPU package/core temperatures. Glances runs on the Proxmox host so it can see real host sensors. See `glances/README.md` for the PVE-side service config.
-
-Beszel is still kept as the main monitoring/history/alerts dashboard and service link, but Homepage does not need custom Beszel-backed JS for the PVE top-row card anymore.
+The old separate top-row PVE temp/uptime widget has been removed from `widgets.yaml`; use Beszel instead of maintaining another metrics service and extra LAN port.
 
 ## Environment variables / secrets
 
@@ -146,13 +139,6 @@ for p in pathlib.Path('homepage').glob('*.yaml'):
     print('ok', p)
 PY
 
-# Glances API from Proxmox
-curl -fsS http://127.0.0.1:61208/api/4/status
-curl -fsS http://127.0.0.1:61208/api/4/sensors
-
-# Homepage proxy for the Glances info widget
-curl -fsS "http://127.0.0.1:3000/api/widgets/glances?index=2&version=4&cputemp=true&uptime=true"
-
 # Internal service
 curl -I http://192.168.1.114:3000
 
@@ -162,8 +148,8 @@ curl -I https://liftlab.dev
 
 In the UI, verify:
 
-- Top-row Glances widget shows PVE CPU/mem/temp/uptime.
 - Infrastructure widgets load without leaking credentials.
+- Beszel opens and shows Proxmox monitoring/history.
 - Media and Arr service links open correctly.
 - qBittorrent still only uses VPN-bound torrent traffic.
 - Services with no public auth are not newly exposed.
