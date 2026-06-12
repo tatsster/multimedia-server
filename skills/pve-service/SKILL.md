@@ -1,6 +1,16 @@
 ---
 name: pve-service
 description: Install a new self-hosted service as a privileged Proxmox VE LXC, preferring community-scripts when available and falling back to manual Debian 13 CT creation when not.
+usage_hint: "Trigger on: install service, new homelab service, create LXC, Proxmox service, PVE service, self-host app, deploy app in homelab."
+metadata:
+  trigger_text:
+    - install service
+    - new homelab service
+    - create LXC
+    - Proxmox service
+    - PVE service
+    - self-host app
+    - deploy app in homelab
 ---
 
 # PVE Service

@@ -1,8 +1,19 @@
 ---
 name: expose-service-public
 description: "Add a service Web UI to the public domain for remote access using exactly one exposure method: Caddy reverse proxy or Cloudflare Tunnel routing. Usually follows pve-service and can consume its handoff output."
+usage_hint: "Trigger on: expose service, public URL, add subdomain, reverse proxy, Caddy route, Cloudflare Tunnel, make service accessible, domain for app."
 related_skills:
   - pve-service
+metadata:
+  trigger_text:
+    - expose service
+    - public URL
+    - add subdomain
+    - reverse proxy
+    - Caddy route
+    - Cloudflare Tunnel
+    - make service accessible
+    - domain for app
 ---
 
 # Expose Service Public
