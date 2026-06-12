@@ -73,16 +73,6 @@
           enableBlocks: true
           enableUser: true
 
-    - Mealie:
-        icon: mealie.png
-        href: https://mealie.liftlab.dev
-        siteMonitor: http://192.168.1.112:9925
-        description: Meal planner
-        widget:
-          type: mealie
-          url: "{{HOMEPAGE_VAR_MEALIE_URL}}"
-          key: "{{HOMEPAGE_VAR_MEALIE_API_TOKEN}}"
-          version: 2
 
     - Speedtest Tracker:
         icon: librespeed.png

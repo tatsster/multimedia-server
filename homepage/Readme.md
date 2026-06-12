@@ -92,8 +92,6 @@ Required variables:
 | `HOMEPAGE_VAR_JELLYFIN_URL` | Jellyfin widget | Public/internal Jellyfin base URL |
 | `HOMEPAGE_VAR_JELLYFIN_KEY` | Jellyfin widget | Jellyfin API key |
 | `HOMEPAGE_VAR_JELLYSEERR_KEY` | Seerr/Jellyseerr widget | Jellyseerr API key |
-| `HOMEPAGE_VAR_MEALIE_URL` | Mealie widget | Internal Mealie base URL |
-| `HOMEPAGE_VAR_MEALIE_API_TOKEN` | Mealie widget | Mealie user API token |
 | `HOMEPAGE_VAR_SPEEDTEST_URL` | Speedtest widget | Internal Speedtest Tracker base URL |
 | `HOMEPAGE_VAR_SPEEDTEST_API_TOKEN` | Speedtest widget | Required for widget version 2 |
 | `HOMEPAGE_VAR_QBITTORRENT_USERNAME` | qBittorrent widget | WebUI username |
@@ -111,7 +109,7 @@ Never commit real values.
 Current config groups:
 
 - `Infrastructure`: Proxmox VE, PBS, Beszel, OmniRoute Usage
-- `Services`: Jellyfin, Mealie, Speedtest Tracker, Jellyseerr, Portainer, VaultWarden, n8n, OmniRoute, Hindsight
+- `Services`: Jellyfin, Speedtest Tracker, Jellyseerr, Portainer, VaultWarden, n8n, OmniRoute, Hindsight
 - `Arr-suite`: Radarr, Sonarr, Prowlarr, qBittorrent, Bazarr, Tdarr, FlareSolverr, Lingarr
 
 ## Public routing
