@@ -120,6 +120,12 @@
         siteMonitor: http://192.168.1.111:9999
         description: Memory provider
 
+    - SyncTube:
+        icon: mdi-youtube
+        href: https://party.liftlab.dev
+        siteMonitor: http://192.168.1.112:4200
+        description: YouTube watch party
+
 - Arr-suite:
     - Radarr:
         icon: radarr.png
