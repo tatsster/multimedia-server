@@ -111,8 +111,7 @@ Never commit real values.
 Current config groups:
 
 - `Infrastructure`: Proxmox VE, PBS, OmniRoute Usage
-- `Monitoring`: Beszel
-- `Services`: Jellyfin, Speedtest Tracker, Jellyseerr, Portainer, VaultWarden, n8n, OmniRoute, Hindsight, SyncTube
+- `Services`: Jellyfin, Speedtest Tracker, Jellyseerr, Portainer, VaultWarden, n8n, OmniRoute, Hindsight, SyncTube, Beszel
 - `Arr-suite`: Radarr, Sonarr, Prowlarr, qBittorrent, Bazarr, Tdarr, FlareSolverr, Lingarr
 
 ## Public routing

@@ -120,7 +120,6 @@
         siteMonitor: http://192.168.1.112:4200
         description: YouTube watch party
 
-- Monitoring:
     - Beszel:
         icon: beszel.png
         href: https://beszel.liftlab.dev
