@@ -85,18 +85,20 @@ Required variables:
 |---|---|---|
 | `TZ` | app runtime | `Asia/Ho_Chi_Minh` |
 | `HOMEPAGE_ALLOWED_HOSTS` | app runtime | Include `liftlab.dev` and internal host/port |
+| `HOMEPAGE_VAR_PROXMOXVE_URL` | Proxmox widget | Internal Proxmox URL |
 | `HOMEPAGE_VAR_PROXMOXVE_USERNAME` | Proxmox widget | Token id, e.g. `api-ro@pam!homepage` |
-| `HOMEPAGE_VAR_PROXMOXVE_PASSWORD` | Proxmox widget | Token secret only |
+| `HOMEPAGE_VAR_PROXMOXVE_TOKEN` | Proxmox widget | Token secret only |
+| `HOMEPAGE_VAR_PROXMOXBACKUP_URL` | PBS widget | Internal PBS URL |
 | `HOMEPAGE_VAR_PROXMOXBACKUP_USERNAME` | PBS widget | Token id |
-| `HOMEPAGE_VAR_PROXMOXBACKUP_PASSWORD` | PBS widget | Token secret only |
+| `HOMEPAGE_VAR_PROXMOXBACKUP_TOKEN` | PBS widget | Token secret only |
 | `HOMEPAGE_VAR_JELLYFIN_URL` | Jellyfin widget | Public/internal Jellyfin base URL |
 | `HOMEPAGE_VAR_JELLYFIN_KEY` | Jellyfin widget | Jellyfin API key |
 | `HOMEPAGE_VAR_JELLYSEERR_KEY` | Seerr/Jellyseerr widget | Jellyseerr API key |
 | `HOMEPAGE_VAR_SPEEDTEST_URL` | Speedtest widget | Internal Speedtest Tracker base URL |
 | `HOMEPAGE_VAR_SPEEDTEST_API_TOKEN` | Speedtest widget | Required for widget version 2 |
-| `HOMEPAGE_VAR_QBITTORRENT_USERNAME` | qBittorrent widget | WebUI username |
-| `HOMEPAGE_VAR_QBITTORRENT_PASSWORD` | qBittorrent widget | WebUI password |
-| `HOMEPAGE_VAR_QBITTORRENT_DASHBOARD_TOKEN` | qBittorrent custom API widget | Token for qBittorrent dashboard proxy |
+| `HOMEPAGE_VAR_QBIT_URL` | qBittorrent widget | Internal qBittorrent WebUI URL |
+| `HOMEPAGE_VAR_QBIT_USERNAME` | qBittorrent widget | WebUI username |
+| `HOMEPAGE_VAR_QBIT_PASSWORD` | qBittorrent widget | WebUI password |
 | `HOMEPAGE_VAR_RADARR_API_KEY` | Radarr widget | Radarr API key |
 | `HOMEPAGE_VAR_SONARR_API_KEY` | Sonarr widget | Sonarr API key |
 | `HOMEPAGE_VAR_PROWLARR_API_KEY` | Prowlarr widget | Prowlarr API key |
@@ -108,7 +110,8 @@ Never commit real values.
 
 Current config groups:
 
-- `Infrastructure`: Proxmox VE, PBS, Beszel, OmniRoute Usage
+- `Infrastructure`: Proxmox VE, PBS, OmniRoute Usage
+- `Monitoring`: Beszel
 - `Services`: Jellyfin, Speedtest Tracker, Jellyseerr, Portainer, VaultWarden, n8n, OmniRoute, Hindsight, SyncTube
 - `Arr-suite`: Radarr, Sonarr, Prowlarr, qBittorrent, Bazarr, Tdarr, FlareSolverr, Lingarr
 
