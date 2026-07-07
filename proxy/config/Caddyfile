@@ -1,48 +1,53 @@
 {
-	admin 0.0.0.0:2019
-	dynamic_dns {
-		provider cloudflare {env.CF_API_TOKEN}
-		domains {
-			liftlab.dev play vaultwarden flaresolverr
-		}
-		dynamic_domains
-		versions ipv4
-	}
+    admin 0.0.0.0:2019
+    dynamic_dns {
+        provider cloudflare {env.CF_API_TOKEN}
+        domains {
+            liftlab.dev @ play vaultwarden flaresolverr omniroute
+        }
+        dynamic_domains
+        versions ipv4 ipv6
+    }
 }
 
 liftlab.dev {
-	tls {
-		dns cloudflare {env.CF_API_TOKEN}
-		propagation_delay 2m
-		resolvers 1.1.1.1
-	}
-	reverse_proxy http://192.168.1.114:3000
+    tls {
+        dns cloudflare {env.CF_API_TOKEN}
+        propagation_delay 2m
+        resolvers 1.1.1.1
+    }
+    reverse_proxy http://192.168.1.114:3000
 }
 
 *.liftlab.dev {
-	tls {
-		dns cloudflare {env.CF_API_TOKEN}
-		propagation_delay 2m
-		resolvers 1.1.1.1
-	}
+    tls {
+        dns cloudflare {env.CF_API_TOKEN}
+        propagation_delay 2m
+        resolvers 1.1.1.1
+    }
 
-	@jellyfin host play.liftlab.dev
-	handle @jellyfin {
-		reverse_proxy http://192.168.1.104:8096
-	}
+    @jellyfin host play.liftlab.dev
+    handle @jellyfin {
+        reverse_proxy http://192.168.1.104:8096
+    }
 
-	@vaultwarden host vaultwarden.liftlab.dev
-	handle @vaultwarden {
-		reverse_proxy https://192.168.1.106:8000 {
-			transport http {
-				tls
-				tls_insecure_skip_verify
-			}
-		}
-	}
+    @vaultwarden host vaultwarden.liftlab.dev
+    handle @vaultwarden {
+        reverse_proxy https://192.168.1.106:8000 {
+            transport http {
+                tls
+                tls_insecure_skip_verify
+            }
+        }
+    }
 
-	@flaresolverr host flaresolverr.liftlab.dev
-	handle @flaresolverr {
-		reverse_proxy http://192.168.1.103:8191
-	}
+    @flaresolverr host flaresolverr.liftlab.dev
+    handle @flaresolverr {
+        reverse_proxy http://192.168.1.103:8191
+    }
+
+    @omniroute host omniroute.liftlab.dev
+    handle @omniroute {
+        reverse_proxy http://192.168.1.109:20128
+    }
 }
