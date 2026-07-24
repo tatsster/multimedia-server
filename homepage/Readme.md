@@ -57,7 +57,7 @@ If Homepage was deployed with Docker instead, restart the container/stack instea
 
 ## PVE monitoring
 
-Use Beszel as the single source of truth for Proxmox host monitoring, history, and alerts. Homepage keeps Beszel as a normal service link/monitor card in `services.yaml`:
+Use Beszel as the single source of truth for Proxmox host monitoring, history, and alerts. Homepage keeps Beszel as a normal service link/monitor card in `services.yaml`. Hindsight is deprecated/removed; OpenViking is the active knowledge/memory service:
 
 ```yaml
 - Beszel:
@@ -111,7 +111,7 @@ Never commit real values.
 Current config groups:
 
 - `Infrastructure`: Proxmox VE, PBS, OmniRoute Usage
-- `Services`: Jellyfin, Speedtest Tracker, Jellyseerr, Portainer, VaultWarden, n8n, OmniRoute, Hindsight, SyncTube, Beszel
+- `Services`: Jellyfin, Speedtest Tracker, Jellyseerr, Portainer, VaultWarden, n8n, OmniRoute, SyncTube, Beszel, OpenViking, Proxmox MCP Plus, ESP32 Manager
 - `Arr-suite`: Radarr, Sonarr, Prowlarr, qBittorrent, Bazarr, Tdarr, FlareSolverr, Lingarr
 
 ## Public routing
