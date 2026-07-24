@@ -1,0 +1,19 @@
+[Unit]
+Description=OmniRoute AI Gateway
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/omniroute
+WorkingDirectory=/root/.omniroute
+Restart=always
+RestartSec=5
+Environment=PORT=20128
+Environment=DATA_DIR=/root/.omniroute
+# Keep secrets in an uncommitted env file instead of the unit when rebuilding.
+EnvironmentFile=-/root/.services/omniroute/omniroute.env
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

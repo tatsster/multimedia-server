@@ -1,0 +1,192 @@
+---
+- Infrastructure:
+    - Proxmox VE:
+        icon: proxmox.png
+        href: "{{HOMEPAGE_VAR_PROXMOXVE_URL}}"
+        description: Proxmox cluster
+        widget:
+          type: proxmox
+          url: "{{HOMEPAGE_VAR_PROXMOXVE_URL}}"
+          username: "{{HOMEPAGE_VAR_PROXMOXVE_USERNAME}}"
+          password: "{{HOMEPAGE_VAR_PROXMOXVE_TOKEN}}"
+
+    - Proxmox Backup Server:
+        icon: proxmox.png
+        href: https://pbs.liftlab.dev
+        description: Backup server
+        widget:
+          type: proxmoxbackupserver
+          url: "{{HOMEPAGE_VAR_PROXMOXBACKUP_URL}}"
+          username: "{{HOMEPAGE_VAR_PROXMOXBACKUP_USERNAME}}"
+          password: "{{HOMEPAGE_VAR_PROXMOXBACKUP_TOKEN}}"
+
+    - OmniRoute Usage:
+        icon: openai.png
+        href: https://omniroute.liftlab.dev
+        description: 7-day LLM usage summary
+        widget:
+          type: customapi
+          url: "http://192.168.1.109:20129/summary?range=7d"
+          refreshInterval: 60000
+          headers:
+            Authorization: "Bearer {{HOMEPAGE_VAR_OMNIROUTE_DASHBOARD_TOKEN}}"
+          display: block
+          mappings:
+            - field: summary.totalRequests
+              label: Requests
+              format: number
+            - field: summary.totalTokens
+              label: Tokens
+              format: number
+            - field: summary.successRatePct
+              label: Success
+              format: percent
+            - field: summary.avgLatencyMs
+              label: Latency
+              suffix: ms
+            - field: summary.uniqueModels
+              label: Models
+              format: number
+            - field: summary.totalCost
+              label: Cost
+              prefix: $
+              format: float
+
+- Services:
+    - Jellyfin:
+        icon: jellyfin.png
+        href: https://play.liftlab.dev
+        siteMonitor: http://192.168.1.104:8096
+        description: Media server
+        widget:
+          type: jellyfin
+          url: "{{HOMEPAGE_VAR_JELLYFIN_URL}}"
+          key: "{{HOMEPAGE_VAR_JELLYFIN_KEY}}"
+          version: 2
+          enableNowPlaying: true
+          enableBlocks: true
+          enableUser: true
+
+    - Speedtest Tracker:
+        icon: librespeed.png
+        href: https://speedtest.liftlab.dev
+        siteMonitor: http://192.168.1.113
+        description: Internet speed tests
+        widget:
+          type: speedtest
+          url: "{{HOMEPAGE_VAR_SPEEDTEST_URL}}"
+          version: 2
+          key: "{{HOMEPAGE_VAR_SPEEDTEST_API_TOKEN}}"
+          bitratePrecision: 2
+
+    - Jellyseerr:
+        icon: jellyseerr.png
+        href: https://media.liftlab.dev
+        siteMonitor: http://192.168.1.105:5055
+        description: Media requests
+
+    - Portainer:
+        icon: portainer.png
+        href: https://portainer.liftlab.dev
+        description: Container management
+
+    - VaultWarden:
+        icon: vaultwarden.png
+        href: https://vaultwarden.liftlab.dev
+        description: Password vault
+
+    - n8n:
+        icon: n8n.png
+        href: https://n8n.liftlab.dev
+        siteMonitor: http://192.168.1.107:5678
+        description: Automation
+
+    - OmniRoute:
+        icon: openai.png
+        href: https://omniroute.liftlab.dev
+        siteMonitor: http://192.168.1.109:20128
+        description: LLM routing
+
+    - SyncTube:
+        icon: mdi-youtube
+        href: https://party.liftlab.dev
+        siteMonitor: http://192.168.1.112:4200
+        description: YouTube watch party
+
+    - Beszel:
+        icon: beszel.png
+        href: https://beszel.liftlab.dev
+        siteMonitor: http://192.168.1.115:8090
+        description: Proxmox monitoring
+
+    - OpenViking:
+        icon: mdi-viking
+        href: http://192.168.1.118:1933
+        siteMonitor: http://192.168.1.118:1933/health
+        description: Knowledge base and memory provider
+
+    - Proxmox MCP Plus:
+        icon: mdi-api
+        href: http://192.168.1.116:8000/mcp
+        siteMonitor: http://192.168.1.116:8000/mcp
+        description: Proxmox MCP API bridge
+
+    - ESP32 Manager:
+        icon: mdi-chip
+        href: http://192.168.1.117:8080
+        siteMonitor: http://192.168.1.117:8080
+        description: Mini Happie Manager
+
+- Arr-suite:
+    - Radarr:
+        icon: radarr.png
+        href: https://radarr.liftlab.dev
+        siteMonitor: http://192.168.1.103:7878
+        widget:
+          type: radarr
+          url: http://192.168.1.103:7878
+          key: "{{HOMEPAGE_VAR_RADARR_API_KEY}}"
+
+    - Sonarr:
+        icon: sonarr.png
+        href: https://sonarr.liftlab.dev
+        siteMonitor: http://192.168.1.103:8989
+        widget:
+          type: sonarr
+          url: http://192.168.1.103:8989
+          key: "{{HOMEPAGE_VAR_SONARR_API_KEY}}"
+
+    - Prowlarr:
+        icon: prowlarr.png
+        href: https://prowlarr.liftlab.dev
+        siteMonitor: http://192.168.1.103:9696
+        widget:
+          type: prowlarr
+          url: http://192.168.1.103:9696
+          key: "{{HOMEPAGE_VAR_PROWLARR_API_KEY}}"
+
+    - qBittorrent:
+        icon: qbittorrent.png
+        href: https://torrent.liftlab.dev
+        description: Torrents via VPN
+        widget:
+          type: qbittorrent
+          url: "{{HOMEPAGE_VAR_QBIT_URL}}"
+          username: "{{HOMEPAGE_VAR_QBIT_USERNAME}}"
+          password: "{{HOMEPAGE_VAR_QBIT_PASSWORD}}"
+
+    - Bazarr:
+        icon: bazarr.png
+        href: https://bazarr.liftlab.dev
+
+    - Tdarr:
+        icon: tdarr.png
+        href: https://tdarr.liftlab.dev
+
+    - Flaresolverr:
+        icon: flaresolverr.png
+        href: https://flaresolverr.liftlab.dev
+
+    - Lingarr:
+        icon: mdi-translate
+        href: https://lingarr.liftlab.dev
