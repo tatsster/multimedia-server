@@ -27,7 +27,7 @@ dashboards/homepage/.env.example
 
 These files are secret-safe templates for the live `/opt/dashboards/homepage/config` directory. Real tokens/passwords stay only in the live Homepage environment or local secret files.
 
-No custom Homepage JavaScript widgets or custom PVE metrics services are required. PVE host monitoring/history/alerts should be handled by Beszel.
+No custom Homepage JavaScript widgets or custom PVE metrics services are required. PVE host monitoring/history/alerts should be handled by Beszel. Glances is used for live top-row Proxmox host CPU package temperature, uptime, and NVMe temperature widgets, and is kept as a lightweight Infrastructure link/monitor for live Proxmox host metrics.
 
 ## Restore / update config
 
@@ -65,7 +65,17 @@ Use Beszel as the single source of truth for Proxmox host monitoring, history, a
     description: Proxmox monitoring
 ```
 
-The old separate top-row PVE temp/uptime widget has been removed from `widgets.yaml`; use Beszel instead of maintaining another metrics service and extra LAN port.
+Glances is available for live host metrics from the Proxmox shell and is exposed through the Cloudflare Tunnel at `https://glances.liftlab.dev`. Homepage keeps it in the `Infrastructure` group as a simple service card with the internal `siteMonitor` endpoint:
+
+```yaml
+- Glances:
+    icon: glances.png
+    href: https://glances.liftlab.dev
+    siteMonitor: http://192.168.1.101:61208
+    description: Live Proxmox host metrics
+```
+
+Top-row live PVE widgets are configured in `widgets.yaml` using the Glances info widget. `PVE Main` shows the CPU package temperature plus uptime by matching the `Package id` sensor label, and `PVE NVMe` shows the NVMe composite temperature by matching the `Composite` sensor label from `http://192.168.1.101:61208/api/4/sensors`. Use Beszel for history/alerts and Glances for live process/host details.
 
 ## Environment variables / secrets
 
@@ -108,7 +118,7 @@ Never commit real values.
 
 Current config groups:
 
-- `Infrastructure`: Proxmox VE, PBS, OmniRoute Usage
+- `Infrastructure`: Proxmox VE, PBS, OmniRoute Usage, Glances
 - `Services`: Jellyfin, Speedtest Tracker, Jellyseerr, Portainer, VaultWarden, n8n, OmniRoute, SyncTube, Beszel, OpenViking, Proxmox MCP Plus, ESP32 Manager
 - `Arr-suite`: Radarr, Sonarr, Prowlarr, qBittorrent, Bazarr, Tdarr, FlareSolverr, Lingarr
 
