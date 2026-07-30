@@ -85,12 +85,6 @@
         siteMonitor: http://192.168.1.105:5055
         description: Media requests
 
-    - Wizarr:
-        icon: mdi-account-plus
-        href: https://wizarr.liftlab.dev
-        siteMonitor: http://192.168.1.119:5690
-        description: Jellyfin user invites and onboarding
-
     - Portainer:
         icon: portainer.png
         href: https://portainer.liftlab.dev
@@ -193,6 +187,8 @@
         icon: flaresolverr.png
         href: https://flaresolverr.liftlab.dev
 
-    - Lingarr:
-        icon: mdi-translate
-        href: https://lingarr.liftlab.dev
+    - Wizarr:
+        icon: mdi-account-plus
+        href: https://wizarr.liftlab.dev
+        siteMonitor: http://192.168.1.119:5690
+        description: Jellyfin user invites and onboarding

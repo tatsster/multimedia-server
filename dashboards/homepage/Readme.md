@@ -119,8 +119,8 @@ Never commit real values.
 Current config groups:
 
 - `Infrastructure`: Proxmox VE, PBS, OmniRoute Usage, Glances
-- `Services`: Jellyfin, Speedtest Tracker, Jellyseerr, Wizarr, Portainer, VaultWarden, n8n, OmniRoute, SyncTube, Beszel, OpenViking, Proxmox MCP Plus, ESP32 Manager
-- `Arr-suite`: Radarr, Sonarr, Prowlarr, qBittorrent, Bazarr, Tdarr, FlareSolverr, Lingarr
+- `Services`: Jellyfin, Speedtest Tracker, Jellyseerr, Portainer, VaultWarden, n8n, OmniRoute, SyncTube, Beszel, OpenViking, Proxmox MCP Plus, ESP32 Manager
+- `Arr-suite`: Radarr, Sonarr, Prowlarr, qBittorrent, Bazarr, Tdarr, FlareSolverr, Wizarr
 
 ## Public routing
 
