@@ -51,8 +51,4 @@ liftlab.dev {
         reverse_proxy http://192.168.1.109:20128
     }
 
-    @wizarr host wizarr.liftlab.dev
-    handle @wizarr {
-        reverse_proxy http://192.168.1.119:5690
-    }
 }
