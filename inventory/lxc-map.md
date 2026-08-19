@@ -73,6 +73,7 @@ For GPU passthrough to media/Jellyfin/Tdarr containers, see [`../services/media-
 | 114 | proxmox-mcp-plus | `192.168.1.116` | Docker/MCP service in LXC | Proxmox MCP Plus endpoint for Hermes | 8000 MCP HTTP | Docker data path TBD | [`../agent/hermes/README.md`](../agent/hermes/README.md) |
 | 115 | esp32 | `192.168.1.117` | Manual app LXC | ESP32 / Mini Happie Manager | 8080 web UI | app data path TBD | Dedicated service guide TBD |
 | 116 | openviking | `192.168.1.118` | OpenViking service LXC | OpenViking knowledge base/API | 1933 HTTP API | `/opt/openviking`, `/root/.openviking` | Dedicated service guide TBD |
+| 117 | immich | `192.168.1.120` | Community Scripts: Immich | Photo and video library with Intel OpenVINO ML | 2283 Immich HTTP | `/data/immich/upload -> /opt/immich/upload`; `/dev/dri/*` | Community Scripts Immich |
 | 201 | proxy | `192.168.1.201` | Community Scripts: Caddy, then post-install Cloudflare Tunnel/MCP | Caddy reverse proxy + Cloudflare Tunnel/MCP | 80 HTTP; 443 HTTPS; 2019 Caddy admin if enabled; cloudflared outbound | `/etc/caddy`; Caddy/Cloudflare env and tunnel credentials | [`../infrastructure/proxy/Access-Setup.md`](../infrastructure/proxy/Access-Setup.md), [`../infrastructure/proxy/config/Caddyfile.example`](../infrastructure/proxy/config/Caddyfile.example) |
 | 250 | pbs | `192.168.1.250` | Community Scripts: verify exact script | Proxmox Backup Server | 8007 PBS UI/API | `/main/backup -> /backup`; optional USB/serial mappings | TBD |
 

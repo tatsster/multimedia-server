@@ -85,6 +85,12 @@
         siteMonitor: http://192.168.1.105:5055
         description: Media requests
 
+    - Immich:
+        icon: immich.png
+        href: https://immich.liftlab.dev
+        siteMonitor: http://192.168.1.120:2283
+        description: Photo and video library
+
     - Portainer:
         icon: portainer.png
         href: https://portainer.liftlab.dev
