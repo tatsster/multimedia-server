@@ -111,7 +111,7 @@ Read:
 - [services/media-arr/arr-stack.yml](../../services/media-arr/arr-stack.yml)
 - [services/media-arr/.env.example](../../services/media-arr/.env.example)
 
-The current live UI/settings inventory has been captured for qBittorrent, Prowlarr, Sonarr, Radarr, Bazarr, Tdarr, Lingarr, FlareSolverr, QBWrapper, Jellyfin, and Jellyseerr. Recreate secrets from the app UIs as documented instead of committing real keys/passwords.
+Current live UI/settings inventory covers qBittorrent, Prowlarr, Sonarr, Radarr, Bazarr, Tdarr, FlareSolverr, QBWrapper, Dockge, Jellyfin, and Jellyseerr. Recreate secrets from app UIs as documented instead of committing real keys/passwords.
 
 ### 6. AI services
 

@@ -254,24 +254,24 @@ The current Docker deployment uses:
 
 ```text
 Install dir: /root/omniroute
-Compose file: /root/services/omniroute/docker-compose.yml
-Data dir: /root/services/omniroute/data
-Generated secrets: /root/services/omniroute/data/server.env
+Compose file: /root/omniroute/docker-compose.yml
+Data dir: /root/omniroute/data
+Generated secrets: /root/omniroute/data/server.env
 ```
 
-Do not manually add `JWT_SECRET` to `/root/services/omniroute/.env`. OmniRoute generates and reads it from `data/server.env`.
+Do not manually add `JWT_SECRET` to `/root/omniroute/.env`. OmniRoute generates and reads it from `data/server.env`.
 
 ## Metrics proxy for dashboards
 
 Dashboard clients should use the small generic metrics proxy in:
 
 ```text
-services/omniroute/metrics-infrastructure/proxy/
+services/omniroute/metrics-proxy/
 ```
 
 Reason: `/api/usage/analytics` is a dashboard API. It accepts the `auth_token` cookie, but rejects the normal OpenAI-compatible `/v1` API key and also rejects the dashboard JWT when sent as `Authorization: Bearer`.
 
-The proxy runs beside OmniRoute on CT `107`, reads `/root/services/omniroute/data/server.env` read-only, creates a short-lived dashboard JWT, calls OmniRoute with `Cookie: auth_token=...`, and exposes a simple token-protected endpoint:
+Proxy runs beside OmniRoute on CT `107`. It reads `/root/omniroute/data/server.env` while root, drops to UID/GID `1000`, creates short-lived dashboard JWT, calls OmniRoute with `Cookie: auth_token=...`, and exposes token-protected endpoint:
 
 ```text
 http://192.168.1.109:20129/summary?range=7d
@@ -280,7 +280,7 @@ http://192.168.1.109:20129/summary?range=7d
 Build/run guide:
 
 ```text
-services/omniroute/metrics-infrastructure/proxy/README.md
+services/omniroute/metrics-proxy/README.md
 ```
 
 ## Health / verification

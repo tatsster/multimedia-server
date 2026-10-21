@@ -14,6 +14,7 @@ const CACHE_SECONDS = Number(process.env.CACHE_SECONDS || process.env.OMNIROUTE_
 const TIMEOUT_MS = Number(process.env.TIMEOUT_MS || process.env.OMNIROUTE_METRICS_PROXY_TIMEOUT_MS || 10000);
 
 let cache = { key: '', expires: 0, body: null };
+let jwtSecret = '';
 
 function json(res, status, body) {
   const payload = JSON.stringify(body);
@@ -24,16 +25,40 @@ function json(res, status, body) {
   res.end(payload);
 }
 
-function readServerEnv(path) {
+function loadJwtSecret(path, read = fs.readFileSync) {
+  let text;
+  try {
+    text = read(path, 'utf8');
+  } catch (error) {
+    throw new Error(`${error.code || 'READ_ERROR'} reading ${path}`);
+  }
   const env = {};
-  const text = fs.readFileSync(path, 'utf8');
   for (const rawLine of text.split(/\r?\n/)) {
     const line = rawLine.trim();
     if (!line || line.startsWith('#') || !line.includes('=')) continue;
     const idx = line.indexOf('=');
-    env[line.slice(0, idx)] = line.slice(idx + 1);
+    env[line.slice(0, idx)] = line.slice(idx + 1).trim();
   }
-  return env;
+  if (!env.JWT_SECRET) throw new Error(`JWT_SECRET missing from ${path}`);
+  return env.JWT_SECRET;
+}
+
+function dropPrivileges(proc = process, uid = 1000, gid = 1000) {
+  proc.setgroups([]);
+  proc.setgid(gid);
+  proc.setuid(uid);
+  if (proc.getgid() !== gid || proc.getuid() !== uid) {
+    throw new Error(`privilege drop failed: uid=${proc.getuid()} gid=${proc.getgid()}`);
+  }
+}
+
+function prepareRuntime({
+  loadSecret = () => loadJwtSecret(SERVER_ENV),
+  drop = () => dropPrivileges(process),
+} = {}) {
+  const secret = loadSecret();
+  drop();
+  return secret;
 }
 
 function b64url(value) {
@@ -41,9 +66,8 @@ function b64url(value) {
   return input.toString('base64url');
 }
 
-function makeDashboardJwt() {
-  const secret = readServerEnv(SERVER_ENV).JWT_SECRET;
-  if (!secret) throw new Error(`JWT_SECRET missing from ${SERVER_ENV}`);
+function makeDashboardJwt(secret = jwtSecret) {
+  if (!secret) throw new Error('JWT_SECRET not loaded');
   const now = Math.floor(Date.now() / 1000);
   const payload = { authenticated: true, iat: now, exp: now + 300 };
   const data = `${b64url({ alg: 'HS256', typ: 'JWT' })}.${b64url(payload)}`;
@@ -167,6 +191,13 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-server.listen(PORT, HOST, () => {
-  console.log(`[metrics-proxy] listening on ${HOST}:${PORT}; upstream=${OMNIROUTE_URL}; serverEnv=${SERVER_ENV}`);
-});
+function start() {
+  jwtSecret = prepareRuntime();
+  server.listen(PORT, HOST, () => {
+    console.log(`[metrics-proxy] listening on ${HOST}:${PORT}; upstream=${OMNIROUTE_URL}; uid=${process.getuid()} gid=${process.getgid()}`);
+  });
+}
+
+module.exports = { dropPrivileges, loadJwtSecret, makeDashboardJwt, prepareRuntime, start };
+
+if (require.main === module) start();

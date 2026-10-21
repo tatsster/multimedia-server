@@ -84,6 +84,15 @@
         href: https://media.liftlab.dev
         siteMonitor: http://192.168.1.105:5055
         description: Media requests
+        widget:
+          type: seerr
+          url: http://192.168.1.105:5055
+          key: "{{HOMEPAGE_VAR_JELLYSEERR_KEY}}"
+          fields:
+            - pending
+            - processing
+            - completed
+            - issues
 
     - Immich:
         icon: immich.png
@@ -95,6 +104,12 @@
         icon: portainer.png
         href: https://portainer.liftlab.dev
         description: Container management
+
+    - Dockge:
+        icon: dockge.png
+        href: https://dockge.liftlab.dev
+        siteMonitor: http://192.168.1.103:5001
+        description: Compose stack management
 
     - VaultWarden:
         icon: vaultwarden.png

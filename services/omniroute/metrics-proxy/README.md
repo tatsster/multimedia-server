@@ -14,11 +14,12 @@ Dashboard/client -> OmniRoute metrics proxy -> OmniRoute dashboard API
 
 The proxy:
 
-1. Reads OmniRoute's local `JWT_SECRET` from `/root/services/omniroute/data/server.env`.
-2. Creates a fresh short-lived dashboard JWT internally.
-3. Sends that JWT to OmniRoute as `Cookie: auth_token=...`.
-4. Returns simplified JSON from `/summary`.
-5. Protects `/summary` with a separate shared Bearer token for dashboard clients.
+1. Starts as root and reads OmniRoute's local `JWT_SECRET` from read-only `server.env` mount.
+2. Drops permanently to UID/GID `1000` before opening HTTP listener.
+3. Creates a fresh short-lived dashboard JWT internally from in-memory secret.
+4. Sends that JWT to OmniRoute as `Cookie: auth_token=...`.
+5. Returns simplified JSON from `/summary`.
+6. Protects `/summary` with a separate shared Bearer token for dashboard clients.
 
 ## Live target used in this homelab
 
@@ -26,8 +27,8 @@ The proxy:
 CTID: 107
 OmniRoute dashboard/API: http://192.168.1.109:20128
 Metrics proxy: http://192.168.1.109:20129
-OmniRoute data/secrets file on CT107: /root/services/omniroute/data/server.env
-Proxy env file on CT107: /root/services/omniroute/metrics-proxy.env
+OmniRoute data/secrets file on CT107: /root/omniroute/data/server.env
+Proxy env file on CT107: /root/omniroute/metrics-proxy.env
 Container name: omniroute-metrics-proxy
 Image name: omniroute-metrics-proxy:local
 ```
@@ -41,11 +42,12 @@ OMNIROUTE_URL=http://172.17.0.1:20128
 ## Files
 
 ```text
-services/omniroute/metrics-infrastructure/proxy/server.js
-services/omniroute/metrics-infrastructure/proxy/package.json
-services/omniroute/metrics-infrastructure/proxy/Dockerfile
-services/omniroute/metrics-infrastructure/proxy/docker-compose.example.yml
-services/omniroute/metrics-infrastructure/proxy/.env.example
+services/omniroute/metrics-proxy/server.js
+services/omniroute/metrics-proxy/server.test.js
+services/omniroute/metrics-proxy/package.json
+services/omniroute/metrics-proxy/Dockerfile
+services/omniroute/metrics-proxy/docker-compose.example.yml
+services/omniroute/metrics-proxy/.env.example
 ```
 
 ## API
@@ -69,7 +71,7 @@ Expected:
 Auth required when `OMNIROUTE_DASHBOARD_TOKEN` is set.
 
 ```bash
-TOKEN="$(grep '^OMNIROUTE_DASHBOARD_TOKEN=' /root/services/omniroute/metrics-proxy.env | cut -d= -f2-)"
+TOKEN="$(grep '^OMNIROUTE_DASHBOARD_TOKEN=' /root/omniroute/metrics-proxy.env | cut -d= -f2-)"
 
 curl -sS \
   -H "Authorization: Bearer $TOKEN" \
@@ -159,28 +161,28 @@ cd /root/repos/multimedia-server/services/omniroute/metrics-proxy
 docker build -t omniroute-metrics-proxy:local .
 
 mkdir -p /root/omniroute
-if [ ! -f /root/services/omniroute/metrics-proxy.env ]; then
-  cp .env.example /root/services/omniroute/metrics-proxy.env
+if [ ! -f /root/omniroute/metrics-proxy.env ]; then
+  cp .env.example /root/omniroute/metrics-proxy.env
   TOKEN="$(openssl rand -hex 32)"
-  sed -i "s|^OMNIROUTE_DASHBOARD_TOKEN=.*|OMNIROUTE_DASHBOARD_TOKEN=${TOKEN}|" /root/services/omniroute/metrics-proxy.env
+  sed -i "s|^OMNIROUTE_DASHBOARD_TOKEN=.*|OMNIROUTE_DASHBOARD_TOKEN=${TOKEN}|" /root/omniroute/metrics-proxy.env
 fi
 
-chmod 600 /root/services/omniroute/metrics-proxy.env
-sed -i "s|^OMNIROUTE_URL=.*|OMNIROUTE_URL=http://172.17.0.1:20128|" /root/services/omniroute/metrics-proxy.env
-sed -i "s|^PORT=.*|PORT=20129|" /root/services/omniroute/metrics-proxy.env
+chmod 600 /root/omniroute/metrics-proxy.env
+sed -i "s|^OMNIROUTE_URL=.*|OMNIROUTE_URL=http://172.17.0.1:20128|" /root/omniroute/metrics-proxy.env
+sed -i "s|^PORT=.*|PORT=20129|" /root/omniroute/metrics-proxy.env
 
 docker rm -f omniroute-metrics-proxy 2>/dev/null || true
 
 docker run -d \
   --name omniroute-metrics-proxy \
   --restart unless-stopped \
-  --env-file /root/services/omniroute/metrics-proxy.env \
+  --env-file /root/omniroute/metrics-proxy.env \
   -p 20129:20129 \
-  -v /root/services/omniroute/data:/app/omniroute-data:ro \
+  -v /root/omniroute/data:/app/omniroute-data:ro \
   omniroute-metrics-proxy:local
 
 curl -sS http://127.0.0.1:20129/health
-TOKEN="$(grep "^OMNIROUTE_DASHBOARD_TOKEN=" /root/services/omniroute/metrics-proxy.env | cut -d= -f2-)"
+TOKEN="$(grep "^OMNIROUTE_DASHBOARD_TOKEN=" /root/omniroute/metrics-proxy.env | cut -d= -f2-)"
 curl -sS -o /dev/null -w "summary_http=%{http_code}\n" \
   -H "Authorization: Bearer ${TOKEN}" \
   "http://127.0.0.1:20129/summary?range=7d"
@@ -198,6 +200,7 @@ cd /root/repos/multimedia-server
 git pull --ff-only
 
 cd /root/repos/multimedia-server/services/omniroute/metrics-proxy
+docker run --rm -v "$PWD:/app:ro" -w /app node:24-alpine node --test server.test.js
 docker build -t omniroute-metrics-proxy:local .
 ```
 
@@ -206,18 +209,18 @@ docker build -t omniroute-metrics-proxy:local .
 Create a private env file on CT107:
 
 ```bash
-cp /root/repos/multimedia-server/services/omniroute/metrics-infrastructure/proxy/.env.example /root/services/omniroute/metrics-proxy.env
-chmod 600 /root/services/omniroute/metrics-proxy.env
+cp /root/repos/multimedia-server/services/omniroute/metrics-proxy/.env.example /root/omniroute/metrics-proxy.env
+chmod 600 /root/omniroute/metrics-proxy.env
 ```
 
 Generate the shared dashboard/proxy token:
 
 ```bash
 TOKEN="$(openssl rand -hex 32)"
-sed -i "s|^OMNIROUTE_DASHBOARD_TOKEN=.*|OMNIROUTE_DASHBOARD_TOKEN=$TOKEN|" /root/services/omniroute/metrics-proxy.env
+sed -i "s|^OMNIROUTE_DASHBOARD_TOKEN=.*|OMNIROUTE_DASHBOARD_TOKEN=$TOKEN|" /root/omniroute/metrics-proxy.env
 ```
 
-Do not commit `/root/services/omniroute/metrics-proxy.env` or the generated token.
+Do not commit `/root/omniroute/metrics-proxy.env` or the generated token.
 
 ## Run with Docker
 
@@ -227,9 +230,9 @@ docker rm -f omniroute-metrics-proxy 2>/dev/null || true
 docker run -d \
   --name omniroute-metrics-proxy \
   --restart unless-stopped \
-  --env-file /root/services/omniroute/metrics-proxy.env \
+  --env-file /root/omniroute/metrics-proxy.env \
   -p 20129:20129 \
-  -v /root/services/omniroute/data:/app/omniroute-data:ro \
+  -v /root/omniroute/data:/app/omniroute-data:ro \
   omniroute-metrics-proxy:local
 ```
 
@@ -238,7 +241,7 @@ Verify:
 ```bash
 curl -s http://127.0.0.1:20129/health
 
-TOKEN="$(grep '^OMNIROUTE_DASHBOARD_TOKEN=' /root/services/omniroute/metrics-proxy.env | cut -d= -f2-)"
+TOKEN="$(grep '^OMNIROUTE_DASHBOARD_TOKEN=' /root/omniroute/metrics-proxy.env | cut -d= -f2-)"
 curl -s -H "Authorization: Bearer $TOKEN" \
   "http://127.0.0.1:20129/summary?range=7d" | jq '.summary'
 ```
@@ -248,9 +251,9 @@ curl -s -H "Authorization: Bearer $TOKEN" \
 Copy the example compose file next to your private env file if you prefer Compose:
 
 ```bash
-mkdir -p /root/services/omniroute/metrics-proxy
-cp /root/repos/multimedia-server/services/omniroute/metrics-infrastructure/proxy/docker-compose.example.yml /root/services/omniroute/metrics-infrastructure/proxy/docker-compose.yml
-cd /root/services/omniroute/metrics-proxy
+mkdir -p /root/omniroute/metrics-proxy
+cp /root/repos/multimedia-server/services/omniroute/metrics-proxy/docker-compose.example.yml /root/omniroute/metrics-proxy/docker-compose.yml
+cd /root/omniroute/metrics-proxy
 docker compose up -d --build
 ```
 
@@ -260,7 +263,7 @@ For any dashboard client, set:
 
 ```text
 OMNIROUTE_METRICS_PROXY_URL=http://192.168.1.109:20129
-OMNIROUTE_DASHBOARD_TOKEN=<same token from /root/services/omniroute/metrics-proxy.env>
+OMNIROUTE_DASHBOARD_TOKEN=<same token from /root/omniroute/metrics-proxy.env>
 ```
 
 Then call:
@@ -279,7 +282,9 @@ Authorization: Bearer ${OMNIROUTE_DASHBOARD_TOKEN}
 
 - Keep the proxy on LAN/internal networks only.
 - Keep `OMNIROUTE_DASHBOARD_TOKEN` private. It is not an OmniRoute `/v1` API key, but it grants access to usage metrics through this proxy.
-- Do not expose `/root/services/omniroute/data/server.env` to any container except this proxy.
+- Do not expose `/root/omniroute/data/server.env` to any container except this proxy.
 - The mounted OmniRoute data directory is read-only.
+- Keep `server.env` root-owned and mode `0600`; proxy reads it before privilege drop.
+- Proxy HTTP process runs as UID/GID `1000` after startup.
 - The proxy creates 5-minute JWTs internally and does not log secrets.
-- Do not manually add `JWT_SECRET` to `/root/services/omniroute/.env`; OmniRoute manages it in `/root/services/omniroute/data/server.env`.
+- Do not manually add `JWT_SECRET` to `/root/omniroute/.env`; OmniRoute manages it in `/root/omniroute/data/server.env`.

@@ -139,6 +139,8 @@ services:
     image: ghcr.io/flaresolverr/flaresolverr:latest
     container_name: flaresolverr
     restart: always
+    volumes:
+      - flaresolverr_config:/config
     ports:
       - 8191:8191
     environment:
@@ -166,20 +168,7 @@ services:
       servarrnetwork:
         ipv4_address: 172.18.0.9
 
-  lingarr:
-    image: lingarr/lingarr:latest
-    container_name: lingarr
-    restart: always
-    environment:
-      - TZ=${TZ:-Asia/Ho_Chi_Minh}
-      - ASPNETCORE_URLS=http://+:9876
-      - MAX_CONCURRENT_JOBS=2
-    ports:
-      - 9876:9876
-    volumes:
-      - /media/movies:/movies
-      - /media/tv:/tv
-      - /docker/lingarr:/app/config
-    networks:
-      servarrnetwork:
-        ipv4_address: 172.18.0.10
+volumes:
+  flaresolverr_config:
+    external: true
+    name: ad8ad0d58ebbdf01785b61c4e5788b881c76ac413cd9df6f61af9eae10ecff38

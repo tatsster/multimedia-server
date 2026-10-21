@@ -35,12 +35,12 @@ Running containers on CT 101:
 | `radarr` | `ghcr.io/linuxserver/radarr:latest` | `7878` | `/docker/radarr` |
 | `bazarr` | `lscr.io/linuxserver/bazarr:latest` | `6767` | `/docker/bazarr` |
 | `tdarr` | `ghcr.io/haveagitgat/tdarr:latest` | `8265`, `8266` | `/docker/tdarr`, `/media` |
-| `flaresolverr` | `ghcr.io/flaresolverr/flaresolverr:latest` | `8191` | container only |
+| `flaresolverr` | `ghcr.io/flaresolverr/flaresolverr:latest` | `8191` | external volume at `/config` |
 | `qbproxy` | `ghcr.io/panonim/qbwrapper:latest` | `9911` | env only |
-| `lingarr` | `lingarr/lingarr:latest` | `9876` | `/docker/lingarr` |
-| `portainer` | `portainer/portainer-ce:lts` | `9443`, `8000` | Portainer-managed |
+| `dockge` | `louislam/dockge:latest` | `5001` | `/opt/dockge`, `/opt/stacks` |
+| `portainer` | `portainer/portainer-ce:lts` | `9443`, `8000` | rollback only while health gate fails |
 
-The live arr stack was originally created by Portainer. Docker labels show compose project `servarr` and service config path `/data/compose/3/docker-compose.yml`, but that Portainer internal path is not visible in this LXC shell. The repo copy `services/media-arr/arr-stack.yml` is therefore the canonical rebuild compose file.
+Dockge manages live compose project `servarr` from `/opt/stacks/servarr/compose.yaml`. Repo copy `services/media-arr/arr-stack.yml` is canonical secret-safe rebuild compose. Portainer data remains intact for rollback.
 
 ### CT 102 — `jellyfin`
 
@@ -292,7 +292,7 @@ Enabled subtitle providers observed:
 
 Provider credentials are not stored here. Recreate them from each provider account page and enter them in Bazarr -> Settings -> Providers.
 
-## Tdarr, Lingarr, FlareSolverr, QBWrapper
+## Tdarr, FlareSolverr, QBWrapper
 
 ### Tdarr
 
@@ -307,16 +307,6 @@ Provider credentials are not stored here. Recreate them from each provider accou
 | GPU device | `/dev/dri:/dev/dri` |
 | Volumes | `/docker/tdarr/server`, `/docker/tdarr/configs`, `/docker/tdarr/logs`, `/media` |
 
-### Lingarr
-
-| Setting | Value |
-|---|---|
-| Port | `9876` |
-| Max concurrent jobs | `2` |
-| Movie mount | `/media/movies -> /movies` |
-| TV mount | `/media/tv -> /tv` |
-| Config | `/docker/lingarr -> /app/config` |
-
 ### FlareSolverr
 
 | Setting | Value |
@@ -325,6 +315,7 @@ Provider credentials are not stored here. Recreate them from each provider accou
 | Log level | `info` |
 | HTML logging | disabled |
 | Captcha solver | none |
+| Config volume | external volume `ad8ad0d58ebbdf01785b61c4e5788b881c76ac413cd9df6f61af9eae10ecff38` at `/config` |
 
 ### QBWrapper / `qbproxy`
 
@@ -349,8 +340,7 @@ sudo tar -czf /root/servarr-config-backup-$(date +%F).tgz \
   docker/sonarr \
   docker/radarr \
   docker/bazarr \
-  docker/tdarr \
-  docker/lingarr
+  docker/tdarr
 ```
 
 Restore order:
@@ -361,8 +351,8 @@ Restore order:
 4. Start containers:
 
 ```bash
-cd /opt/multimedia-server/server-arr
-docker compose --env-file .env -f arr-stack.yml up -d
+cd /opt/stacks/servarr
+docker compose --project-name servarr up -d
 ```
 
 5. If not restoring old databases, configure apps in this order:

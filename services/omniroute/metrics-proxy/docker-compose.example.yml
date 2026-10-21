@@ -4,9 +4,9 @@ services:
     container_name: omniroute-metrics-proxy
     restart: unless-stopped
     env_file:
-      - /root/services/omniroute/metrics-proxy.env
+      - /root/omniroute/metrics-proxy.env
     ports:
       - "20129:20129"
     volumes:
       # Read-only access to OmniRoute-generated JWT_SECRET.
-      - /root/services/omniroute/data:/app/omniroute-data:ro
+      - /root/omniroute/data:/app/omniroute-data:ro

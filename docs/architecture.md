@@ -48,8 +48,8 @@ flowchart TB
       tdarr[Tdarr :8265/:8266]
       flaresolverr[FlareSolverr :8191]
       qbproxy[QBWrapper/qbproxy :9911]
-      lingarr[Lingarr :9876]
-      portainer[Portainer :9443/:8000]
+      dockge[Dockge :5001]
+      portainer[Portainer rollback :9443/:8000]
     end
 
     jellyfin[CT 102 Jellyfin - 192.168.1.104:8096]

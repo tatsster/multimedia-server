@@ -4,7 +4,8 @@
   "private": true,
   "description": "Token-protected metrics proxy for OmniRoute dashboard analytics.",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "node --test server.test.js"
   },
   "dependencies": {}
 }

@@ -6,6 +6,7 @@ Related files:
 
 - Live settings snapshot: [`arr-live-settings.md`](./arr-live-settings.md)
 - Rebuild compose file: [`arr-stack.yml`](./arr-stack.yml)
+- Dockge operations: [`Dockge-Operations.md`](./Dockge-Operations.md)
 - Secret-safe env template: [`.env.example`](./.env.example)
 - Proxy/public access guide: [`../../infrastructure/proxy/Access-Setup.md`](../../infrastructure/proxy/Access-Setup.md)
 
@@ -28,7 +29,7 @@ Related files:
 | Compose file | `services/media-arr/arr-stack.yml` |
 | Local env file | `services/media-arr/.env` copied from `services/media-arr/.env.example` |
 
-The live stack was originally managed by Portainer, but this repo's [`arr-stack.yml`](./arr-stack.yml) is the canonical rebuild compose file.
+Dockge manages live `servarr` stack from `/opt/stacks/servarr/compose.yaml`. Portainer remains available only because `qbproxy` fails health gate. Repo [`arr-stack.yml`](./arr-stack.yml) is canonical secret-safe rebuild compose.
 
 ### Separate media LXCs
 
@@ -51,9 +52,9 @@ Detailed inspected values are in [`arr-live-settings.md`](./arr-live-settings.md
 | Radarr | CT 101 Docker | `http://192.168.1.103:7878` | `/docker/radarr`, library root `/data/movies` inside app |
 | Bazarr | CT 101 Docker | `http://192.168.1.103:6767` | `/docker/bazarr` |
 | Tdarr | CT 101 Docker | `http://192.168.1.103:8265` | `/docker/tdarr`, `/media`, `/dev/dri` |
-| FlareSolverr | CT 101 Docker | `http://192.168.1.103:8191` | container only |
+| FlareSolverr | CT 101 Docker | `http://192.168.1.103:8191` | external Docker volume at `/config` |
 | QBWrapper/qbproxy | CT 101 Docker | `http://192.168.1.103:9911` | env only; token must match dashboard consumers |
-| Lingarr | CT 101 Docker | `http://192.168.1.103:9876` | `/docker/lingarr`, `/media/movies`, `/media/tv` |
+| Dockge | CT 101 Docker | `http://192.168.1.103:5001` | `/opt/dockge`, `/opt/stacks` |
 | Jellyfin | CT 102 service | `http://192.168.1.104:8096` | `/etc/jellyfin`, `/var/lib/jellyfin`, `/media` |
 | Jellyseerr | CT 103 service | `http://192.168.1.105:5055` | `/etc/seerr`, `/opt/seerr/config`, optional legacy `/docker/jellyseerr` |
 
@@ -94,11 +95,13 @@ lxc.mount.entry: /dev/dri/renderD128 dev/dri/renderD128 none bind,optional,creat
 
 ## Start CT 101 Docker stack
 
-Inside CT `101` after Docker is installed and the repo is available:
+Inside CT `101` after Docker is installed and stack files are restored:
 
 ```bash
-cd /root/repos/multimedia-server/server-arr
-cp .env.example .env
+mkdir -p /opt/stacks/servarr
+cp services/media-arr/arr-stack.yml /opt/stacks/servarr/compose.yaml
+cp services/media-arr/.env.example /opt/stacks/servarr/.env
+cd /opt/stacks/servarr
 chmod 0600 .env
 nano .env
 ```
@@ -114,8 +117,8 @@ AUTH_TOKEN=replace-with-random-qbwrapper-token
 Start the stack:
 
 ```bash
-docker compose --env-file .env -f arr-stack.yml up -d
-docker compose --env-file .env -f arr-stack.yml ps
+docker compose --project-name servarr up -d
+docker compose --project-name servarr ps
 ```
 
 Verify:
@@ -189,7 +192,7 @@ If restoring old `/docker/<app>` databases, most settings should come back autom
    - Connect Sonarr and Radarr using their API keys.
    - Add subtitle providers.
    - Recreate provider credentials from each provider account.
-6. **Tdarr / Lingarr**
+6. **Tdarr**
    - Confirm `/media` paths and GPU visibility where needed.
 7. **Jellyfin**
    - Mount libraries from `/media/movies` and `/media/tv`.
@@ -227,7 +230,7 @@ Back up before rebuilding:
 - `/docker/radarr`
 - `/docker/bazarr`
 - `/docker/tdarr`
-- `/docker/lingarr`
+- FlareSolverr external Docker volume.
 - Jellyfin: `/etc/jellyfin`, `/var/lib/jellyfin`.
 - Jellyseerr: `/etc/seerr`, `/opt/seerr/config`, and any active legacy config path.
 
@@ -241,8 +244,7 @@ tar -czf /root/servarr-config-backup-$(date +%F).tgz \
   docker/sonarr \
   docker/radarr \
   docker/bazarr \
-  docker/tdarr \
-  docker/lingarr
+  docker/tdarr
 ```
 
 Do not include local `.env` files in Git. Store real `.env` backups only in your private backup/password-manager process.
