@@ -60,7 +60,7 @@ For GPU passthrough to media/Jellyfin/Tdarr containers, see [`../services/media-
 | CT ID | Name | Target IP | Creation method | Role | Key ports | Host mounts / devices | Guide / script |
 |---|---|---|---|---|---|---|---|
 | 100 | ubuntu | `192.168.1.102` | Existing manual / legacy | General Ubuntu Docker/helper LXC | TBD | `/main/docker -> /docker`; `/data/media -> /media` | TBD |
-| 101 | multimedia | `192.168.1.103` | Manual repo script or media guide | Arr/media Docker stack + Dockge | 5001 Dockge; 8080 qBittorrent; 9696 Prowlarr; 8989 Sonarr; 7878 Radarr; 6767 Bazarr; 8265/8266 Tdarr; 8191 FlareSolverr; 9911 QBWrapper | `/main/docker -> /docker`; `/data/media -> /media`; `/dev/dri/*` | [`../services/media-arr/Multimedia-Setup.md`](../services/media-arr/Multimedia-Setup.md), [`../automation/pve/create-media-arr-lxc.sh`](../automation/pve/create-media-arr-lxc.sh), [`../services/media-arr/Dockge-Operations.md`](../services/media-arr/Dockge-Operations.md) |
+| 101 | multimedia | `192.168.1.103` | Manual repo script or media guide | Arr/media Docker stack + Dockge | 5001 Dockge; 8080 qBittorrent; 9696 Prowlarr; 8989 Sonarr; 7878 Radarr; 6767 Bazarr; 8265/8266 Tdarr; 8191 FlareSolverr | `/main/docker -> /docker`; `/data/media -> /media`; `/dev/dri/*` | [`../services/media-arr/Multimedia-Setup.md`](../services/media-arr/Multimedia-Setup.md), [`../automation/pve/create-media-arr-lxc.sh`](../automation/pve/create-media-arr-lxc.sh), [`../services/media-arr/Dockge-Operations.md`](../services/media-arr/Dockge-Operations.md) |
 | 102 | jellyfin | `192.168.1.104` | Community Scripts: verify exact script | Separate Jellyfin LXC | 8096 Jellyfin HTTP | `/data/library -> /media`; `/data/immich -> /immich` (read-only); `/dev/dri`; optional USB/serial mappings | [`../services/media-arr/Multimedia-Setup.md`](../services/media-arr/Multimedia-Setup.md) |
 | 103 | jellyseerr | `192.168.1.105` | Community Scripts: verify exact script | Jellyseerr requests UI | 5055 Jellyseerr | `/main/docker -> /docker`; optional USB/serial mappings | [`../services/media-arr/Multimedia-Setup.md`](../services/media-arr/Multimedia-Setup.md) |
 | 104 | vaultwarden | `192.168.1.106` | Community Scripts: verify exact script | Password manager | 80/8080 internally; proxied by Caddy/Tunnel | app data path TBD; optional USB/serial mappings | TBD |
@@ -105,7 +105,6 @@ Ports below are from [`../services/media-arr/arr-stack.yml`](../services/media-a
 | Tdarr UI | `multimedia` / `192.168.1.103` | `http://192.168.1.103:8265` | `tdarr.<domain>` | compose port `8265:8265` |
 | Tdarr server | `multimedia` / `192.168.1.103` | `192.168.1.103:8266` | usually not public | compose port `8266:8266` |
 | FlareSolverr | `multimedia` / `192.168.1.103` | `http://192.168.1.103:8191` | `flaresolverr.<domain>` if exposed | compose port `8191:8191` |
-| QBWrapper/qbproxy | `multimedia` / `192.168.1.103` | `http://192.168.1.103:9911` | usually internal for dashboard widget | compose port `9911:9911` |
 | Dockge | `multimedia` / `192.168.1.103` | `http://192.168.1.103:5001` | `dockge.<domain>` | Cloudflare Tunnel + Access; Compose management |
 | Jellyfin | `jellyfin` / `192.168.1.104` | `http://192.168.1.104:8096` | `play.<domain>` | Homepage check URL |
 | Jellyseerr | `jellyseerr` / `192.168.1.105` | `http://192.168.1.105:5055` | `media.<domain>` | Homepage check URL |

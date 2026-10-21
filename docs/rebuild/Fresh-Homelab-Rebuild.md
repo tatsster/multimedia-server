@@ -87,7 +87,7 @@ Secrets to recreate from dashboards/apps:
 - Proxmox Backup Server token: PBS UI -> Access Control -> API Tokens.
 - Jellyfin API key: Jellyfin dashboard -> API Keys.
 - Discord allowed user ID: Discord developer/user profile copy ID.
-- qBittorrent password / QBWrapper token: local app configuration.
+- qBittorrent password: local app configuration.
 
 ### 4. Proxy first, then apps
 
@@ -111,7 +111,7 @@ Read:
 - [services/media-arr/arr-stack.yml](../../services/media-arr/arr-stack.yml)
 - [services/media-arr/.env.example](../../services/media-arr/.env.example)
 
-Current live UI/settings inventory covers qBittorrent, Prowlarr, Sonarr, Radarr, Bazarr, Tdarr, FlareSolverr, QBWrapper, Dockge, Jellyfin, and Jellyseerr. Recreate secrets from app UIs as documented instead of committing real keys/passwords.
+Current live UI/settings inventory covers qBittorrent, Prowlarr, Sonarr, Radarr, Bazarr, Tdarr, FlareSolverr, Dockge, Jellyfin, and Jellyseerr. Recreate secrets from app UIs as documented instead of committing real keys/passwords.
 
 ### 6. AI services
 
@@ -186,7 +186,7 @@ Secret/account recreation checklist:
 - [ ] Upstream model provider credentials configured in OmniRoute UI only.
 - [ ] Proxmox VE token for Hermes with minimum necessary scope.
 - [ ] Jellyfin and Jellyseerr API keys recreated from their UIs.
-- [ ] qBittorrent WebUI password and QBWrapper/dashboard shared `AUTH_TOKEN`, if used.
+- [ ] qBittorrent WebUI password.
 - [ ] VPN credentials/interface name for qBittorrent, kept private and verified after restore.
 
 ### 8. Verification checklist

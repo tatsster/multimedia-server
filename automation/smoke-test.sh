@@ -85,9 +85,7 @@ check_http "Radarr" "http://${MEDIA_IP}:7878" "radarr|login|window"
 check_http "Bazarr" "http://${MEDIA_IP}:6767" "bazarr|login|window"
 check_http "Tdarr" "http://${MEDIA_IP}:8265" "tdarr|html|window"
 check_http "FlareSolverr" "http://${MEDIA_IP}:8191" "flaresolverr|ok|FlareSolverr"
-check_tcp "QBWrapper/qbproxy" "$MEDIA_IP" 9911
 check_http "Dockge" "http://${MEDIA_IP}:5001" "dockge|html|window"
-check_tcp "Portainer HTTPS" "$MEDIA_IP" 9443
 printf '\n'
 
 printf '## Jellyfin/Jellyseerr\n'

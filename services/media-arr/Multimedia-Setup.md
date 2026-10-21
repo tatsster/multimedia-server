@@ -29,7 +29,7 @@ Related files:
 | Compose file | `services/media-arr/arr-stack.yml` |
 | Local env file | `services/media-arr/.env` copied from `services/media-arr/.env.example` |
 
-Dockge manages live `servarr` stack from `/opt/stacks/servarr/compose.yaml`. Portainer remains available only because `qbproxy` fails health gate. Repo [`arr-stack.yml`](./arr-stack.yml) is canonical secret-safe rebuild compose.
+Dockge manages live `servarr` stack from `/opt/stacks/servarr/compose.yaml`. Repo [`arr-stack.yml`](./arr-stack.yml) is canonical secret-safe rebuild compose.
 
 ### Separate media LXCs
 
@@ -53,7 +53,6 @@ Detailed inspected values are in [`arr-live-settings.md`](./arr-live-settings.md
 | Bazarr | CT 101 Docker | `http://192.168.1.103:6767` | `/docker/bazarr` |
 | Tdarr | CT 101 Docker | `http://192.168.1.103:8265` | `/docker/tdarr`, `/media`, `/dev/dri` |
 | FlareSolverr | CT 101 Docker | `http://192.168.1.103:8191` | external Docker volume at `/config` |
-| QBWrapper/qbproxy | CT 101 Docker | `http://192.168.1.103:9911` | env only; token must match dashboard consumers |
 | Dockge | CT 101 Docker | `http://192.168.1.103:5001` | `/opt/dockge`, `/opt/stacks` |
 | Jellyfin | CT 102 service | `http://192.168.1.104:8096` | `/etc/jellyfin`, `/var/lib/jellyfin`, `/media` |
 | Jellyseerr | CT 103 service | `http://192.168.1.105:5055` | `/etc/seerr`, `/opt/seerr/config`, optional legacy `/docker/jellyseerr` |
@@ -106,13 +105,7 @@ chmod 0600 .env
 nano .env
 ```
 
-Fill only placeholder values:
-
-```text
-QB_USERNAME=replace-with-qbittorrent-webui-username
-QB_PASSWORD=replace-with-qbittorrent-webui-password
-AUTH_TOKEN=replace-with-random-qbwrapper-token
-```
+Review `PUID`, `PGID`, and `TZ`. VPN fields are local reminders; qBittorrent WebUI credentials live in qBittorrent config.
 
 Start the stack:
 
@@ -257,7 +250,6 @@ Do not include local `.env` files in Git. Store real `.env` backups only in your
 |---|---|
 | qBittorrent temporary password | `docker logs qbittorrent` on first start |
 | qBittorrent permanent password | qBittorrent -> Tools -> Options -> WebUI |
-| QBWrapper `AUTH_TOKEN` | Generate locally, e.g. `openssl rand -hex 32` |
 | Sonarr API key | Sonarr -> Settings -> General -> Security |
 | Radarr API key | Radarr -> Settings -> General -> Security |
 | Prowlarr API key | Prowlarr -> Settings -> General -> Security |
@@ -275,4 +267,4 @@ When changing the media stack:
 1. Update [`arr-stack.yml`](./arr-stack.yml) for compose changes.
 2. Update [`arr-live-settings.md`](./arr-live-settings.md) for UI/path/port behavior.
 3. Update [`../../inventory/lxc-map.md`](../../inventory/lxc-map.md) for CT IDs, IPs, ports, or mounts.
-5. Update [`../../infrastructure/proxy/config/Caddyfile.example`](../../infrastructure/proxy/config/Caddyfile.example) if public hostnames or reverse proxy targets change.
+4. Update [`../../infrastructure/proxy/config/Caddyfile.example`](../../infrastructure/proxy/config/Caddyfile.example) if public hostnames or reverse proxy targets change.

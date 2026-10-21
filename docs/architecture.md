@@ -47,9 +47,7 @@ flowchart TB
       bazarr[Bazarr :6767]
       tdarr[Tdarr :8265/:8266]
       flaresolverr[FlareSolverr :8191]
-      qbproxy[QBWrapper/qbproxy :9911]
       dockge[Dockge :5001]
-      portainer[Portainer rollback :9443/:8000]
     end
 
     jellyfin[CT 102 Jellyfin - 192.168.1.104:8096]
@@ -92,8 +90,7 @@ flowchart TB
   prowlarr --> radarr
   sonarr --> qb
   radarr --> qb
-  qbproxy --> qb
-  homepage --> qbproxy
+  homepage --> qb
   homepage --> jellyfin
   homepage --> pve
   homepage --> pbs
@@ -130,7 +127,7 @@ flowchart LR
 | Direct LAN access | LAN device -> LXC IP:port | Use for first setup and troubleshooting. |
 | Media requests | Jellyseerr -> Sonarr/Radarr -> qBittorrent -> media folders | Prowlarr syncs indexers to Sonarr/Radarr. |
 | Media playback | Jellyfin -> `/media` bind mount -> client | GPU passthrough supports transcoding where configured. |
-| Dashboard | Homepage -> Proxmox/PBS/Jellyfin/QBWrapper/services | Tokens live only in Homepage `.env`, not Git. |
+| Dashboard | Homepage -> Proxmox/PBS/Jellyfin/qBittorrent/services | Tokens live only in Homepage `.env`, not Git. |
 | Hermes model calls | Hermes -> OmniRoute `/v1` -> providers | Current pattern uses OmniRoute as the OpenAI-compatible gateway. |
 | Hermes MCP calls | Hermes -> Proxmox MCP Plus `/mcp` | Current endpoint is `http://192.168.1.116:8000/mcp`. |
 | Hermes knowledge/memory | Hermes -> OpenViking API | Current endpoint is `http://192.168.1.118:1933`. |

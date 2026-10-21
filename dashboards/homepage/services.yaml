@@ -100,11 +100,6 @@
         siteMonitor: http://192.168.1.120:2283
         description: Photo and video library
 
-    - Portainer:
-        icon: portainer.png
-        href: https://portainer.liftlab.dev
-        description: Container management
-
     - Dockge:
         icon: dockge.png
         href: https://dockge.liftlab.dev

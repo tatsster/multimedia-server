@@ -36,11 +36,9 @@ Running containers on CT 101:
 | `bazarr` | `lscr.io/linuxserver/bazarr:latest` | `6767` | `/docker/bazarr` |
 | `tdarr` | `ghcr.io/haveagitgat/tdarr:latest` | `8265`, `8266` | `/docker/tdarr`, `/media` |
 | `flaresolverr` | `ghcr.io/flaresolverr/flaresolverr:latest` | `8191` | external volume at `/config` |
-| `qbproxy` | `ghcr.io/panonim/qbwrapper:latest` | `9911` | env only |
 | `dockge` | `louislam/dockge:latest` | `5001` | `/opt/dockge`, `/opt/stacks` |
-| `portainer` | `portainer/portainer-ce:lts` | `9443`, `8000` | rollback only while health gate fails |
 
-Dockge manages live compose project `servarr` from `/opt/stacks/servarr/compose.yaml`. Repo copy `services/media-arr/arr-stack.yml` is canonical secret-safe rebuild compose. Portainer data remains intact for rollback.
+Dockge manages live compose project `servarr` from `/opt/stacks/servarr/compose.yaml`. Repo copy `services/media-arr/arr-stack.yml` is canonical secret-safe rebuild compose.
 
 ### CT 102 — `jellyfin`
 
@@ -292,7 +290,7 @@ Enabled subtitle providers observed:
 
 Provider credentials are not stored here. Recreate them from each provider account page and enter them in Bazarr -> Settings -> Providers.
 
-## Tdarr, FlareSolverr, QBWrapper
+## Tdarr and FlareSolverr
 
 ### Tdarr
 
@@ -317,15 +315,6 @@ Provider credentials are not stored here. Recreate them from each provider accou
 | Captcha solver | none |
 | Config volume | external volume `ad8ad0d58ebbdf01785b61c4e5788b881c76ac413cd9df6f61af9eae10ecff38` at `/config` |
 
-### QBWrapper / `qbproxy`
-
-| Setting | Value |
-|---|---|
-| Port | `9911` |
-| qBittorrent base URL | `http://172.18.0.2:8080` inside Docker network |
-| Username/password | Use `QB_USERNAME` / `QB_PASSWORD` from `.env` |
-| Auth token | Use random `AUTH_TOKEN` from `.env` |
-
 ## Backup and restore
 
 Because all CT 101 app config lives under `/docker` and media lives under `/media`, backup config separately from media files.
@@ -347,7 +336,7 @@ Restore order:
 
 1. Recreate CT 101 with `/main/docker -> /docker` and `/data/media -> /media` bind mounts.
 2. Restore `/docker/<app>` config directories if starting from backup.
-3. Copy `services/media-arr/.env.example` to `services/media-arr/.env` and fill `QB_USERNAME`, `QB_PASSWORD`, and `AUTH_TOKEN`.
+3. Copy `services/media-arr/.env.example` to `services/media-arr/.env` and review `PUID`, `PGID`, and `TZ`.
 4. Start containers:
 
 ```bash
@@ -372,7 +361,6 @@ Do not commit any of these values:
 - Jellyfin API keys and server IDs if you treat them as private.
 - Jellyseerr `main.apiKey`, Jellyfin API key, Radarr/Sonarr API keys, webhook URLs, VAPID private key.
 - Subtitle provider usernames/passwords/cookies/tokens.
-- QBWrapper `AUTH_TOKEN`.
 
 Where to recreate secrets:
 
@@ -386,4 +374,3 @@ Where to recreate secrets:
 | Bazarr API key | Bazarr -> Settings -> General/Security |
 | Jellyfin API key | Jellyfin Dashboard -> Advanced -> API Keys |
 | Jellyseerr integrations | Jellyseerr Settings -> Services / Notifications |
-| QBWrapper token | Generate locally: `openssl rand -hex 32` |
