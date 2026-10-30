@@ -106,6 +106,12 @@
         siteMonitor: http://192.168.1.103:5001
         description: Compose stack management
 
+    - Vexa:
+        icon: google-meet.png
+        href: https://vexa.liftlab.dev
+        siteMonitor: http://192.168.1.121:13000
+        description: AI meeting notetaker
+
     - VaultWarden:
         icon: vaultwarden.png
         href: https://vaultwarden.liftlab.dev
