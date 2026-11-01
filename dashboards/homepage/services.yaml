@@ -153,6 +153,12 @@
         siteMonitor: http://192.168.1.118:1933/health
         description: Knowledge base and memory provider
 
+    - Release Watcher:
+        icon: github.png
+        href: https://watcher.liftlab.dev
+        siteMonitor: http://192.168.1.108:3000
+        description: GitHub release monitor
+
     - Proxmox MCP Plus:
         icon: mdi-api
         href: http://192.168.1.116:8000/mcp
