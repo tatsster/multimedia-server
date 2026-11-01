@@ -27,7 +27,7 @@ dashboards/homepage/.env.example
 
 These files are secret-safe templates for the live `/opt/dashboards/homepage/config` directory. Real tokens/passwords stay only in the live Homepage environment or local secret files.
 
-No custom Homepage JavaScript widgets or custom PVE metrics services are required. PVE host monitoring/history/alerts should be handled by Beszel. Glances is used for live top-row Proxmox host CPU package temperature, uptime, and NVMe temperature widgets, and is kept as a lightweight Infrastructure link/monitor for live Proxmox host metrics.
+No custom Homepage JavaScript widgets or custom PVE metrics services are required. PVE host monitoring/history/alerts should be handled by Beszel. Finder is exposed through Cloudflare Tunnel + Access and linked from Services group. Glances is used for live top-row Proxmox host CPU package temperature, uptime, and NVMe temperature widgets, and is kept as a lightweight Infrastructure link/monitor for live Proxmox host metrics.
 
 ## Restore / update config
 

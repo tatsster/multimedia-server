@@ -79,6 +79,12 @@
           key: "{{HOMEPAGE_VAR_SPEEDTEST_API_TOKEN}}"
           bitratePrecision: 2
 
+    - Finder:
+        icon: filebrowser.png
+        href: https://finder.liftlab.dev
+        siteMonitor: http://192.168.1.102:8080
+        description: FileBrowser Quantum
+
     - Jellyseerr:
         icon: jellyseerr.png
         href: https://media.liftlab.dev
@@ -100,17 +106,17 @@
         siteMonitor: http://192.168.1.120:2283
         description: Photo and video library
 
-    - Dockge:
-        icon: dockge.png
-        href: https://dockge.liftlab.dev
-        siteMonitor: http://192.168.1.103:5001
-        description: Compose stack management
-
     - Vexa:
         icon: google-meet.png
         href: https://vexa.liftlab.dev
         siteMonitor: http://192.168.1.121:13000
         description: AI meeting notetaker
+
+    - Dockge:
+        icon: dockge.png
+        href: https://dockge.liftlab.dev
+        siteMonitor: http://192.168.1.103:5001
+        description: Compose stack management
 
     - VaultWarden:
         icon: vaultwarden.png
