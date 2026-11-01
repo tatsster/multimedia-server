@@ -82,18 +82,6 @@
             - completed
             - issues
 
-    - Immich:
-        icon: immich.png
-        href: https://immich.liftlab.dev
-        siteMonitor: http://192.168.1.120:2283
-        description: Photo and video library
-
-    - SyncTube:
-        icon: mdi-youtube
-        href: https://party.liftlab.dev
-        siteMonitor: http://192.168.1.112:4200
-        description: YouTube watch party
-
     - Speedtest Tracker:
         icon: librespeed.png
         href: https://speedtest.liftlab.dev
@@ -106,9 +94,27 @@
           key: "{{HOMEPAGE_VAR_SPEEDTEST_API_TOKEN}}"
           bitratePrecision: 2
 
+    - SyncTube:
+        icon: mdi-youtube
+        href: https://party.liftlab.dev
+        siteMonitor: http://192.168.1.112:4200
+        description: YouTube watch party
+
+    - Immich:
+        icon: immich.png
+        href: https://immich.liftlab.dev
+        siteMonitor: http://192.168.1.120:2283
+        description: Photo and video library
+
 - AI:
+    - OmniRoute:
+        icon: openai.png
+        href: https://omniroute.liftlab.dev
+        siteMonitor: http://192.168.1.109:20128/api/health
+        description: LLM routing
+
     - OpenViking:
-        icon: mdi-viking
+        icon: mdi-brain
         href: https://openviking.liftlab.dev/studio/
         siteMonitor: http://192.168.1.118:1933/health
         description: Knowledge base and memory provider

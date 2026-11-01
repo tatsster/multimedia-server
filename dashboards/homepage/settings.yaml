@@ -20,7 +20,7 @@ layout:
     columns: 3
   AI:
     style: row
-    columns: 2
+    columns: 3
   Apps:
     style: row
     columns: 4
