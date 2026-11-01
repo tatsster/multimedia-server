@@ -52,7 +52,7 @@
               prefix: $
               format: float
 
-- Services:
+- Media:
     - Jellyfin:
         icon: jellyfin.png
         href: https://play.liftlab.dev
@@ -66,24 +66,6 @@
           enableNowPlaying: true
           enableBlocks: true
           enableUser: true
-
-    - Speedtest Tracker:
-        icon: librespeed.png
-        href: https://speedtest.liftlab.dev
-        siteMonitor: http://192.168.1.113
-        description: Internet speed tests
-        widget:
-          type: speedtest
-          url: "{{HOMEPAGE_VAR_SPEEDTEST_URL}}"
-          version: 2
-          key: "{{HOMEPAGE_VAR_SPEEDTEST_API_TOKEN}}"
-          bitratePrecision: 2
-
-    - Finder:
-        icon: filebrowser.png
-        href: https://finder.liftlab.dev
-        siteMonitor: http://192.168.1.102:8080
-        description: FileBrowser Quantum
 
     - Jellyseerr:
         icon: jellyseerr.png
@@ -106,18 +88,38 @@
         siteMonitor: http://192.168.1.120:2283
         description: Photo and video library
 
-    - Vexa:
-        icon: google-meet.png
-        href: https://vexa.liftlab.dev
-        siteMonitor: http://192.168.1.121:13000
-        description: AI meeting notetaker
+    - SyncTube:
+        icon: mdi-youtube
+        href: https://party.liftlab.dev
+        siteMonitor: http://192.168.1.112:4200
+        description: YouTube watch party
 
-    - Dockge:
-        icon: dockge.png
-        href: https://dockge.liftlab.dev
-        siteMonitor: http://192.168.1.103:5001
-        description: Compose stack management
+    - Speedtest Tracker:
+        icon: librespeed.png
+        href: https://speedtest.liftlab.dev
+        siteMonitor: http://192.168.1.113
+        description: Internet speed tests
+        widget:
+          type: speedtest
+          url: "{{HOMEPAGE_VAR_SPEEDTEST_URL}}"
+          version: 2
+          key: "{{HOMEPAGE_VAR_SPEEDTEST_API_TOKEN}}"
+          bitratePrecision: 2
 
+- AI:
+    - OpenViking:
+        icon: mdi-viking
+        href: https://openviking.liftlab.dev/studio/
+        siteMonitor: http://192.168.1.118:1933/health
+        description: Knowledge base and memory provider
+
+    - Proxmox MCP Plus:
+        icon: mdi-api
+        href: http://192.168.1.116:8000/mcp
+        siteMonitor: http://192.168.1.116:8000/mcp
+        description: Proxmox MCP API bridge
+
+- Apps:
     - VaultWarden:
         icon: vaultwarden.png
         href: https://vaultwarden.liftlab.dev
@@ -129,17 +131,24 @@
         siteMonitor: http://192.168.1.107:5678
         description: Automation
 
-    - OmniRoute:
-        icon: openai.png
-        href: https://omniroute.liftlab.dev
-        siteMonitor: http://192.168.1.109:20128
-        description: LLM routing
+    - Vexa:
+        icon: google-meet.png
+        href: https://vexa.liftlab.dev
+        siteMonitor: http://192.168.1.121:13000
+        description: AI meeting notetaker
 
-    - SyncTube:
-        icon: mdi-youtube
-        href: https://party.liftlab.dev
-        siteMonitor: http://192.168.1.112:4200
-        description: YouTube watch party
+    - Finder:
+        icon: filebrowser.png
+        href: https://finder.liftlab.dev
+        siteMonitor: http://192.168.1.102:8080
+        description: FileBrowser Quantum
+
+- Ops:
+    - Dockge:
+        icon: dockge.png
+        href: https://dockge.liftlab.dev
+        siteMonitor: http://192.168.1.103:5001
+        description: Compose stack management
 
     - Beszel:
         icon: beszel.png
@@ -147,23 +156,17 @@
         siteMonitor: http://192.168.1.115:8090
         description: Proxmox monitoring
 
-    - OpenViking:
-        icon: mdi-viking
-        href: https://openviking.liftlab.dev/studio/
-        siteMonitor: http://192.168.1.118:1933/health
-        description: Knowledge base and memory provider
+    - Glances:
+        icon: glances.png
+        href: https://glances.liftlab.dev
+        siteMonitor: http://192.168.1.101:61208
+        description: PVE host system monitor
 
     - Release Watcher:
         icon: github.png
         href: https://watcher.liftlab.dev
         siteMonitor: http://192.168.1.108:3000
         description: GitHub release monitor
-
-    - Proxmox MCP Plus:
-        icon: mdi-api
-        href: http://192.168.1.116:8000/mcp
-        siteMonitor: http://192.168.1.116:8000/mcp
-        description: Proxmox MCP API bridge
 
     - ESP32 Manager:
         icon: mdi-chip

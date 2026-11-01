@@ -119,7 +119,10 @@ Never commit real values.
 Current config groups:
 
 - `Infrastructure`: Proxmox VE, PBS, OmniRoute Usage, Glances
-- `Services`: Jellyfin, Speedtest Tracker, Finder, Jellyseerr, Immich, Vexa, Dockge, VaultWarden, n8n, OmniRoute, SyncTube, Beszel, OpenViking, Release Watcher, Proxmox MCP Plus, ESP32 Manager
+- `Media`: Jellyfin, Jellyseerr, Immich, SyncTube, Speedtest Tracker
+- `AI`: OpenViking, Proxmox MCP Plus
+- `Apps`: VaultWarden, n8n, Vexa, Finder
+- `Ops`: Dockge, Beszel, Glances, Release Watcher, ESP32 Manager
 - `Arr-suite`: Radarr, Sonarr, Prowlarr, qBittorrent, Bazarr, Tdarr, FlareSolverr, Wizarr
 
 ## Public routing
